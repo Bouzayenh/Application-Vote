@@ -2,11 +2,13 @@ import java.math.BigInteger;
 import java.util.Random;
 
 public class Scrutateur {
+
+
+
     public Scrutateur() {
     }
 
-    public Cle[] keyGen(int l){
-        Cle[] paireDeCles = new Cle[2];
+    public PaireDeCles keyGen(int l){
         BigInteger p, pPrime, g, h, x;
         Random random = new Random();
 
@@ -17,14 +19,16 @@ public class Scrutateur {
 
         do {
             g = new BigInteger(p.bitLength(), random);
-        }while(!g.modPow(pPrime, p).equals(BigInteger.ONE)); //ABSOLUMENT PAS SÛR
+        }while(!g.modPow(pPrime, p).equals(BigInteger.ONE));
 
         x = new BigInteger(pPrime.bitLength(), random);
 
         h = g.modPow(x, p);
 
-        paireDeCles[0] = new ClePrivee(x, p);
-        paireDeCles[1] = new ClePublique(p,g,h);
+
+        ClePrivee clePrivee = new ClePrivee(x, p);
+        ClePublique clePublique = new ClePublique(p, g, h);
+        PaireDeCles paireDeCles = new PaireDeCles(clePrivee, clePublique);
 
         return paireDeCles;
     }
