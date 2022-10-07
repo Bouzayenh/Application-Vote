@@ -1,66 +1,61 @@
+import javax.crypto.CipherInputStream;
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Objects;
 import java.util.Random;
 
 public class Scrutateur {
+    private SecureRandom random;
+    // clé publique
+    private BigInteger p;
+    private BigInteger g;
+    private BigInteger h;
+    // clé privée
+    private BigInteger x;
 
+    public Scrutateur(int l) {
+        random = new SecureRandom();
+        BigInteger pPrime;
 
-
-    public Scrutateur() {
-    }
-
-    public PaireDeCles keyGen(int l){
-        BigInteger p, pPrime, g, h, x;
-        Random random = new Random();
-
-        do {
+        // algorithme keygen
+        do { // def p, p'
             pPrime = BigInteger.probablePrime(l, random);
             p = pPrime.multiply(BigInteger.TWO).add(BigInteger.ONE);
-        }while(!p.isProbablePrime(20));
+        } while (!p.isProbablePrime(40));
 
-        do {
+        do { // def g
             g = new BigInteger(p.bitLength(), random);
-        }while(!g.modPow(pPrime, p).equals(BigInteger.ONE));
+        } while (g.compareTo(p) >= 0 || !g.modPow(pPrime, p).equals(BigInteger.ONE));
 
-        x = new BigInteger(pPrime.bitLength(), random);
+        do { // def x
+            x = new BigInteger(pPrime.bitLength(), random);
+        } while (x.compareTo(pPrime) >= 0);
 
-        h = g.modPow(x, p);
-
-
-        ClePrivee clePrivee = new ClePrivee(x, p);
-        ClePublique clePublique = new ClePublique(p, g, h);
-        PaireDeCles paireDeCles = new PaireDeCles(clePrivee, clePublique);
-
-        return paireDeCles;
+        h = g.modPow(x, p); // def h
     }
 
-    public BigInteger[] encrypt(byte m, ClePublique cP){
-        BigInteger[] c = new BigInteger[2];
-        BigInteger p, pPrime, g, h, r;
-        Random random = new Random();
-
-        p = cP.getP();
+    public Chiffre encrypt(int m) { // algorithme encrypt (pas dans Scrutateur à terme)
+        // utilise p, g, h et random
+        BigInteger pPrime, r;
         pPrime = p.add(BigInteger.valueOf(-1)).divide(BigInteger.TWO);
-        g = g = cP.getG();
-        h = cP.getH();
-        r = new BigInteger(pPrime.bitLength(), random);
 
-        c[0] = g.modPow(r, p);
-        c[1] = g.pow(m).multiply(h.modPow(r, p));
+        do { // def r
+            r = new BigInteger(pPrime.bitLength(), random);
+        } while (r.compareTo(pPrime) >= 0);
 
-        return c;
+        // def chiffré
+        return new Chiffre(g.modPow(r, p), g.modPow(BigInteger.valueOf(m), p).multiply(h.modPow(r, p).mod(p)));
     }
 
-    public int decrypt(BigInteger[] chiffre, ClePrivee cP){
-        int m;
-        BigInteger grandM, u, v, x, p;
-        p = cP.getP();
-        u = chiffre[0];
-        v = chiffre[1];
-        x = cP.getX();
+    public int decrypt(Chiffre chiffre) { // algorithme decrypt
+        // def M
+        BigInteger M = chiffre.getV().multiply(chiffre.getU().modPow(x.multiply(BigInteger.valueOf(-1)), p)).mod(p);
 
-        grandM = v.multiply(u.modPow(x.multiply(BigInteger.valueOf(-1)), p));
+        int m = 0; // def m
+        while (!M.equals(g.modPow(BigInteger.valueOf(m), p))) {
+            m++;
+        }
 
-
-        return 0;
+        return m;
     }
 }
