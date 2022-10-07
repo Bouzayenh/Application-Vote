@@ -1,8 +1,5 @@
-import javax.crypto.CipherInputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Objects;
-import java.util.Random;
 
 public class Scrutateur {
     private SecureRandom random;
@@ -44,7 +41,7 @@ public class Scrutateur {
         } while (r.compareTo(pPrime) >= 0);
 
         // def chiffré
-        return new Chiffre(g.modPow(r, p), g.modPow(BigInteger.valueOf(m), p).multiply(h.modPow(r, p).mod(p)));
+        return new Chiffre(g.modPow(r, p), g.modPow(BigInteger.valueOf(m), p).multiply(h.modPow(r, p)));
     }
 
     public int decrypt(Chiffre chiffre) { // algorithme decrypt
@@ -57,5 +54,9 @@ public class Scrutateur {
         }
 
         return m;
+    }
+
+    public Chiffre agreger(Chiffre c1, Chiffre c2) { // algorithme agreger (pas dans Scrutateur à terme)
+        return new Chiffre(c1.getU().multiply(c2.getU()).mod(p), c1.getV().multiply(c2.getV()).mod(p));
     }
 }

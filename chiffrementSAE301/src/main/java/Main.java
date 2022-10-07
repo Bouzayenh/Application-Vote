@@ -7,10 +7,13 @@ public class Main {
         Random random = new Random();
 
         for (int i = 0; i < 100; i++) {
-            int n = random.nextInt(10);
-            Chiffre c = scrutateur.encrypt(n);
+            int n1 = random.nextInt(10);
+            int n2 = random.nextInt(10);
+            Chiffre c1 = scrutateur.encrypt(n1);
+            Chiffre c2 = scrutateur.encrypt(n2);
+            Chiffre c = scrutateur.agreger(c1, c2);
             int m = scrutateur.decrypt(c);
-            System.out.println("message original=" + n + ", message déchiffré=" + m);
+            System.out.println(n1 + " + " + n2 + " = " + m + " | " + c1 + " + " + c2 + " = " + c);
         }
     }
 }
