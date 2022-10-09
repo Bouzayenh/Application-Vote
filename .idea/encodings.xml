@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/Communication/ear/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/ear/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/ejbs/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/ejbs/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/primary-source/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/primary-source/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/projects/logging/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/projects/logging/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/projects/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/projects/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/servlets/servlet/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/servlets/servlet/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/servlets/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/servlets/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Communication/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

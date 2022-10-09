@@ -6,9 +6,22 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="AppFinale" />
+        <module name="servlet" />
         <module name="chiffrementSAE301" />
+        <module name="logging" />
+        <module name="AppFinale" />
+        <module name="Communication" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ear" target="1.5" />
+      <module name="ejbs" target="1.5" />
+      <module name="logging" target="1.5" />
+      <module name="primary-source" target="1.5" />
+      <module name="projects" target="1.5" />
+      <module name="servlet" target="1.5" />
+      <module name="servlets" target="1.5" />
+      <module name="untitled" target="19" />
+    </bytecodeTargetLevel>
   </component>
 </project>
