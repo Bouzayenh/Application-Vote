@@ -6,10 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="servlet" />
         <module name="chiffrementSAE301" />
         <module name="logging" />
         <module name="AppFinale" />
+        <module name="servlet" />
         <module name="Communication" />
       </profile>
     </annotationProcessing>

@@ -1,37 +1,81 @@
+import java.io.*;
 import java.net.*;
 
-import java.io.*;
 import java.util.*;
 
 public class Client {
 
 
 
-    public static void main(String[] args) throws  IOException,NoSuchElementException{
+    public static void main(String[] args) throws IOException,NoSuchElementException{
 
-        int num,res;
+        Socket socc=null;
+        InputStreamReader input=null;
+        OutputStreamWriter output=null;
+        BufferedReader buffR=null;
+        BufferedWriter buffW=null;
 
-        Scanner sc = new Scanner(System.in);
 
-        Socket socc = new Socket("localhost", 1234);
+        try {
 
-        System.out.println("Connecté");
+            socc = new Socket("localhost", 1234);
 
-        Scanner scNum= new Scanner(socc.getInputStream());
+            System.out.println("Connecté");
 
-        System.out.println("choisissez une action en ecriavnt son nombre"+'\n'
-                            +"1-Voter"+"\n"+"2-conslutez vote"+"\n"+"3-etc"+"\n"
-                            +"4-deconnecté"+"\n");
+            input = new InputStreamReader(socc.getInputStream());
 
-        num= sc.nextInt();
+            output= new OutputStreamWriter(socc.getOutputStream());
 
-        PrintStream ps = new PrintStream(socc.getOutputStream());
+            buffR= new BufferedReader(input);
+            buffW= new BufferedWriter(output);
 
-        ps.println(num);
+            Scanner scanner = new Scanner(System.in);
 
-        res=scNum.nextInt();
+            while(true){
+                String msg = scanner.nextLine();
+                buffW.write(msg);
+                buffW.newLine();
+                buffW.flush();
 
-        System.out.println(res);
+                System.out.println("Server: " + buffR.readLine());
+
+                if (msg.equalsIgnoreCase("Deconnecte")){
+                    break;
+                }
+
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }finally {
+            try {
+                if (socc != null)
+                    socc.close();
+                if (input!=null)
+                    input.close();
+                if (output!=null)
+                    output.close();
+                if (buffR != null)
+                    buffR.close();
+                if (buffW!=null)
+                    buffW.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+//        System.out.println("choisissez une action en ecriavnt son nombre"+'\n'
+//                            +"1-Voter"+"\n"+"2-conslutez vote"+"\n"+"3-etc"+"\n"
+//                            +"4-deconnecté"+"\n");
+//
+//        num= sc.nextInt();
+//
+//        PrintStream ps = new PrintStream(socc.getOutputStream());
+//
+//        ps.println(num);
+//
+//        res=scNum.nextInt();
+//
+//        System.out.println(res);
 
 
 
