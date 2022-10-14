@@ -11,8 +11,8 @@ public class JCBDD {
 
     public static void main(String[] args) throws SQLException, IOException {
         String url = "jdbc:oracle:thin:@orainfo.iutmontp.univ-montp2.fr:1521:IUT";
-        String uname = "bouzayenh";
-        String password = "H1q2w5boz3e4rBU";
+        String uname = "bouzayenh"; //votre login
+        String password = "";  // votre mdp
         String msg;
 
 
