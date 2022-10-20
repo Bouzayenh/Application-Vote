@@ -13,14 +13,15 @@ public class Scrutateur {
 
         // def p, p'
         do {
-            pPrime = BigInteger.probablePrime(l, random);
-            p = pPrime.multiply(BigInteger.TWO).add(BigInteger.ONE);
-        } while (!p.isProbablePrime(40));
+            p = BigInteger.probablePrime(l, random);
+            pPrime = p.add(BigInteger.valueOf(-1)).divide(BigInteger.TWO);
+        } while (!pPrime.isProbablePrime(40));
 
         // def g
         do {
             g = new BigInteger(p.bitLength(), random);
         } while (g.compareTo(p) >= 0 || !g.modPow(pPrime, p).equals(BigInteger.ONE));
+
 
         // def x (clé privée)
         do {
