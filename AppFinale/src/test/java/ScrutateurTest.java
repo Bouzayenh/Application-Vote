@@ -10,17 +10,16 @@ class ScrutateurTest {
     Client client; // client
 
     int[] messages; // liste des messages
-    int l = 100; // nombre de bits utilisés par le scrutateur lors de la génération des clés
     int nbMessages = 100; // nombre de messages à tester
-    int messageMax = 1000; // valeur maximale d'un message
+    int messageMax = Integer.MAX_VALUE / nbMessages; // valeur maximale d'un message
 
     @BeforeEach
     void initialize() {
         Random random = new Random();
 
         serveur = new Serveur();
-        serveur.creerVote(l, "", "", "");
-        scrutateur = serveur.getScrutateur();
+        serveur.creerVote("", "", "");
+        scrutateur = new Scrutateur(100);
         client = new Client();
 
         // remplissage de la liste des messages à tester
@@ -37,7 +36,7 @@ class ScrutateurTest {
         int[] dechiffres = new int[nbMessages];
         Client client = new Client();
         for (int i = 0; i < nbMessages; i++){
-            chiffres[i] = client.encrypt(messages[i], scrutateur.getClePublique());
+            chiffres[i] = client.encrypt(messages[i]);
             dechiffres[i] = scrutateur.decrypt(chiffres[i]);
         }
 
@@ -45,7 +44,7 @@ class ScrutateurTest {
         assertArrayEquals(messages, dechiffres);
     }
 
-    /*
+    /**
      * prérequis : encrypt et decrypt fonctionnent correctement
      */
     @Test
@@ -53,7 +52,7 @@ class ScrutateurTest {
         // chiffrement de tous les messages
         Chiffre[] chiffres = new Chiffre[nbMessages];
         for (int i = 0; i < nbMessages; i++){
-            chiffres[i] = client.encrypt(messages[i], scrutateur.getClePublique());
+            chiffres[i] = client.encrypt(messages[i]);
         }
 
         // agrégation de tous les messages

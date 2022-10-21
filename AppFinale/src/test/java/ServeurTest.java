@@ -29,7 +29,7 @@ class ServeurTest {
         String option2 = randomString();
 
         // création du vote
-        serveur.creerVote(100, intitule, option1, option2);
+        serveur.creerVote(intitule, option1, option2);
 
         // vérification que le vote a été créé correctement
         assertNotNull(serveur.getVote());
