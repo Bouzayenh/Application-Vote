@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.Scanner;
 
 public class Client {
     private SecureRandom random;
@@ -25,6 +26,35 @@ public class Client {
         }
     }
 
+    public void voter() {
+        try {
+            // entrée du bulletin
+            Scanner reader = new Scanner(System.in);
+            int bulletin = 0;
+            while (bulletin != 1 && bulletin != 2) {
+                System.out.println("Entrez le numéro de l'option souhaitée : 1 ou 2");
+                bulletin = reader.nextInt();
+                if (bulletin != 1 && bulletin != 2) System.out.println("Sélection incorrecte");
+            }
+            Chiffre chiffre = encrypt(bulletin-1);
+
+            outputServeur.writeObject(Requete.CLIENT_VOTER);
+            outputServeur.writeObject(chiffre);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void finir() {
+        try {
+            outputServeur.writeObject(Requete.TEST_FINIR_VOTE);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
         outputServeur.writeObject(Requete.CLIENT_DEMANDER_CLE_PUBLIQUE);
         return (ClePublique) inputServeur.readObject();
@@ -40,7 +70,6 @@ public class Client {
             h = clePublique.getH();
             // récupération p'
             pPrime = p.add(BigInteger.valueOf(-1)).divide(BigInteger.TWO);
-            System.out.println(p + " " + g + " " + h + " " + pPrime);
 
             // def r
             do {

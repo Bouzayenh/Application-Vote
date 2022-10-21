@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 public class Serveur {
     private Vote vote;
+    private Chiffre somme;
 
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
@@ -13,6 +14,9 @@ public class Serveur {
 
     public Serveur() {
         try {
+            // initialisation à 0
+            somme = new Chiffre(BigInteger.ONE, BigInteger.ONE);
+
             // ouvre le serveur
             ServerSocket serverSocket = new ServerSocket(2999);
 
@@ -31,27 +35,27 @@ public class Serveur {
         }
     }
 
-    /**
-     * utilisé pour les tests sur la création de nouveaux votes
-     */
-    public Vote getVote() {
-        return vote;
-    }
-
     public void run() {
         try {
-            // pas de boucle pour l'instant
+            while (true) {
+                // attend une requête du client
+                Requete requete = (Requete) inputClient.readObject();
+                System.out.println(requete); // debug
 
-            // attend une requête du client
-            Requete requete = (Requete) inputClient.readObject();
-
-            // traîte la requête
-            switch (requete) {
-                case CLIENT_DEMANDER_CLE_PUBLIQUE:
-                    ClePublique clePublique = demanderClePublique();
-                    outputClient.writeObject(clePublique);
-                    break;
-                // plus de types de requêtes à l'avenir
+                // traîte la requête
+                switch (requete) {
+                    case CLIENT_DEMANDER_CLE_PUBLIQUE:
+                        ClePublique clePublique = demanderClePublique();
+                        outputClient.writeObject(clePublique);
+                        break;
+                    case CLIENT_VOTER:
+                        agreger((Chiffre) inputClient.readObject());
+                        break;
+                    case TEST_FINIR_VOTE:
+                        outputScrutateur.writeObject(Requete.TEST_FINIR_VOTE);
+                        outputScrutateur.writeObject(somme);
+                        break;
+                }
             }
 
         } catch (IOException | ClassNotFoundException e) {
@@ -74,17 +78,16 @@ public class Serveur {
         }
     }
 
-    public Chiffre agreger(Chiffre c1, Chiffre c2) {
+    public void agreger(Chiffre c) {
         try {
             ClePublique clePublique = demanderClePublique();
             BigInteger p = clePublique.getP();
 
             // def Chiffré agrégé
-            return new Chiffre(c1.getU().multiply(c2.getU()).mod(p), c1.getV().multiply(c2.getV()).mod(p));
+            somme = new Chiffre(somme.getU().multiply(c.getU()).mod(p), somme.getV().multiply(c.getV()).mod(p));
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            return null;
         }
     }
 }

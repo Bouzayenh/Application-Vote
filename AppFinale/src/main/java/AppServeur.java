@@ -5,8 +5,9 @@ public class AppServeur {
         Serveur serveur = new Serveur();
         System.out.println("Serveur créé\nCréation du vote...");
         serveur.creerVote("Quel parfum ?", "Noisette", "Vanille");
-        System.out.println("Vote créé\nLancement du serveur x1...");
+        System.out.println("Vote créé");
+
+        System.out.println("Serveur lancé");
         serveur.run();
-        System.out.println("Requête traitée");
     }
 }

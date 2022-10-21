@@ -29,29 +29,25 @@ public class Scrutateur {
         }
     }
 
-    /**
-     * pour les tests sur le chiffrement
-     */
-    public ClePublique getClePublique() {
-        return clePublique;
-    }
-
     public void run() {
         try {
-            // pas de boucle pour l'instant
+            while (true) {
+                // attend une requête du serveur
+                Requete requete = (Requete) inputServeur.readObject();
+                System.out.println(requete); // debug
 
-            // attend une requête du serveur
-            Requete requete = (Requete) inputServeur.readObject();
-            System.out.println(requete);
-
-            // traîte la requête
-            switch (requete) {
-                case SERVEUR_DEMANDER_CLE_PUBLIQUE:
-                    outputServeur.writeObject(clePublique);
-                    break;
-                case SERVEUR_CREER_VOTE:
-                    keygen();
-                    break;
+                // traîte la requête
+                switch (requete) {
+                    case SERVEUR_DEMANDER_CLE_PUBLIQUE:
+                        outputServeur.writeObject(clePublique);
+                        break;
+                    case SERVEUR_CREER_VOTE:
+                        keygen();
+                        break;
+                    case TEST_FINIR_VOTE:
+                        System.out.println("Somme=" + decrypt((Chiffre) inputServeur.readObject()));
+                        break;
+                }
             }
 
         } catch (IOException | ClassNotFoundException e) {
