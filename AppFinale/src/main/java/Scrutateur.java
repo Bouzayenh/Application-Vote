@@ -1,13 +1,58 @@
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
+import java.net.Socket;
 import java.security.SecureRandom;
 
 public class Scrutateur {
+    private int l;
     // clé publique
     private ClePublique clePublique;
     // clé privée
     private BigInteger x;
 
-    public Scrutateur(int l) {
+    private ObjectOutputStream outputServeur;
+    private ObjectInputStream inputServeur;
+
+    public Scrutateur(int l) throws IOException {
+        try {
+            this.l = l;
+
+            // demande de connexion au serveur
+            Socket serveur = new Socket("localhost", 2999);
+            outputServeur = new ObjectOutputStream(serveur.getOutputStream());
+            inputServeur = new ObjectInputStream(serveur.getInputStream());
+
+        } catch (IOException e) {
+            throw new IOException();
+        }
+    }
+
+    public void run() {
+        try {
+            while (true) {
+                // attend une requête du serveur
+                Requete requete = (Requete) inputServeur.readObject();
+                System.out.println(requete); // debug
+
+                // traîte la requête
+                switch (requete) {
+                    case SERVEUR_DEMANDER_CLE_PUBLIQUE:
+                        outputServeur.writeObject(clePublique);
+                        break;
+                    case SERVEUR_CREER_VOTE:
+                        keygen();
+                        break;
+                }
+            }
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void keygen() {
         BigInteger p, g, h, pPrime;
         SecureRandom random = new SecureRandom();
 
@@ -34,10 +79,6 @@ public class Scrutateur {
         clePublique = new ClePublique(p, g, h);
     }
 
-    public ClePublique getClePublique() {
-        return clePublique;
-    }
-
     public int decrypt(Chiffre chiffre) {
         BigInteger p, g, M;
 
@@ -49,6 +90,7 @@ public class Scrutateur {
         // def m (message en clair)
         int m = 0;
         while (!M.equals(g.modPow(BigInteger.valueOf(m), p))) {
+            if (m == Integer.MAX_VALUE) return -1;
             m++;
         }
 
