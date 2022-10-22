@@ -3,8 +3,10 @@ import java.net.*;
 import java.math.BigInteger;
 
 public class Serveur {
+    // tous trois inutilisés pour l'instant (aucun affichage)
     private Vote vote;
     private Chiffre somme;
+    private int nbBulletins;
 
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
@@ -16,6 +18,7 @@ public class Serveur {
         try {
             // initialisation à 0
             somme = new Chiffre(BigInteger.ONE, BigInteger.ONE);
+            nbBulletins = 0;
 
             // ouvre le serveur
             ServerSocket serverSocket = new ServerSocket(2999);
@@ -50,10 +53,7 @@ public class Serveur {
                         break;
                     case CLIENT_VOTER:
                         agreger((Chiffre) inputClient.readObject());
-                        break;
-                    case TEST_FINIR_VOTE:
-                        outputScrutateur.writeObject(Requete.TEST_FINIR_VOTE);
-                        outputScrutateur.writeObject(somme);
+                        nbBulletins++;
                         break;
                 }
             }
