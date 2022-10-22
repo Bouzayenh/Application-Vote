@@ -40,6 +40,8 @@ public class Serveur {
 
                 //traite la connexion client dans un autre thread
                 new Thread(new ConnexionVersClient(client)).start();
+
+                System.out.println("Connexion avec client " + client.getPort());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -106,7 +108,7 @@ public class Serveur {
                     }
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.println("Client " + socketClient.getPort() + " déconnecté");
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
