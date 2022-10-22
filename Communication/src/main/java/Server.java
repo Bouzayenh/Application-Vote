@@ -12,8 +12,12 @@ public class Server {
         Socket socBDD=null;
         InputStreamReader input=null;
         OutputStreamWriter output=null;
+        InputStreamReader inputBDD=null;
+        OutputStreamWriter outputBDD=null;
         BufferedReader buffR=null;
         BufferedWriter buffW=null;
+        BufferedReader buffBDDR=null;
+        BufferedWriter buffBDDW=null;
         ServerSocket serverSocket=null;
 
         serverSocket=new ServerSocket(1234);
@@ -30,7 +34,16 @@ public class Server {
                 buffR = new BufferedReader(input);
                 buffW = new BufferedWriter(output);
 
+                socBDD =serverSocket.accept();
+
+                inputBDD = new InputStreamReader(socBDD.getInputStream());
+                outputBDD = new OutputStreamWriter(socBDD.getOutputStream());
+
+                buffBDDR = new BufferedReader(inputBDD);
+                buffBDDW = new BufferedWriter(outputBDD);
+
                 String msgRecu="";
+                String msgBDD="";
                 while (true) {
                     msgRecu = buffR.readLine();
 
@@ -40,12 +53,20 @@ public class Server {
                     buffW.newLine();
                     buffW.flush();
 
-
-                    socBDD =serverSocket.accept();
-
+                    
                     System.out.println("BDD connecté");
-                    PrintStream p=new PrintStream(socBDD.getOutputStream());
-                    p.println(msgRecu);
+                    /*PrintStream p=new PrintStream(socBDD.getOutputStream());
+                    p.println(msgRecu);*/
+                    buffBDDW.write(msgRecu);
+                    buffBDDW.newLine();
+                    buffBDDW.flush();
+
+                    //msgBDD= buffBDDR.readLine();
+                    System.out.print(msgBDD);
+
+                    buffW.write(msgBDD);
+                    buffW.newLine();
+                    buffW.flush();
 
                     if (msgRecu.equalsIgnoreCase("DECONNECTE")) {
                         break;

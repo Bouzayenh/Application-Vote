@@ -30,4 +30,8 @@ public class Serveur {
         vote = new Vote(intitule, option1, option2);
         scrutateur = new Scrutateur(l);
     }
+
+    public void consulterVoteEnCours() {
+        
+    }
 }
