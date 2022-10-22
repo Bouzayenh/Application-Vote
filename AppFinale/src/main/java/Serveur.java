@@ -10,9 +10,7 @@ public class Serveur {
 
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
-
-    private ObjectOutputStream outputClient;
-    private ObjectInputStream inputClient;
+    private ServerSocket serverSocket;
 
     public Serveur() {
         try {
@@ -21,17 +19,12 @@ public class Serveur {
             nbBulletins = 0;
 
             // ouvre le serveur
-            ServerSocket serverSocket = new ServerSocket(2999);
+            serverSocket = new ServerSocket(2999);
 
             // attend la connexion du scrutateur
             Socket scrutateur = serverSocket.accept();
             outputScrutateur = new ObjectOutputStream(scrutateur.getOutputStream());
             inputScrutateur = new ObjectInputStream(scrutateur.getInputStream());
-
-            // attend la connexion du client
-            Socket client = serverSocket.accept();
-            outputClient = new ObjectOutputStream(client.getOutputStream());
-            inputClient = new ObjectInputStream(client.getInputStream());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,24 +34,14 @@ public class Serveur {
     public void run() {
         try {
             while (true) {
-                // attend une requête du client
-                Requete requete = (Requete) inputClient.readObject();
-                System.out.println(requete); // debug
 
-                // traîte la requête
-                switch (requete) {
-                    case CLIENT_DEMANDER_CLE_PUBLIQUE:
-                        ClePublique clePublique = demanderClePublique();
-                        outputClient.writeObject(clePublique);
-                        break;
-                    case CLIENT_VOTER:
-                        agreger((Chiffre) inputClient.readObject());
-                        nbBulletins++;
-                        break;
-                }
+                // attend la connexion du client
+                Socket client = serverSocket.accept();
+
+                //traite la connexion client dans un autre thread
+                new Thread(new ConnexionVersClient(client)).start();
             }
-
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -78,7 +61,7 @@ public class Serveur {
         }
     }
 
-    public void agreger(Chiffre c) {
+    public synchronized void agreger(Chiffre c) {
         try {
             ClePublique clePublique = demanderClePublique();
             BigInteger p = clePublique.getP();
@@ -88,6 +71,45 @@ public class Serveur {
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+    private class ConnexionVersClient implements Runnable{
+        Socket socketClient;
+        ObjectOutputStream outputClient;
+        ObjectInputStream inputClient;
+
+        public ConnexionVersClient(Socket socket) throws IOException {
+            this.socketClient = socket;
+            this.inputClient = new ObjectInputStream(socket.getInputStream());
+            this.outputClient = new ObjectOutputStream(socket.getOutputStream());
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true){
+                    // attend une requête du client
+                    Requete requete = (Requete) inputClient.readObject();
+                    System.out.println(requete); // debug
+
+                    // traîte la requête
+                    switch (requete) {
+                        case CLIENT_DEMANDER_CLE_PUBLIQUE:
+                            ClePublique clePublique = demanderClePublique();
+                            outputClient.writeObject(clePublique);
+                            break;
+                        case CLIENT_VOTER:
+                            agreger((Chiffre) inputClient.readObject());
+                            nbBulletins++;
+                            break;
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
