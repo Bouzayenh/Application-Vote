@@ -12,6 +12,7 @@ public class Serveur {
     private ObjectInputStream inputScrutateur;
     private ServerSocket serverSocket;
 
+
     public Serveur() {
         try {
             // initialisation à 0
@@ -105,6 +106,11 @@ public class Serveur {
                             agreger((Chiffre) inputClient.readObject());
                             nbBulletins++;
                             break;
+                        case CLIENT_DEMANDER_VOTE_EN_COURS:
+                            System.out.println("oui ca marche");
+
+                            outputClient.writeObject(consulterVoteEnCours());
+                            break;
                     }
                 }
             } catch (IOException e) {
@@ -115,7 +121,10 @@ public class Serveur {
         }
     }
 
-    public void consulterVoteEnCours() {
-        
+    public String consulterVoteEnCours() {
+        String res ="";
+        res+= "Intitule: " + vote.getIntitule() +"\n";
+        res+="Option1: "+ vote.getOption1() +"\t" + "Option2: "+ vote.getOption2();
+        return res;
     }
 }

@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
@@ -8,7 +11,7 @@ import java.util.Scanner;
 
 public class Client {
     private SecureRandom random;
-
+    private Socket serveur;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
 
@@ -17,7 +20,7 @@ public class Client {
             random = new SecureRandom();
 
             // demande de connexion au serveur
-            Socket serveur = new Socket("localhost", 2999);
+            serveur = new Socket("localhost", 2999);
             outputServeur = new ObjectOutputStream(serveur.getOutputStream());
             inputServeur = new ObjectInputStream(serveur.getInputStream());
 
@@ -33,6 +36,7 @@ public class Client {
             int bulletin = 0;
             while (bulletin != 1 && bulletin != 2) {
                 System.out.println("Entrez le numéro de l'option souhaitée : 1 ou 2");
+               
                 bulletin = reader.nextInt();
                 if (bulletin != 1 && bulletin != 2) System.out.println("Sélection incorrecte");
             }
@@ -74,5 +78,17 @@ public class Client {
             e.printStackTrace();
             return null;
         }
+    }
+    public String consulterVoteEnCour() throws ClassNotFoundException {
+        try {
+            outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
+           /*  DataInputStream in = new DataInputStream(inputServeur);
+            BufferedReader d = new BufferedReader(new InputStreamReader(in));
+            return (String) d.readLine();*/
+            return (String) inputServeur.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
