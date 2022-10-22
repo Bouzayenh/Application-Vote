@@ -46,15 +46,6 @@ public class Client {
         }
     }
 
-    public void finir() {
-        try {
-            outputServeur.writeObject(Requete.TEST_FINIR_VOTE);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
         outputServeur.writeObject(Requete.CLIENT_DEMANDER_CLE_PUBLIQUE);
         return (ClePublique) inputServeur.readObject();

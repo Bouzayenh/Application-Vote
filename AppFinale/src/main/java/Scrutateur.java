@@ -44,9 +44,6 @@ public class Scrutateur {
                     case SERVEUR_CREER_VOTE:
                         keygen();
                         break;
-                    case TEST_FINIR_VOTE:
-                        System.out.println("Somme=" + decrypt((Chiffre) inputServeur.readObject()));
-                        break;
                 }
             }
 
