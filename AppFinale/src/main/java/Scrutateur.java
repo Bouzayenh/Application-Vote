@@ -15,7 +15,7 @@ public class Scrutateur {
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
 
-    public Scrutateur(int l) {
+    public Scrutateur(int l) throws IOException {
         try {
             this.l = l;
 
@@ -25,7 +25,7 @@ public class Scrutateur {
             inputServeur = new ObjectInputStream(serveur.getInputStream());
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IOException();
         }
     }
 
