@@ -1,40 +1,40 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.math.BigInteger;
+import java.io.*;
 import java.net.Socket;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Scanner;
 
 public class Client {
     private SecureRandom random;
-    private Socket serveur;
+    private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
 
-    public Client() throws IOException {
+    public Client() {
         try {
             random = new SecureRandom();
 
             // demande de connexion au serveur
-            serveur = new Socket("localhost", 2999);
-            outputServeur = new ObjectOutputStream(serveur.getOutputStream());
-            inputServeur = new ObjectInputStream(serveur.getInputStream());
+            serveurSocket = new Socket("localhost", 2999);
+            outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
+            inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
 
-        } catch (IOException e) {
-            throw e;
-        }
+        } catch (IOException ignored) {}
+    }
+
+    public boolean estConnecte() {
+        return serveurSocket != null && !serveurSocket.isClosed();
     }
 
     public void voter() {
         try {
             // entrée du bulletin
-            Scanner reader = new Scanner(System.in);
+            Scanner sc = new Scanner(System.in);
             int bulletin = 0;
             while (bulletin != 1 && bulletin != 2) {
                 System.out.println("Entrez le numéro de l'option souhaitée : 1 ou 2");
                
-                bulletin = reader.nextInt();
+                bulletin = sc.nextInt();
                 if (bulletin != 1 && bulletin != 2) System.out.println("Sélection incorrecte");
             }
             Chiffre chiffre = encrypt(bulletin-1);
@@ -42,9 +42,20 @@ public class Client {
             outputServeur.writeObject(Requete.CLIENT_VOTER);
             outputServeur.writeObject(chiffre);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
+    }
+
+    public void consulterVoteEnCours() {
+        try {
+            outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
+            Vote vote = (Vote) inputServeur.readObject();
+            System.out.println(
+                    "Intitulé : " + vote.getIntitule() +
+                            "\n1 - " + vote.getOption1() +
+                            "\n2 - " + vote.getOption2()
+            );
+
+        } catch (IOException | ClassNotFoundException ignored) {}
     }
 
     public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
@@ -72,20 +83,7 @@ public class Client {
             return new Chiffre(g.modPow(r, p), g.modPow(BigInteger.valueOf(m), p).multiply(h.modPow(r, p)).mod(p));
 
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
             return null;
         }
-    }
-    public String consulterVoteEnCour() throws ClassNotFoundException {
-        try {
-            outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
-           /*  DataInputStream in = new DataInputStream(inputServeur);
-            BufferedReader d = new BufferedReader(new InputStreamReader(in));
-            return (String) d.readLine();*/
-            return (String) inputServeur.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

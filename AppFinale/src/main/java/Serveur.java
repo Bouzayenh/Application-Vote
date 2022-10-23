@@ -3,11 +3,9 @@ import java.net.*;
 import java.math.BigInteger;
 
 public class Serveur {
-    // tous trois inutilisés pour l'instant (aucun affichage)
     private Vote vote;
-    private Chiffre somme;
-    private int nbBulletins;
 
+    private Socket socketScrutateur;
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
     private ServerSocket serverSocket;
@@ -15,38 +13,29 @@ public class Serveur {
 
     public Serveur() {
         try {
-            // initialisation à 0
-            somme = new Chiffre(BigInteger.ONE, BigInteger.ONE);
-            nbBulletins = 0;
-
             // ouvre le serveur
             serverSocket = new ServerSocket(2999);
 
             // attend la connexion du scrutateur
-            Socket scrutateur = serverSocket.accept();
-            outputScrutateur = new ObjectOutputStream(scrutateur.getOutputStream());
-            inputScrutateur = new ObjectInputStream(scrutateur.getInputStream());
+            socketScrutateur = serverSocket.accept();
+            outputScrutateur = new ObjectOutputStream(socketScrutateur.getOutputStream());
+            inputScrutateur = new ObjectInputStream(socketScrutateur.getInputStream());
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
     }
 
     public void run() {
-        try {
-            while (true) {
+        new Thread(() -> {
+            try {
+                while (true) {
+                    // attend la connexion du client
+                    Socket socketClient = serverSocket.accept();
 
-                // attend la connexion du client
-                Socket client = serverSocket.accept();
-
-                //traite la connexion client dans un autre thread
-                new Thread(new ConnexionVersClient(client)).start();
-
-                System.out.println("Connexion avec client " + client.getPort());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                    //traite la connexion client dans un autre thread
+                    new Thread(new ThreadConnexionVersClient(socketClient)).start();
+                }
+            } catch (IOException ignored) {}
+        }).start();
     }
 
     public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
@@ -59,9 +48,24 @@ public class Serveur {
             vote = new Vote(intitule, option1, option2);
             outputScrutateur.writeObject(Requete.SERVEUR_CREER_VOTE);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
+    }
+
+    public void arreterVote() {
+        try {
+            outputScrutateur.writeObject(Requete.SERVEUR_DEMANDER_DECHIFFREMENT);
+            outputScrutateur.writeObject(vote.getSomme());
+            vote.setResultat((double) (int) inputScrutateur.readObject() / vote.getNbBulletins());
+
+        } catch (IOException | ClassNotFoundException ignored) {}
+    }
+
+    public String consulterResultats() {
+        double res = (double) ((int) (vote.getResultat() * 10000)) / 100;
+        if (vote.getNbBulletins() == 0) return vote.getIntitule() + "Personne n'a voté";
+        else if (res > 50) return vote.getIntitule() + " " + vote.getOption1() + " gagne avec " + res + " % des voix";
+        else if (res < 50) return vote.getIntitule() + " " + vote.getOption2() + " gagne avec " + (100 - res) + " % des voix";
+        else return vote.getIntitule() + " Egalité entre " + vote.getOption1() + vote.getOption2();
     }
 
     public synchronized void agreger(Chiffre c) {
@@ -70,35 +74,29 @@ public class Serveur {
             BigInteger p = clePublique.getP();
 
             // def Chiffré agrégé
-            somme = new Chiffre(somme.getU().multiply(c.getU()).mod(p), somme.getV().multiply(c.getV()).mod(p));
+            vote.setSomme(new Chiffre(vote.getSomme().getU().multiply(c.getU()).mod(p), vote.getSomme().getV().multiply(c.getV()).mod(p)));
 
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
-    public String consulterVoteEnCours() {
-        String res ="";
-        res+= "Intitule: " + vote.getIntitule() +"\n";
-        res+="Option1: "+ vote.getOption1() +"\t" + "Option2: "+ vote.getOption2();
-        return res;
-    }
-    private class ConnexionVersClient implements Runnable{
+
+    private class ThreadConnexionVersClient implements Runnable {
         Socket socketClient;
         ObjectOutputStream outputClient;
         ObjectInputStream inputClient;
 
-        public ConnexionVersClient(Socket socket) throws IOException {
+        public ThreadConnexionVersClient(Socket socket) throws IOException {
             this.socketClient = socket;
             this.inputClient = new ObjectInputStream(socket.getInputStream());
             this.outputClient = new ObjectOutputStream(socket.getOutputStream());
+            System.out.println("Client " + socketClient.getPort() + " connecté");
         }
-
-
 
         @Override
         public void run() {
             try {
-                while (true){
+                while (true) {
                     // attend une requête du client
                     Requete requete = (Requete) inputClient.readObject();
                     System.out.println(requete); // debug
@@ -111,17 +109,42 @@ public class Serveur {
                             break;
                         case CLIENT_VOTER:
                             agreger((Chiffre) inputClient.readObject());
-                            nbBulletins++;
+                            vote.ajouterBulletin();
                             break;
                         case CLIENT_DEMANDER_VOTE_EN_COURS:
-                            outputClient.writeObject(consulterVoteEnCours());
+                            outputClient.writeObject(vote);
                             break;
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
+                verifierConnexionClient();
+                verifierConnexionServeur();
+            }
+        }
+
+        public synchronized void verifierConnexionClient() {
+            try {
+                socketClient.setSoTimeout(1);
+                inputClient.readObject();
+            } catch (SocketTimeoutException e2) {
+                try {
+                    socketClient.setSoTimeout(0);
+                } catch (SocketException ignored) {}
+            } catch (IOException | ClassNotFoundException e2) {
                 System.out.println("Client " + socketClient.getPort() + " déconnecté");
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+            }
+        }
+
+        public synchronized void verifierConnexionServeur() {
+            try {
+                socketScrutateur.setSoTimeout(1);
+                inputScrutateur.readObject();
+            } catch (SocketTimeoutException e2) {
+                try {
+                    socketScrutateur.setSoTimeout(0);
+                } catch (SocketException ignored) {}
+            } catch (IOException | ClassNotFoundException e2) {
+                System.out.println("Erreur: le scrutateur déconnecté");
             }
         }
     }
