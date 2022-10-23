@@ -76,7 +76,12 @@ public class Serveur {
             e.printStackTrace();
         }
     }
-
+    public String consulterVoteEnCours() {
+        String res ="";
+        res+= "Intitule: " + vote.getIntitule() +"\n";
+        res+="Option1: "+ vote.getOption1() +"\t" + "Option2: "+ vote.getOption2();
+        return res;
+    }
     private class ConnexionVersClient implements Runnable{
         Socket socketClient;
         ObjectOutputStream outputClient;
@@ -87,6 +92,8 @@ public class Serveur {
             this.inputClient = new ObjectInputStream(socket.getInputStream());
             this.outputClient = new ObjectOutputStream(socket.getOutputStream());
         }
+
+
 
         @Override
         public void run() {
@@ -107,8 +114,6 @@ public class Serveur {
                             nbBulletins++;
                             break;
                         case CLIENT_DEMANDER_VOTE_EN_COURS:
-                            System.out.println("oui ca marche");
-
                             outputClient.writeObject(consulterVoteEnCours());
                             break;
                     }
@@ -119,12 +124,5 @@ public class Serveur {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public String consulterVoteEnCours() {
-        String res ="";
-        res+= "Intitule: " + vote.getIntitule() +"\n";
-        res+="Option1: "+ vote.getOption1() +"\t" + "Option2: "+ vote.getOption2();
-        return res;
     }
 }
