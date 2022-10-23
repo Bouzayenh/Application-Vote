@@ -1,8 +1,6 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.math.BigInteger;
+import java.io.*;
 import java.net.Socket;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class Scrutateur {
@@ -12,21 +10,24 @@ public class Scrutateur {
     // clé privée
     private BigInteger x;
 
+    private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
 
-    public Scrutateur(int l) throws IOException {
+    public Scrutateur(int l) {
         try {
             this.l = l;
 
             // demande de connexion au serveur
-            Socket serveur = new Socket("localhost", 2999);
-            outputServeur = new ObjectOutputStream(serveur.getOutputStream());
-            inputServeur = new ObjectInputStream(serveur.getInputStream());
+            serveurSocket = new Socket("localhost", 2999);
+            outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
+            inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
 
-        } catch (IOException e) {
-            throw new IOException();
-        }
+        } catch (IOException ignored) {}
+    }
+
+    public boolean estConnecte() {
+        return serveurSocket != null && !serveurSocket.isClosed();
     }
 
     public void run() {
@@ -48,7 +49,7 @@ public class Scrutateur {
             }
 
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Serveur déconnecté");
         }
     }
 

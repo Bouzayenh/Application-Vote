@@ -7,7 +7,7 @@ public class AppServeur {
         serveur.creerVote("Quel parfum ?", "Noisette", "Vanille");
         System.out.println("Vote créé");
 
-        System.out.println("Serveur lancé\nAttente de connexions client...");
+        System.out.println("Serveur lancé, connexions client possibles");
         serveur.run();
     }
 }
