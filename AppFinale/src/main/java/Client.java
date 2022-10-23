@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
@@ -15,7 +12,7 @@ public class Client {
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
 
-    public Client() {
+    public Client() throws IOException {
         try {
             random = new SecureRandom();
 
@@ -25,7 +22,7 @@ public class Client {
             inputServeur = new ObjectInputStream(serveur.getInputStream());
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
