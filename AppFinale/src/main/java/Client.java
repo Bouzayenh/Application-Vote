@@ -86,4 +86,28 @@ public class Client {
             return null;
         }
     }
+
+    public boolean connexion(){
+        try {
+            //outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
+            Scanner sc = new Scanner(System.in);
+            String id = "";
+            String mdp = "";
+            System.out.println("Identifiant: ");
+            id = sc.next();
+            System.out.println("Mot de passe: ");
+            mdp = sc.next();
+
+            Utilisateur u = new Utilisateur(id, mdp);
+            //envoyer les infotmations de connexion
+            outputServeur.writeObject(Requete.CLIENT_DEMANDER_CONNEXION);
+            outputServeur.writeObject(u);
+            
+            //lire la réponse du serveur
+            return (Boolean) inputServeur.readObject();
+
+        } catch (IOException | ClassNotFoundException ignored) {
+            return false;
+        }
+    }
 }

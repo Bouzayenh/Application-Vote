@@ -1,10 +1,14 @@
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.math.BigInteger;
 
 public class Serveur {
     private Vote vote;
-
+    private HashMap<String, String> listeUtilisateurs;
     private Socket socketScrutateur;
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
@@ -13,6 +17,13 @@ public class Serveur {
 
     public Serveur() {
         try {
+            //Ajout d'un utilisateur + mdp
+            listeUtilisateurs = new HashMap<>();
+            listeUtilisateurs.put("b", BCrypt.hashpw("a", BCrypt.gensalt()));
+
+            //Si vous voulez vérifiez le hashage
+            //System.out.println("Mot de passe hashé: " + listeUtilisateurs.get("b"));
+
             // ouvre le serveur
             serverSocket = new ServerSocket(2999);
 
@@ -67,6 +78,7 @@ public class Serveur {
         else if (res < 50) return vote.getIntitule() + " " + vote.getOption2() + " gagne avec " + (100 - res) + " % des voix";
         else return vote.getIntitule() + " Egalité entre " + vote.getOption1() + vote.getOption2();
     }
+    
 
     public synchronized void agreger(Chiffre c) {
         try {
@@ -97,29 +109,52 @@ public class Serveur {
         public void run() {
             try {
                 while (true) {
-                    // attend une requête du client
-                    Requete requete = (Requete) inputClient.readObject();
-                    System.out.println(requete); // debug
 
-                    // traîte la requête
-                    switch (requete) {
-                        case CLIENT_DEMANDER_CLE_PUBLIQUE:
-                            ClePublique clePublique = demanderClePublique();
-                            outputClient.writeObject(clePublique);
-                            break;
-                        case CLIENT_VOTER:
-                            agreger((Chiffre) inputClient.readObject());
-                            vote.ajouterBulletin();
-                            break;
-                        case CLIENT_DEMANDER_VOTE_EN_COURS:
-                            outputClient.writeObject(vote);
-                            break;
+                   if(true) {
+                        // attend une requête du client
+                        Requete requete = (Requete) inputClient.readObject();
+                        System.out.println(requete); // debug
+
+                        // traîte la requête
+                        switch (requete) {
+                            case CLIENT_DEMANDER_CLE_PUBLIQUE:
+                                ClePublique clePublique = demanderClePublique();
+                                outputClient.writeObject(clePublique);
+                                break;
+                            case CLIENT_VOTER:
+                                agreger((Chiffre) inputClient.readObject());
+                                vote.ajouterBulletin();
+                                break;
+                            case CLIENT_DEMANDER_VOTE_EN_COURS:
+                                outputClient.writeObject(vote);
+                                break;
+                            case CLIENT_DEMANDER_CONNEXION:
+                                outputClient.writeObject(verifierAuthentification((Utilisateur) inputClient.readObject()));
+                                break;
                     }
+                   }
+                    
                 }
             } catch (IOException | ClassNotFoundException e) {
                 verifierConnexionClient();
                 verifierConnexionServeur();
             }
+        }
+
+        public boolean verifierAuthentification(Utilisateur u) {
+            if(listeUtilisateurs.containsKey(u.getIdentifiant())){
+                if (BCrypt.checkpw(u.getMotDePasse(),listeUtilisateurs.get(u.getIdentifiant()))){
+                    return true;
+                }
+                try {
+                    inputClient.close();
+                    socketClient.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } 
+            }
+            return false;
         }
 
         public synchronized void verifierConnexionClient() {
