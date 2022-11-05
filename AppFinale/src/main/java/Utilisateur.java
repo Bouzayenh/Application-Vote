@@ -12,6 +12,7 @@ public class Utilisateur implements Serializable {
         MotDePasse = mdp;
     }
 
+
     public String getIdentifiant() {
         return identifiant;
     }

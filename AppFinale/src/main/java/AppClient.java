@@ -28,6 +28,7 @@ public class AppClient {
                             client.consulterVoteEnCours();
                             break;
                         case "q":
+                            client.deconnexion();
                             break;
                         default:
                             System.out.println("Commande non reconnue");

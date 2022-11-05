@@ -9,6 +9,7 @@ public class Client {
     private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
+    private Utilisateur utilisateur;
 
     public Client() {
         try {
@@ -45,6 +46,15 @@ public class Client {
         } catch (IOException ignored) {}
     }
 
+    public void deconnexion() {
+        try {
+            outputServeur.writeObject(Requete.CLIENT_DEMANDER_DECONNEXION);
+            System.out.println("Vous avez été deconnecté");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     public void consulterVoteEnCours() {
         try {
             outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
@@ -90,21 +100,30 @@ public class Client {
     public boolean connexion(){
         try {
             //outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
-            Scanner sc = new Scanner(System.in);
+            /*Scanner sc = new Scanner(System.in);
             String id = "";
             String mdp = "";
             System.out.println("Identifiant: ");
             id = sc.next();
             System.out.println("Mot de passe: ");
-            mdp = sc.next();
+            mdp = sc.next();*/
 
-            Utilisateur u = new Utilisateur(id, mdp);
-            //envoyer les infotmations de connexion
-            outputServeur.writeObject(Requete.CLIENT_DEMANDER_CONNEXION);
-            outputServeur.writeObject(u);
+            Console cons;
+
+            if((cons = System.console()) != null ) {
+
+                String id = cons.readLine("Identifiant: ");
+                String mdp =String.valueOf(cons.readPassword("Mot de passe: "));
+                utilisateur = new Utilisateur(id, mdp);
+
+                //envoyer les infotmations de connexion
+                outputServeur.writeObject(Requete.CLIENT_DEMANDER_CONNEXION);
+                outputServeur.writeObject(utilisateur);
             
             //lire la réponse du serveur
             return (Boolean) inputServeur.readObject();
+            }
+            return false;
 
         } catch (IOException | ClassNotFoundException ignored) {
             return false;
