@@ -68,9 +68,19 @@ public class JCBDD {
         r.next();
         int count = r.getInt("recordCount")+1;
         r.close();
-        String rsql= "Insert Into Votes VALUES (IDVOTE,INTITULE,OPTION1,OPTION2) AS ('"+count+"','"+intitule+"','"+option1+"','"+option2+"')";
-        System.out.println(rsql);
-        Statement statement = con.createStatement();
-        ResultSet result = statement.executeQuery(rsql);
+        String rsql= "Insert Into Votes (IDVOTE,INTITULE,OPTION1,OPTION2) VALUES (?,?,?,?)";
+
+        //remplacement des ? dans la requete rsql avec un les parametre du fonction
+        PreparedStatement statement = con.prepareStatement(rsql);
+        if (count < 10) {
+            statement.setString(1,"V0"+count);
+        }
+        else {
+            statement.setString(1,"V"+count);
+        }
+        statement.setString(2,intitule);
+        statement.setString(3,option1);
+        statement.setString(4,option2);
+        statement.executeUpdate();
     }
 }
