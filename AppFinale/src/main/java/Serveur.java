@@ -11,7 +11,6 @@ import java.math.BigInteger;
 
 public class Serveur {
     private Vote vote;
-    private HashMap<String, String> listeUtilisateurs;
     private ArrayList<String> listeConnectes;
     private Socket socketScrutateur;
     private ObjectOutputStream outputScrutateur;
@@ -24,13 +23,7 @@ public class Serveur {
 
     public Serveur() {
         try {
-            //Ajout d'un utilisateur + mdp
-            listeUtilisateurs = new HashMap<>();
-            listeUtilisateurs.put("b", BCrypt.hashpw("a", BCrypt.gensalt()));
             listeConnectes = new ArrayList<>();
-
-            //Si vous voulez vérifiez le hashage
-            //System.out.println("Mot de passe hashé: " + listeUtilisateurs.get("b"));
 
             // ouvre le serveur
             serverSocket = new ServerSocket(2999);
@@ -146,7 +139,6 @@ public class Serveur {
                                 if(listeConnectes.contains(utilisateur.getIdentifiant())){
                                     //on refuse l'accès
                                     outputClient.writeObject(false);
-                                    break;
                                 }else{
                                     //Sinon on vérifie les infos d'authentification
                                     outputClient.writeObject(verifierAuthentification(utilisateur));  
@@ -197,8 +189,25 @@ public class Serveur {
         }
         public boolean verifierAuthentification(Utilisateur u) {
             String utilisateur = u.getIdentifiant();
-            if(listeUtilisateurs.containsKey(utilisateur)){
-                if (BCrypt.checkpw(u.getMotDePasse(),listeUtilisateurs.get(utilisateur))){
+            
+                String mdpBDD ="";
+                try {
+                    ArrayList<String> info = new ArrayList<String>();
+                    info.add(0,"verifierMdp");
+                    info.add(utilisateur);
+                    outputJCBDD.writeObject(info);
+                    mdpBDD = (String) inputJCBDD.readObject();
+                    System.out.print("Le mot de passe est:");
+                    System.out.println(mdpBDD);
+
+                } catch (IOException | ClassNotFoundException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                    System.out.println("Erreur lors de la récupération du mot de passe dans la base donnée");
+                    return false;
+                }
+
+                if (BCrypt.checkpw(u.getMotDePasse(),mdpBDD)){
                     listeConnectes.add(utilisateur);
                     return true;
                 }
@@ -210,7 +219,7 @@ public class Serveur {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 } 
-            }
+            
             return false;
         }
 

@@ -13,6 +13,7 @@ public class JCBDD {
     private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
+    private Connection connectionBDD;
 
     public JCBDD() {
         try {
@@ -35,7 +36,7 @@ public class JCBDD {
                 //connection au oracle isql
                 try {
                     Class.forName("oracle.jdbc.driver.OracleDriver");
-                    Connection connectionBDD = DriverManager.getConnection(url, uname, password);
+                    connectionBDD = DriverManager.getConnection(url, uname, password);
 
                     // attend une requête du serveur
                     ArrayList<String> info = (ArrayList<String>) inputServeur.readObject();
@@ -43,7 +44,10 @@ public class JCBDD {
 
                     switch (info.get(0)) {
                         case "creerVote":
-                            stockerVote(info.get(1), info.get(2), info.get(3), connectionBDD);
+                            stockerVote(info.get(1), info.get(2), info.get(3));
+                            break;
+                        case "verifierMdp":
+                            outputServeur.writeObject(verifierMdp(info.get(1)));
                             break;
                         case "autre":
                             break;
@@ -60,10 +64,33 @@ public class JCBDD {
         }
     }
 
+    public String verifierMdp(String login) {
+        try {
+            Statement s = connectionBDD.createStatement();
+            String requete = "SELECT password FROM listeUtilisateurs WHERE login = ?";
 
+            PreparedStatement statement = connectionBDD.prepareStatement(requete);
 
-    public void stockerVote(String intitule, String option1, String option2,Connection con) throws SQLException {
-        Statement s = con.createStatement();
+            statement.setString(1, login);
+
+            ResultSet reponse = statement.executeQuery();
+            reponse.next();
+            String mdpBDD = reponse.getString("password");
+            reponse.close();
+
+            return mdpBDD;
+
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        
+        return null;
+    }
+
+    public void stockerVote(String intitule, String option1, String option2) throws SQLException {
+        Statement s = connectionBDD.createStatement();
         ResultSet r = s.executeQuery("SELECT COUNT(*) AS recordCount FROM Votes");
         r.next();
         int count = r.getInt("recordCount")+1;
@@ -71,7 +98,7 @@ public class JCBDD {
         String rsql= "Insert Into Votes (IDVOTE,INTITULE,OPTION1,OPTION2) VALUES (?,?,?,?)";
 
         //remplacement des ? dans la requete rsql avec un les parametre du fonction
-        PreparedStatement statement = con.prepareStatement(rsql);
+        PreparedStatement statement = connectionBDD.prepareStatement(rsql);
         if (count < 10) {
             statement.setString(1,"V0"+count);
         }
