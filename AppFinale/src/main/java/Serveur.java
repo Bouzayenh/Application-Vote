@@ -18,6 +18,9 @@ public class Serveur {
     private ObjectInputStream inputScrutateur;
     private ServerSocket serverSocket;
 
+    private Socket socketJCBDD;
+    private ObjectOutputStream outputJCBDD;
+    private ObjectInputStream inputJCBDD;
 
     public Serveur() {
         try {
@@ -37,6 +40,13 @@ public class Serveur {
             outputScrutateur = new ObjectOutputStream(socketScrutateur.getOutputStream());
             inputScrutateur = new ObjectInputStream(socketScrutateur.getInputStream());
 
+            // attend la connexion du JCBDD
+            socketJCBDD = serverSocket.accept();
+            outputJCBDD = new ObjectOutputStream(socketJCBDD.getOutputStream());
+            inputJCBDD = new ObjectInputStream(socketJCBDD.getInputStream());
+
+
+
         } catch (IOException ignored) {}
     }
 
@@ -52,6 +62,7 @@ public class Serveur {
                 }
             } catch (IOException ignored) {}
         }).start();
+
     }
 
     public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
@@ -61,8 +72,15 @@ public class Serveur {
 
     public void creerVote(String intitule, String option1, String option2) {
         try {
+            //enregistrer les info du vote avec le nature du requete en premier de l'array liste
+            ArrayList<String> info = new ArrayList<String>();
+            info.add(0,"creerVote");
+            info.add(intitule);info.add(option1);info.add(option2);
+
             vote = new Vote(intitule, option1, option2);
             outputScrutateur.writeObject(Requete.SERVEUR_CREER_VOTE);
+
+            outputJCBDD.writeObject(info);
 
         } catch (IOException ignored) {}
     }
