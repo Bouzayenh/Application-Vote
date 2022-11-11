@@ -24,19 +24,22 @@ public class Serveur {
     public Serveur() {
         try {
             listeConnectes = new ArrayList<>();
-
             // ouvre le serveur
             serverSocket = new ServerSocket(2999);
-
+ 
             // attend la connexion du scrutateur
+            System.out.println("En attente de la connexion du scrutateur");
             socketScrutateur = serverSocket.accept();
             outputScrutateur = new ObjectOutputStream(socketScrutateur.getOutputStream());
             inputScrutateur = new ObjectInputStream(socketScrutateur.getInputStream());
+            System.out.println("Connexion du scrutateur réussi");
 
             // attend la connexion du JCBDD
+            System.out.println("En attente de la connexion de la base de données");
             socketJCBDD = serverSocket.accept();
             outputJCBDD = new ObjectOutputStream(socketJCBDD.getOutputStream());
             inputJCBDD = new ObjectInputStream(socketJCBDD.getInputStream());
+            System.out.println("Connexion de la base de données réussi");
 
 
 
@@ -106,6 +109,27 @@ public class Serveur {
 
         } catch (IOException | ClassNotFoundException e) {
             // e.printStackTrace();
+        }
+    }
+
+    public boolean creerUtilisateur(String login, String mdp)  {
+        try {
+            //hashage du mot de passe
+            mdp = BCrypt.hashpw(mdp, BCrypt.gensalt());
+
+            ArrayList<String> info = new ArrayList<String>();
+            info.add(0,"creerUtilisateur");
+            info.add(login);
+            info.add(mdp);
+
+            outputJCBDD.writeObject(info);
+            boolean rep = (boolean)inputJCBDD.readObject();
+
+            return rep;
+        } catch (IOException | ClassNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            return false;
         }
     }
 

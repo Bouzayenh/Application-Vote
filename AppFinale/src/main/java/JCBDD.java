@@ -49,6 +49,9 @@ public class JCBDD {
                         case "verifierMdp":
                             outputServeur.writeObject(verifierMdp(info.get(1)));
                             break;
+                        case "creerUtilisateur":
+                            outputServeur.writeObject(creerUtilisateur(info.get(1), info.get(2)));
+                            break;
                         case "autre":
                             break;
                     }
@@ -64,6 +67,28 @@ public class JCBDD {
         }
     }
 
+    public boolean creerUtilisateur(String login, String mdp) {
+        try {
+            Statement s = connectionBDD.createStatement();
+            String requete = "INSERT INTO listeUtilisateurs VALUES(?,?)";
+
+            PreparedStatement statement = connectionBDD.prepareStatement(requete);
+
+            statement.setString(1, login);
+            statement.setString(2, mdp);
+            
+            statement.executeUpdate();
+            
+            return true;
+
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        
+        return false;
+    }
     public String verifierMdp(String login) {
         try {
             Statement s = connectionBDD.createStatement();
