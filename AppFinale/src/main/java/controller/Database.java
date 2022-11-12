@@ -1,3 +1,5 @@
+package controller;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -5,8 +7,7 @@ import java.net.Socket;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class JCBDD {
-
+public class Database {
     private String url = "jdbc:oracle:thin:@orainfo.iutmontp.univ-montp2.fr:1521:IUT";
     private String uname = "bouazzatiy"; //votre login
     private String password = "Azertyuiop";  // votre mdp
@@ -15,7 +16,7 @@ public class JCBDD {
     private ObjectInputStream inputServeur;
     private Connection connectionBDD;
 
-    public JCBDD() {
+    public Database() {
         try {
             serveurSocket = new Socket("localhost", 2999);
             outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
@@ -63,7 +64,7 @@ public class JCBDD {
 
 
         } catch (IOException e) {
-            System.out.println("Serveur déconnecté");
+            System.out.println("Controller.Serveur déconnecté");
         }
     }
 

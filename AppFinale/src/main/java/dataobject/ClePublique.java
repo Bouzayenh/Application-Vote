@@ -1,3 +1,5 @@
+package dataobject;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 
@@ -26,6 +28,6 @@ public class ClePublique implements Serializable {
 
     @Override
     public String toString() {
-        return "ClePublique(p=" + p + ", g=" + g + ", h=" + h + ")";
+        return "DataObject.ClePublique(p=" + p + ", g=" + g + ", h=" + h + ")";
     }
 }

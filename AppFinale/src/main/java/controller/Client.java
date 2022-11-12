@@ -1,3 +1,12 @@
+package controller;
+
+import dataobject.Chiffre;
+import dataobject.ClePublique;
+import dataobject.Utilisateur;
+import dataobject.Vote;
+import datastatic.Chiffrement;
+import datastatic.Requete;
+
 import java.io.*;
 import java.net.Socket;
 import java.math.BigInteger;
@@ -97,34 +106,14 @@ public class Client {
         }
     }
 
-    public boolean connexion(){
+    public boolean connexion(String login, String mdp){
         try {
-            //outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
-            /*Scanner sc = new Scanner(System.in);
-            String id = "";
-            String mdp = "";
-            System.out.println("Identifiant: ");
-            id = sc.next();
-            System.out.println("Mot de passe: ");
-            mdp = sc.next();*/
-
-            Console cons;
-
-            if((cons = System.console()) != null ) {
-
-                String id = cons.readLine("Identifiant: ");
-                String mdp =String.valueOf(cons.readPassword("Mot de passe: "));
-                utilisateur = new Utilisateur(id, mdp);
-
-                //envoyer les infotmations de connexion
-                outputServeur.writeObject(Requete.CLIENT_DEMANDER_CONNEXION);
-                outputServeur.writeObject(utilisateur);
+            //envoyer les informations de connexion
+            outputServeur.writeObject(Requete.CLIENT_DEMANDER_CONNEXION);
+            outputServeur.writeObject(new Utilisateur(login, mdp));
             
             //lire la réponse du serveur
             return (Boolean) inputServeur.readObject();
-            }
-            return false;
-
         } catch (IOException | ClassNotFoundException ignored) {
             return false;
         }

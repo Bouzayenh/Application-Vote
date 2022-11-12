@@ -1,4 +1,8 @@
+package datastatic;
+
 public enum Requete {
+    CONNECTION_TEST,
+
     CLIENT_DEMANDER_CLE_PUBLIQUE,
     CLIENT_VOTER,
     CLIENT_DEMANDER_VOTE_EN_COURS,

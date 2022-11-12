@@ -6,9 +6,9 @@ import java.util.stream.IntStream;
 
 class ScrutateurTest {
     /*
-    Serveur serveur; // serveur
-    Scrutateur scrutateur; // scrutateur
-    Client client; // client
+    Controller.Serveur serveur; // serveur
+    Controller.Scrutateur scrutateur; // scrutateur
+    Controller.Client client; // client
 
     int[] messages; // liste des messages
     int nbMessages = 100; // nombre de messages à tester
@@ -18,10 +18,10 @@ class ScrutateurTest {
     void initialize() {
         Random random = new Random();
 
-        serveur = new Serveur();
+        serveur = new Controller.Serveur();
         serveur.creerVote("", "", "");
-        scrutateur = new Scrutateur(100);
-        client = new Client();
+        scrutateur = new Controller.Scrutateur(100);
+        client = new Controller.Client();
 
         // remplissage de la liste des messages à tester
         messages = new int[nbMessages];
@@ -33,9 +33,9 @@ class ScrutateurTest {
     @Test
     void testEncryptPuisDecrypt() {
         // chiffrement puis déchiffrement de tous les messages
-        Chiffre[] chiffres = new Chiffre[nbMessages];
+        DataObject.Chiffre[] chiffres = new DataObject.Chiffre[nbMessages];
         int[] dechiffres = new int[nbMessages];
-        Client client = new Client();
+        Controller.Client client = new Controller.Client();
         for (int i = 0; i < nbMessages; i++){
             chiffres[i] = client.encrypt(messages[i]);
             dechiffres[i] = scrutateur.decrypt(chiffres[i]);
@@ -51,7 +51,7 @@ class ScrutateurTest {
     @Test
     void testAgreger() {
         // chiffrement de tous les messages
-        Chiffre[] chiffres = new Chiffre[nbMessages];
+        DataObject.Chiffre[] chiffres = new DataObject.Chiffre[nbMessages];
         for (int i = 0; i < nbMessages; i++){
             chiffres[i] = client.encrypt(messages[i]);
         }

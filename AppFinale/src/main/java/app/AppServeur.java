@@ -1,3 +1,7 @@
+package app;
+
+import controller.Serveur;
+
 import java.util.Scanner;
 
 public class AppServeur {
@@ -7,7 +11,7 @@ public class AppServeur {
         System.out.println("Création du serveur... ");
         Serveur serveur = new Serveur();
 
-        System.out.println("Serveur lancé, connexions client possibles");
+        System.out.println("Controller.Serveur lancé, connexions client possibles");
         serveur.run();
 
         //gestion des choix possibles de l'administrateur
@@ -65,7 +69,7 @@ public class AppServeur {
             }
         } while (!input.equals("x"));
 
-        System.out.println("Vote terminé");
+        System.out.println("DataObject.Vote terminé");
         serveur.arreterVote();
 
         System.out.println(serveur.consulterResultats());

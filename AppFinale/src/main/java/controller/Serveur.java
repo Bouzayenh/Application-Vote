@@ -1,22 +1,24 @@
+package controller;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 
+import dataobject.Chiffre;
+import dataobject.ClePublique;
+import dataobject.Utilisateur;
+import dataobject.Vote;
+import datastatic.Chiffrement;
 import org.mindrot.jbcrypt.BCrypt;
-
-import oracle.jdbc.oracore.Util;
-
-import java.math.BigInteger;
+import datastatic.Requete;
 
 public class Serveur {
     private Vote vote;
-    private ArrayList<String> listeConnectes;
+    private ArrayList<Utilisateur> listeConnectes;
     private Socket socketScrutateur;
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
     private ServerSocket serverSocket;
-
     private Socket socketJCBDD;
     private ObjectOutputStream outputJCBDD;
     private ObjectInputStream inputJCBDD;
@@ -34,7 +36,7 @@ public class Serveur {
             inputScrutateur = new ObjectInputStream(socketScrutateur.getInputStream());
             System.out.println("Connexion du scrutateur réussi");
 
-            // attend la connexion du JCBDD
+            // attend la connexion du Controller.JCBDD
             System.out.println("En attente de la connexion de la base de données");
             socketJCBDD = serverSocket.accept();
             outputJCBDD = new ObjectOutputStream(socketJCBDD.getOutputStream());
@@ -114,13 +116,11 @@ public class Serveur {
 
     public boolean creerUtilisateur(String login, String mdp)  {
         try {
-            //hashage du mot de passe
-            mdp = BCrypt.hashpw(mdp, BCrypt.gensalt());
 
-            ArrayList<String> info = new ArrayList<String>();
-            info.add(0,"creerUtilisateur");
+            ArrayList<String> info = new ArrayList<>();
+            info.add("creerUtilisateur");
             info.add(login);
-            info.add(mdp);
+            info.add(BCrypt.hashpw(mdp, BCrypt.gensalt()));
 
             outputJCBDD.writeObject(info);
             boolean rep = (boolean)inputJCBDD.readObject();
@@ -151,47 +151,45 @@ public class Serveur {
             try {
                 while (true) {
 
-                        if(true) {
-                            // attend une requête du client
-                            Requete requete = (Requete) inputClient.readObject();
-                            System.out.println(requete); // debug
+                    // attend une requête du client
+                    Requete requete = (Requete) inputClient.readObject();
+                    System.out.println(requete); // debug
 
-                            //Lors d'un demande d'authentification (censé ne pas être connecté)
-                            if(requete.equals(Requete.CLIENT_DEMANDER_CONNEXION)) {
-                                utilisateur = (Utilisateur) inputClient.readObject();
-                                //Si l'ulisateur qui demande à se connecter est déjà connecter
-                                if(listeConnectes.contains(utilisateur.getIdentifiant())){
-                                    //on refuse l'accès
-                                    outputClient.writeObject(false);
-                                }else{
-                                    //Sinon on vérifie les infos d'authentification
-                                    outputClient.writeObject(verifierAuthentification(utilisateur));  
-                                }
-                            }
-                            else{//Sinon on vérifie que l'utilisateur est connecté pour effectuer les autres actions
-                                if(listeConnectes.contains(utilisateur.getIdentifiant())){
-                                    // traîte la requête
-                                    switch (requete) {
-                                        case CLIENT_DEMANDER_CLE_PUBLIQUE:
-                                            ClePublique clePublique = demanderClePublique();
-                                            outputClient.writeObject(clePublique);
-                                            break;
-                                        case CLIENT_VOTER:
-                                            agreger((Chiffre) inputClient.readObject());
-                                            vote.ajouterBulletin();
-                                            break;
-                                        case CLIENT_DEMANDER_VOTE_EN_COURS:
-                                            outputClient.writeObject(vote);
-                                            break; 
-                                        case CLIENT_DEMANDER_DECONNEXION:
-                                            deconnexion();
-                                            break;
-                                    }
-                                }
-                                
+                    //Lors d'un demande d'authentification (censé ne pas être connecté)
+                    if(requete.equals(Requete.CLIENT_DEMANDER_CONNEXION)) {
+                        utilisateur = (Utilisateur) inputClient.readObject();
+                        //Si l'ulisateur qui demande à se connecter est déjà connecter
+                        if(listeConnectes.contains(utilisateur)){
+                            //on refuse l'accès
+                            outputClient.writeObject(false);
+                        }else{
+                            //Sinon on vérifie les infos d'authentification
+                            outputClient.writeObject(verifierAuthentification(utilisateur));
+                        }
+                    }
+                    else{//Sinon on vérifie que l'utilisateur est connecté pour effectuer les autres actions
+                        if(listeConnectes.contains(utilisateur)){
+                            ClePublique clePublique;
+                            // traîte la requête
+                            switch (requete) {
+                                case CLIENT_DEMANDER_CLE_PUBLIQUE:
+                                    clePublique = demanderClePublique();
+                                    outputClient.writeObject(clePublique);
+                                    break;
+                                case CLIENT_VOTER:
+                                    clePublique = demanderClePublique();
+                                    vote.setSomme(Chiffrement.agreger((Chiffre) inputClient.readObject(), vote.getSomme(), clePublique));
+                                    vote.ajouterBulletin();
+                                    break;
+                                case CLIENT_DEMANDER_VOTE_EN_COURS:
+                                    outputClient.writeObject(vote);
+                                    break;
+                                case CLIENT_DEMANDER_DECONNEXION:
+                                    deconnexion();
+                                    break;
                             }
                         }
-                    
+                    }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 verifierConnexionClient();
@@ -200,7 +198,7 @@ public class Serveur {
         }
         public void deconnexion() {
             try {
-                listeConnectes.remove(utilisateur.getIdentifiant());
+                listeConnectes.remove(utilisateur);
                 
                 outputClient.close();
                 inputClient.close();
@@ -212,13 +210,13 @@ public class Serveur {
             
         }
         public boolean verifierAuthentification(Utilisateur u) {
-            String utilisateur = u.getIdentifiant();
+            String login = u.getIdentifiant();
             
                 String mdpBDD ="";
                 try {
-                    ArrayList<String> info = new ArrayList<String>();
+                    ArrayList<String> info = new ArrayList<>();
                     info.add(0,"verifierMdp");
-                    info.add(utilisateur);
+                    info.add(login);
                     outputJCBDD.writeObject(info);
                     mdpBDD = (String) inputJCBDD.readObject();
                     System.out.print("Le mot de passe est:");
@@ -231,8 +229,8 @@ public class Serveur {
                     return false;
                 }
 
-                if (BCrypt.checkpw(u.getMotDePasse(),mdpBDD)){
-                    listeConnectes.add(utilisateur);
+                if (BCrypt.checkpw(u.getMotDePasseHache(),mdpBDD)){
+                    listeConnectes.add(u);
                     return true;
                 }
                 try {
@@ -257,7 +255,7 @@ public class Serveur {
                 } catch (SocketException ignored) {}
             } catch (IOException | ClassNotFoundException e2) {
                 deconnexion();
-                System.out.println("Client " + socketClient.getPort() + " déconnecté");
+                System.out.println("Controller.Client " + socketClient.getPort() + " déconnecté");
             }
         }
 

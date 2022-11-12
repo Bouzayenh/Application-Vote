@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 class ServeurTest {
     /*
-    Serveur serveur; // serveur
+    Controller.Serveur serveur; // serveur
 
     int longueur; // longueur des Strings générés dans les tests
 
@@ -19,7 +19,7 @@ class ServeurTest {
 
     @BeforeEach
     void initialize() {
-        serveur = new Serveur();
+        serveur = new Controller.Serveur();
     }
 
     @Test

@@ -1,3 +1,5 @@
+package dataobject;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 
@@ -20,6 +22,6 @@ public class Chiffre implements Serializable {
 
     @Override
     public String toString() {
-        return "Chiffre(u=" + u + ", v=" + v + ")";
+        return "DataObject.Chiffre(u=" + u + ", v=" + v + ")";
     }
 }
