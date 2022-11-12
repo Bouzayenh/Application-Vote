@@ -11,10 +11,12 @@ public class Database {
     private String url = "jdbc:oracle:thin:@orainfo.iutmontp.univ-montp2.fr:1521:IUT";
     private String uname = "bouazzatiy"; //votre login
     private String password = "Azertyuiop";  // votre mdp
+
+    private Connection connectionBDD;
+
     private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
-    private Connection connectionBDD;
 
     public Database() {
         try {
@@ -22,10 +24,8 @@ public class Database {
             outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
             inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
 
-        } catch (IOException ignored) {
-        }
+        } catch (IOException ignored) {}
     }
-
 
     public boolean estConnecte() {
         return serveurSocket != null && !serveurSocket.isClosed();

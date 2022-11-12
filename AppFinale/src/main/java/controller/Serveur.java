@@ -99,21 +99,8 @@ public class Serveur {
         else if (res < 50) return vote.getIntitule() + " " + vote.getOption2() + " gagne avec " + (100 - res) + " % des voix";
         else return vote.getIntitule() + " Egalité entre " + vote.getOption1() + vote.getOption2();
     }
-    
 
-    public synchronized void agreger(Chiffre c) {
-        try {
-            ClePublique clePublique = demanderClePublique();
-            BigInteger p = clePublique.getP();
-
-            // def Chiffré agrégé
-            vote.setSomme(new Chiffre(vote.getSomme().getU().multiply(c.getU()).mod(p), vote.getSomme().getV().multiply(c.getV()).mod(p)));
-
-        } catch (IOException | ClassNotFoundException e) {
-            // e.printStackTrace();
-        }
-    }
-
+    //méthode maudite, faudra envoyer un Utilisateur enculé
     public boolean creerUtilisateur(String login, String mdp)  {
         try {
 

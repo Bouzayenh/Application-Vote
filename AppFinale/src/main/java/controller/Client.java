@@ -47,12 +47,13 @@ public class Client {
                 bulletin = sc.nextInt();
                 if (bulletin != 1 && bulletin != 2) System.out.println("Sélection incorrecte");
             }
-            Chiffre chiffre = encrypt(bulletin-1);
+            ClePublique clePublique = demanderClePublique();
+            Chiffre chiffre = Chiffrement.encrypt(bulletin-1, clePublique);
 
             outputServeur.writeObject(Requete.CLIENT_VOTER);
             outputServeur.writeObject(chiffre);
 
-        } catch (IOException ignored) {}
+        } catch (IOException | ClassNotFoundException ignored) {}
     }
 
     public void deconnexion() {
@@ -80,30 +81,6 @@ public class Client {
     public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
         outputServeur.writeObject(Requete.CLIENT_DEMANDER_CLE_PUBLIQUE);
         return (ClePublique) inputServeur.readObject();
-    }
-
-    public Chiffre encrypt(int m) {
-        try {
-            ClePublique clePublique = demanderClePublique();
-            BigInteger p, g, h, pPrime, r;
-
-            p = clePublique.getP();
-            g = clePublique.getG();
-            h = clePublique.getH();
-            // récupération p'
-            pPrime = p.add(BigInteger.valueOf(-1)).divide(BigInteger.TWO);
-
-            // def r
-            do {
-                r = new BigInteger(pPrime.bitLength(), random);
-            } while (r.compareTo(pPrime) >= 0);
-
-            // def Chiffré
-            return new Chiffre(g.modPow(r, p), g.modPow(BigInteger.valueOf(m), p).multiply(h.modPow(r, p)).mod(p));
-
-        } catch (IOException | ClassNotFoundException e) {
-            return null;
-        }
     }
 
     public boolean connexion(String login, String mdp){
