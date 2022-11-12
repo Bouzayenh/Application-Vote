@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Utilisateur implements Serializable {
-    
     private String identifiant;
     private String motDePasseHache;
 
