@@ -1,4 +1,7 @@
-import java.io.IOException;
+package app;
+
+import controller.Client;
+
 import java.util.Scanner;
 
 public class AppClient {
@@ -6,15 +9,21 @@ public class AppClient {
     public static void main(String[] args) {
         System.out.println("Création du client...");
         Client client = new Client();
+        Scanner sc = new Scanner(System.in);
         
         if (client.estConnecte()) {
-            System.out.println("Client connecté");
+            System.out.println("Controller.Client connecté");
 
+            System.out.print("Login : ");
+            String login = sc.nextLine();
 
-            if (client.connexion()){
+            System.out.println("Mot de passe : ");
+            String mdp = sc.nextLine();
+
+            if (client.connexion(login, mdp)){
                 System.out.println("Authentification réussi");
                 String input;
-                Scanner sc = new Scanner(System.in);
+
 
                 do {
                     System.out.println("Choisir une action : \n- consulter le vote en cours [c]\n- voter [v]\n- quitter [q]");

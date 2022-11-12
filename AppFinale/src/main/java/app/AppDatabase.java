@@ -1,8 +1,12 @@
-public class AppJCBDD {
+package app;
+
+import controller.Database;
+
+public class AppDatabase {
 
     public static void main(String[] args) {
         System.out.println("connection au bdd");
-        JCBDD bdd = new JCBDD();
+        Database bdd = new Database();
         if (bdd.estConnecte()) {
             System.out.println("Base de données connecté\n");
             bdd.run();
