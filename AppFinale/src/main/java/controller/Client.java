@@ -6,76 +6,33 @@ import dataobject.Utilisateur;
 import dataobject.Vote;
 import datastatic.Chiffrement;
 import datastatic.Requete;
+import exception.AuthentificationRefuseeException;
+import exception.BulletinInvalideException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Scanner;
 
 public class Client {
-    private SecureRandom random;
     private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
-    private Utilisateur utilisateur;
 
-    public Client() {
-        try {
-            random = new SecureRandom();
-
-            // demande de connexion au serveur
-            serveurSocket = new Socket("localhost", 2999);
-            outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
-            inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
-
-        } catch (IOException ignored) {}
+    public Client() throws IOException {
+        // demande de connexion au serveur
+        serveurSocket = new Socket("localhost", 2999);
+        outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
+        inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
     }
 
-    public boolean estConnecte() {
-        return serveurSocket != null && !serveurSocket.isClosed();
-    }
+    public void authentification(String login, String mdp) throws IOException, ClassNotFoundException, AuthentificationRefuseeException {
+        // demande d'authentification au serveur
+        outputServeur.writeObject(Requete.CLIENT_CONNEXION);
+        outputServeur.writeObject(new Utilisateur(login, mdp));
 
-    public void voter() {
-        try {
-            // entrée du bulletin
-            Scanner sc = new Scanner(System.in);
-            int bulletin = 0;
-            while (bulletin != 1 && bulletin != 2) {
-                System.out.println("Entrez le numéro de l'option souhaitée : 1 ou 2");
-               
-                bulletin = sc.nextInt();
-                if (bulletin != 1 && bulletin != 2) System.out.println("Sélection incorrecte");
-            }
-            ClePublique clePublique = demanderClePublique();
-            Chiffre chiffre = Chiffrement.encrypt(bulletin-1, clePublique);
-
-            outputServeur.writeObject(Requete.CLIENT_VOTER);
-            outputServeur.writeObject(chiffre);
-
-        } catch (IOException | ClassNotFoundException ignored) {}
-    }
-
-    public void deconnexion() {
-        try {
-            outputServeur.writeObject(Requete.CLIENT_DEMANDER_DECONNEXION);
-            System.out.println("Vous avez été deconnecté");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    public void consulterVoteEnCours() {
-        try {
-            outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
-            Vote vote = (Vote) inputServeur.readObject();
-            System.out.println(
-                    "Intitulé : " + vote.getIntitule() +
-                            "\n1 - " + vote.getOption1() +
-                            "\n2 - " + vote.getOption2()
-            );
-
-        } catch (IOException | ClassNotFoundException ignored) {}
+        // lèvement d'erreur : authentification refusée
+        if (!(boolean) inputServeur.readObject()) throw new AuthentificationRefuseeException();
     }
 
     public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
@@ -83,16 +40,29 @@ public class Client {
         return (ClePublique) inputServeur.readObject();
     }
 
-    public boolean connexion(String login, String mdp){
-        try {
-            //envoyer les informations de connexion
-            outputServeur.writeObject(Requete.CLIENT_DEMANDER_CONNEXION);
-            outputServeur.writeObject(new Utilisateur(login, mdp));
-            
-            //lire la réponse du serveur
-            return (Boolean) inputServeur.readObject();
-        } catch (IOException | ClassNotFoundException ignored) {
-            return false;
+    public Vote consulterVoteEnCours() throws IOException, ClassNotFoundException {
+        outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
+        return (Vote) inputServeur.readObject();
+    }
+
+    public void voter(int bulletin) throws IOException, ClassNotFoundException, BulletinInvalideException {
+        // lèvement d'erreur : bulletin hors du bon intervalle
+        if (bulletin < 1 || bulletin > 2) throw new BulletinInvalideException();
+        else {
+            // chiffrement du bulletin
+            ClePublique clePublique = demanderClePublique();
+            Chiffre chiffre = Chiffrement.encrypt(bulletin-1, clePublique);
+
+            // demande à voter au serveur
+            outputServeur.writeObject(Requete.CLIENT_VOTER);
+            outputServeur.writeObject(chiffre);
+
+            // lèvement d'erreur : bulletin jugé invalide par le serveur
+            if (!(boolean) inputServeur.readObject()) throw new BulletinInvalideException();
         }
+    }
+
+    public void deconnexion() throws IOException {
+        outputServeur.writeObject(Requete.CLIENT_DECONNEXION);
     }
 }
