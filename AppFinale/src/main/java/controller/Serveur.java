@@ -74,7 +74,7 @@ public class Serveur {
             info.add(0,"creerVote");
             info.add(intitule);info.add(option1);info.add(option2);
 
-            vote = new Vote(intitule, option1, option2);
+            vote = new Vote(0, intitule, option1, option2);
             outputScrutateur.writeObject(Requete.SERVEUR_CREER_VOTE);
 
             outputDatabase.writeObject(info);

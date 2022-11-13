@@ -2,8 +2,11 @@ package dataobject;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Objects;
 
 public class Vote implements Serializable {
+
+    private int identifiant;
     private String intitule;
     private String option1;
     private String option2;
@@ -12,13 +15,18 @@ public class Vote implements Serializable {
     private double resultat;
     private boolean fini;
 
-    public Vote(String intitule, String option1, String option2) {
+    public Vote(int identifiant, String intitule, String option1, String option2) {
+        this.identifiant = identifiant;
         this.intitule = intitule;
         this.option1 = option1;
         this.option2 = option2;
 
         somme = new Chiffre(BigInteger.ONE, BigInteger.ONE);
         nbBulletins = 0;
+    }
+
+    public int getIdentifiant() {
+        return identifiant;
     }
 
     public String getIntitule() {
@@ -62,5 +70,18 @@ public class Vote implements Serializable {
 
     public boolean estFini() {
         return fini;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vote vote = (Vote) o;
+        return vote.getIdentifiant() == identifiant;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifiant);
     }
 }
