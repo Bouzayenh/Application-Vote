@@ -1,9 +1,14 @@
 package controller;
 
-import dataobject.Chiffre;
 import dataobject.ClePublique;
+import dataobject.exception.FeedbackException;
+import dataobject.paquet.CreerVotePaquet;
+import dataobject.paquet.DechiffrerPaquet;
+import dataobject.paquet.Paquet;
+import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
+import dataobject.paquet.feedback.FeedbackPaquet;
+import dataobject.paquet.feedback.DechiffrerFeedbackPaquet;
 import datastatic.Chiffrement;
-import datastatic.Requete;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,58 +17,61 @@ import java.math.BigInteger;
 import java.net.Socket;
 
 public class Scrutateur {
+
     private int l;
-    // clé publique
-    private ClePublique clePublique;
-    // clé privée
-    private BigInteger clePrivee;
 
     private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
 
-    public Scrutateur(int l) {
-        try {
-            this.l = l;
+    public Scrutateur(int l) throws IOException {
+        this.l = l;
 
-            // demande de connexion au serveur
-            serveurSocket = new Socket("localhost", 2999);
-            outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
-            inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
-
-        } catch (IOException e) {
-            connexionIntrouvable();
-        }
-    }
-
-    public void connexionIntrouvable() {
-        System.out.println("Impossible de se connecter au serveur");
+        // demande de connexion au serveur
+        serveurSocket = new Socket("localhost", 2999);
+        outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
+        inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
     }
 
     public void run() {
-        try {
-            while (true) {
-                // attend une requête du serveur
-                Requete requete = (Requete) inputServeur.readObject();
+        while (true) {
+            try {
+                // attend un paquet du serveur
+                Paquet paquet = (Paquet) inputServeur.readObject();
 
-                // traîte la requête
-                switch (requete) {
-                    case SERVEUR_DEMANDER_CLE_PUBLIQUE:
-                        outputServeur.writeObject(clePublique);
+                // traîte le paquet
+                switch (paquet.getType()) {
+                    case DEMANDER_CLE_PUBLIQUE:
+                        // TODO récupérer sur la base de données : clePublique
+                        ClePublique clePublique = null; // placeholder
+
+                        outputServeur.writeObject(new ClePubliqueFeedbackPaquet(clePublique));
                         break;
-                    case SERVEUR_CREER_VOTE:
+
+                    case CREER_VOTE:
+                        CreerVotePaquet votePaquet = (CreerVotePaquet) paquet;
                         BigInteger[] cles = Chiffrement.keygen(l);
                         clePublique = new ClePublique(cles[0], cles[1], cles[2]);
-                        clePrivee = cles[3];
+                        BigInteger clePrivee = cles[3];
+                        // TODO envoyer clePublique, clePrivee à base de données, qui mets à jour votePaquet.getVote()
+                        // TODO récupérer sur la base de données : exception
+                        FeedbackException exception = null; // placeholder
+
+                        outputServeur.writeObject(new FeedbackPaquet(exception));
                         break;
-                    case SERVEUR_DEMANDER_DECHIFFREMENT:
-                        outputServeur.writeObject(Chiffrement.decrypt((Chiffre) inputServeur.readObject(), clePublique, clePrivee));
+
+                    case DECHIFFRER:
+                        DechiffrerPaquet dechPaquet = (DechiffrerPaquet) paquet;
+                        // TODO récupérer sur base de données : clePublique, clePrivee correspondants à dechPaquet.getIdVote()
+                        clePublique = null; // placeholder
+                        clePrivee = null; // placeholder
+
+                        int resultat = Chiffrement.decrypt(dechPaquet.getChiffre(), clePublique, clePrivee);
+                        outputServeur.writeObject(new DechiffrerFeedbackPaquet(resultat));
                         break;
                 }
-            }
 
-        } catch (IOException | ClassNotFoundException e) {
-            connexionIntrouvable();
+            } catch (IOException | ClassNotFoundException ignored) {}
         }
     }
 }

@@ -1,20 +1,25 @@
 package controller;
 
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-
 import dataobject.Chiffre;
-import dataobject.ClePublique;
 import dataobject.Utilisateur;
 import dataobject.Vote;
+import dataobject.exception.*;
+import dataobject.paquet.*;
+import dataobject.paquet.feedback.*;
 import datastatic.Chiffrement;
-import org.mindrot.jbcrypt.BCrypt;
-import datastatic.Requete;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Serveur {
-    private Vote vote;
-    private ArrayList<Utilisateur> utilisateursAuthentifies;
+
+    private ArrayList<String> utilisateursAuthentifies;
 
     private ServerSocket serverSocket;
 
@@ -22,240 +27,274 @@ public class Serveur {
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
 
-    private Socket socketDatabase;
-    private ObjectOutputStream outputDatabase;
-    private ObjectInputStream inputDatabase;
-
     public Serveur() throws IOException {
         utilisateursAuthentifies = new ArrayList<>();
 
         // ouvre le serveur
         serverSocket = new ServerSocket(2999);
- 
-        // attend la connexion du scrutateur
-        System.out.println("En attente de la connexion du scrutateur");
-        socketScrutateur = serverSocket.accept();
-        outputScrutateur = new ObjectOutputStream(socketScrutateur.getOutputStream());
-        inputScrutateur = new ObjectInputStream(socketScrutateur.getInputStream());
-        System.out.println("Connexion du scrutateur réussi");
-
-        // attend la connexion de la base de données
-        System.out.println("En attente de la connexion de la base de données");
-        socketDatabase = serverSocket.accept();
-        outputDatabase = new ObjectOutputStream(socketDatabase.getOutputStream());
-        inputDatabase = new ObjectInputStream(socketDatabase.getInputStream());
-        System.out.println("Connexion de la base de données réussi");
     }
 
     public void run() {
-        new Thread(() -> {
-            try {
-                while (true) {
-                    // attend la connexion du client
-                    Socket socketClient = serverSocket.accept();
-
-                    //traite la connexion client dans un autre thread
-                    new Thread(new ThreadConnexionVersClient(socketClient)).start();
+        new Thread(() -> { // thread d'attente de connexions
+            while (true) {
+                try {
+                    // attend une connexion et la traite séparément afin d'écouter de nouveau
+                    Socket socket = serverSocket.accept();
+                    new Thread(new ThreadGestionConnexion(socket)).start();
+                } catch (IOException e) {
+                    e.printStackTrace(); // TODO DEBUG, sera ignored
                 }
-            } catch (IOException ignored) {}
+            }
         }).start();
-
     }
 
-    public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
-        outputScrutateur.writeObject(Requete.SERVEUR_DEMANDER_CLE_PUBLIQUE);
-        return (ClePublique) inputScrutateur.readObject();
-    }
-
-    public void creerVote(String intitule, String option1, String option2) {
+    public synchronized boolean estConnecteScrutateur() {
         try {
-            //enregistrer les info du vote avec le nature du requete en premier de l'array liste
-            ArrayList<String> info = new ArrayList<>();
-            info.add(0,"creerVote");
-            info.add(intitule);info.add(option1);info.add(option2);
-
-            vote = new Vote(0, intitule, option1, option2);
-            outputScrutateur.writeObject(Requete.SERVEUR_CREER_VOTE);
-
-            outputDatabase.writeObject(info);
-
-        } catch (IOException ignored) {}
-    }
-
-    public void arreterVote() {
-        try {
-            outputScrutateur.writeObject(Requete.SERVEUR_DEMANDER_DECHIFFREMENT);
-            outputScrutateur.writeObject(vote.getSomme());
-            vote.setResultat((double) (int) inputScrutateur.readObject() / vote.getNbBulletins());
-
-        } catch (IOException | ClassNotFoundException ignored) {}
-    }
-
-    public String consulterResultats() {
-        double res = (double) ((int) (vote.getResultat() * 10000)) / 100;
-        if (vote.getNbBulletins() == 0) return vote.getIntitule() + "Personne n'a voté";
-        else if (res > 50) return vote.getIntitule() + " " + vote.getOption1() + " gagne avec " + res + " % des voix";
-        else if (res < 50) return vote.getIntitule() + " " + vote.getOption2() + " gagne avec " + (100 - res) + " % des voix";
-        else return vote.getIntitule() + " Egalité entre " + vote.getOption1() + vote.getOption2();
-    }
-
-    //méthode maudite, faudra envoyer un Utilisateur enculé
-    public boolean creerUtilisateur(String login, String mdp)  {
-        try {
-
-            ArrayList<String> info = new ArrayList<>();
-            info.add("creerUtilisateur");
-            info.add(login);
-            info.add(BCrypt.hashpw(mdp, BCrypt.gensalt()));
-
-            outputDatabase.writeObject(info);
-            boolean rep = (boolean) inputDatabase.readObject();
-
-            return rep;
-        } catch (IOException | ClassNotFoundException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            outputScrutateur.writeObject(new HeartbeatPaquet());
+            int timeout = socketScrutateur.getSoTimeout();
+            socketScrutateur.setSoTimeout(1000);
+            inputScrutateur.readObject();
+            socketScrutateur.setSoTimeout(timeout);
+            return true;
+        } catch (IOException | ClassNotFoundException e) {
             return false;
         }
     }
 
-    private class ThreadConnexionVersClient implements Runnable {
-        Socket socketClient;
-        ObjectOutputStream outputClient;
-        ObjectInputStream inputClient;
-        Utilisateur utilisateur;
+    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException {
+        Vote vote = new Vote.VoteBuilder()
+                .informations(intitule, option1, option2)
+                .build();
+        // TODO envoyer vote à la base de données, qui l'insère
+            // TODO récupérer sur la base de données : voteAvecId
+        Vote voteAvecId = null; // placeholder
 
-        public ThreadConnexionVersClient(Socket socket) throws IOException {
-            this.socketClient = socket;
-            this.inputClient = new ObjectInputStream(socket.getInputStream());
-            this.outputClient = new ObjectOutputStream(socket.getOutputStream());
-            System.out.println("Client " + socketClient.getPort() + " connecté");
+        outputScrutateur.writeObject(new CreerVotePaquet(voteAvecId));
+        ((FeedbackPaquet) inputScrutateur.readObject()).throwException();
+    }
+
+    public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
+        // TODO récupérer sur la base de données : urne, nbBulletins correspondant à idVote
+        Chiffre urne = null; // placeholder
+        int nbBulletins = 0; // placeholder
+
+        outputScrutateur.writeObject(new DechiffrerPaquet(urne, idVote));
+        DechiffrerFeedbackPaquet dechPaquet = (DechiffrerFeedbackPaquet) inputScrutateur.readObject();
+        dechPaquet.throwException();
+        // TODO envoyer dechPaquet.getResultat(), idVote à la base de données, qui mets à jour le résultat en clair du vote correspondant à idVote
+    }
+
+    public Map<Integer, Vote> consulterVotes() throws FeedbackException {
+        // TODO récupérer sur la base de données : votes (tous)
+        Map<Integer, Vote> votes = null; // placeholder
+
+        if (votes.size() == 0)
+            throw new AucunVoteException();
+        return votes;
+    }
+
+    public Vote consulterResultats(int idVote) throws FeedbackException {
+        // TODO récupérer sur la base de données : vote correspondant à idVote
+        Vote vote = null; // placeholder
+
+        if (!vote.estFini())
+            throw new VoteNonTermineException();
+        else
+            return vote;
+    }
+
+    public void creerUtilisateur(String identifiant, String motDePasse) throws FeedbackException {
+        Utilisateur utilisateur = new Utilisateur(identifiant, motDePasse);
+        // TODO envoyer utilisateur à la base de données, qui l'insère
+        // TODO récupérer sur la base de données : exception
+        FeedbackException exception = null; // placeholder
+
+        if (exception != null)
+            throw exception;
+    }
+
+    private class ThreadGestionConnexion implements Runnable {
+        Socket socket;
+
+        public ThreadGestionConnexion(Socket socket) {
+            this.socket = socket;
         }
 
         @Override
         public void run() {
             try {
-                while (true) {
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
-                    // attend une requête du client
-                    Requete requete = (Requete) inputClient.readObject();
-                    System.out.println(requete); // debug
+                // demande à l'auteur de la connexion de s'identifier
+                output.writeObject(new DemanderIdentificationPaquet());
+                IdentificationPaquet paquet = (IdentificationPaquet) input.readObject();
 
-                    //Lors d'un demande d'authentification (censé ne pas être connecté)
-                    if(requete.equals(Requete.CLIENT_CONNEXION)) {
-                        utilisateur = (Utilisateur) inputClient.readObject();
-                        //Si l'ulisateur qui demande à se connecter est déjà connecter
-                        if(utilisateursAuthentifies.contains(utilisateur)){
-                            //on refuse l'accès
-                            outputClient.writeObject(false);
-                        }else{
-                            //Sinon on vérifie les infos d'authentification
-                            outputClient.writeObject(verifierAuthentification(utilisateur));
+                // gère la connexion selon l'identité de l'auteur
+                switch (paquet.getSource()) {
+
+                    case CLIENT:
+                        new Thread(new ThreadConnexionVersClient(socket)).start();
+                        break;
+
+                    case SCRUTATEUR:
+                        // attribue la connexion s'il n'y pas déjà une connexion scrutateur
+                        if (estConnecteScrutateur())
+                            output.writeObject(new FeedbackPaquet(new ScrutateurDejaConnecteException()));
+                        else {
+                            socketScrutateur = socket;
+                            outputScrutateur = output;
+                            inputScrutateur = input;
+                            output.writeObject(new FeedbackPaquet());
                         }
-                    }
-                    else{//Sinon on vérifie que l'utilisateur est connecté pour effectuer les autres actions
-                        if(utilisateursAuthentifies.contains(utilisateur)){
-                            ClePublique clePublique;
-                            // traîte la requête
-                            switch (requete) {
-                                case CLIENT_DEMANDER_CLE_PUBLIQUE:
-                                    clePublique = demanderClePublique();
-                                    outputClient.writeObject(clePublique);
+                        break;
+                }
+            } catch (IOException | ClassNotFoundException ignored) {}
+        }
+    }
+
+    private class ThreadConnexionVersClient implements Runnable {
+
+        Socket socketClient;
+        ObjectOutputStream outputClient;
+        ObjectInputStream inputClient;
+        String idUtilisateurCourant;
+
+        public ThreadConnexionVersClient(Socket socket) throws IOException {
+            this.socketClient = socket;
+            this.inputClient = new ObjectInputStream(socket.getInputStream());
+            this.outputClient = new ObjectOutputStream(socket.getOutputStream());
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    // attend un paquet du client
+                    Paquet paquet = (Paquet) inputClient.readObject();
+                    try {
+                        // traîte le paquet
+                        switch (paquet.getType()) {
+                            // TODO on pourra externaliser chaque cas comme méthode pour que ce soit plus clair
+
+                            case AUTHENTIFICATION:
+                                AuthentificationPaquet authPaquet = (AuthentificationPaquet) paquet;
+                                idUtilisateurCourant = authPaquet.getUtilisateur().getIdentifiant();
+                                if (estAuthentifie())
+                                    outputClient.writeObject(new FeedbackPaquet(new UtilisateurDejaConnecteException()));
+                                else {
+                                    // TODO envoyer authPaquet.getUtilisateur() à la base de données, qui vérifie si l'utilisateur existe
+                                    // TODO récupérer sur la base de données : exception
+                                    FeedbackException exception = null; // placeholder
+
+                                    FeedbackPaquet feedback = new FeedbackPaquet(exception);
+
+                                    if (feedback.estPositif())
+                                        authentification();
+                                    outputClient.writeObject(feedback);
                                     break;
-                                case CLIENT_VOTER:
-                                    clePublique = demanderClePublique();
-                                    vote.setSomme(Chiffrement.agreger((Chiffre) inputClient.readObject(), vote.getSomme(), clePublique));
-                                    vote.ajouterBulletin();
-                                    break;
-                                case CLIENT_DEMANDER_VOTE_EN_COURS:
-                                    outputClient.writeObject(vote);
-                                    break;
-                                case CLIENT_DECONNEXION:
-                                    deconnexion();
-                                    break;
+                                }
+
+                            case DECONNEXION:
+                                if (!estAuthentifie())
+                                    outputClient.writeObject(new FeedbackPaquet(new UtilisateurDeconnecteException()));
+                                deconnexion();
+                                outputClient.writeObject(new FeedbackPaquet());
+                                break;
+
+                            case DEMANDER_CLE_PUBLIQUE:
+                                if (!estAuthentifie())
+                                    outputClient.writeObject(new ClePubliqueFeedbackPaquet(new UtilisateurDeconnecteException()));
+                                else
+                                    outputClient.writeObject(demanderClePublique(((DemanderClePubliquePaquet) paquet).getIdVote()));
+                                break;
+
+                            case DEMANDER_VOTES:
+                                if (!estAuthentifie())
+                                    outputClient.writeObject(new VotesPaquet(new UtilisateurDeconnecteException()));
+                                else {
+                                    // TODO récupérer sur la base de données : votes (tous)
+                                    Map<Integer, Vote> votes = null; // placeholder
+
+                                    if (votes.size() == 0)
+                                        outputClient.writeObject(new VotesPaquet(new AucunVoteException()));
+                                    else
+                                        outputClient.writeObject(new VotesPaquet(votes));
+                                }
+                                break;
+
+                            case DEMANDER_RESULTAT:
+                                if (!estAuthentifie())
+                                    outputClient.writeObject(new ResultatFeedbackPaquet(new UtilisateurDeconnecteException()));
+                                else {
+                                    DemanderResultatPaquet resPaquet = (DemanderResultatPaquet) paquet;
+                                    // TODO récupérer sur la base de données : vote correspondant à resPaquet.getIdVote()
+                                    Vote vote = null; // placeholder
+
+                                    if (!vote.estFini())
+                                        outputClient.writeObject(new ResultatFeedbackPaquet(new VoteNonTermineException()));
+                                    else
+                                        outputClient.writeObject(new ResultatFeedbackPaquet(vote));
+                                }
+
+                            case BULLETIN:
+                                if (!estAuthentifie())
+                                    outputClient.writeObject(new FeedbackPaquet(new UtilisateurDeconnecteException()));
+                                else {
+                                    BulletinPaquet bulPaquet = (BulletinPaquet) paquet;
+                                    // TODO récupérer sur la base de données : urne correspondant à bulPaquet.getIdVote()
+                                    Chiffre urne = null; // placeholder
+
+                                    if (urne == null)
+                                        outputClient.writeObject(new FeedbackPaquet(new VoteInexistantException()));
+                                    else {
+                                        // TODO vérifier que le bulletin est bien un 0 ou un 1
+                                        ClePubliqueFeedbackPaquet clePaquet = demanderClePublique(((BulletinPaquet) paquet).getIdVote());
+                                        if (!clePaquet.estPositif())
+                                            outputClient.writeObject(clePaquet);
+                                        else {
+                                            // agrège le bulletin dans l'urne
+                                            Chiffre bulletin = ((BulletinPaquet) paquet).getBulletin();
+                                            urne = Chiffrement.agreger(bulletin, urne, clePaquet.getClePublique());
+
+                                            // TODO envoyer urne, bulPaquet.getIdVote() à la base de données, qui la met à jour
+                                            outputClient.writeObject(new FeedbackPaquet());
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+
+                    } catch (IOException | ClassNotFoundException e) {
+                        if (!estConnecteScrutateur())
+                            switch (paquet.getType()) {
+                                // différencier les héritiers de FeedbackPaquet
+                                case DEMANDER_CLE_PUBLIQUE -> outputClient.writeObject(new ClePubliqueFeedbackPaquet(new ScrutateurDeconnecteException()));
+                                default -> outputClient.writeObject(new FeedbackPaquet(new ScrutateurDeconnecteException()));
                             }
-                        }
+                        else
+                            outputClient.writeObject(0);
                     }
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                verifierConnexionClient();
-                verifierConnexionServeur();
-            }
-        }
-        public void deconnexion() {
-            try {
-                utilisateursAuthentifies.remove(utilisateur);
-                
-                outputClient.close();
-                inputClient.close();
-                socketClient.close();    
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-        }
-        public boolean verifierAuthentification(Utilisateur u) {
-            String login = u.getIdentifiant();
-            
-                String mdpBDD ="";
-                try {
-                    ArrayList<String> info = new ArrayList<>();
-                    info.add(0,"verifierMdp");
-                    info.add(login);
-                    outputDatabase.writeObject(info);
-                    mdpBDD = (String) inputDatabase.readObject();
-                    System.out.print("Le mot de passe est:");
-                    System.out.println(mdpBDD);
 
-                } catch (IOException | ClassNotFoundException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                    System.out.println("Erreur lors de la récupération du mot de passe dans la base donnée");
-                    return false;
-                }
-
-                if (BCrypt.checkpw(u.getMotDePasseHache(),mdpBDD)){
-                    utilisateursAuthentifies.add(u);
-                    return true;
-                }
-                try {
-                    outputClient.close();
-                    inputClient.close();
-                    socketClient.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } 
-            
-            return false;
-        }
-
-        public synchronized void verifierConnexionClient() {
-            try {
-                socketClient.setSoTimeout(1);
-                inputClient.readObject();
-            } catch (SocketTimeoutException e2) {
-                try {
-                    socketClient.setSoTimeout(0);
-                } catch (SocketException ignored) {}
-            } catch (IOException | ClassNotFoundException e2) {
-                deconnexion();
-                System.out.println("Controller.Client " + socketClient.getPort() + " déconnecté");
+                } catch (IOException | ClassNotFoundException ignored) {}
             }
         }
 
-        public synchronized void verifierConnexionServeur() {
-            try {
-                socketScrutateur.setSoTimeout(1);
-                inputScrutateur.readObject();
-            } catch (SocketTimeoutException e2) {
-                try {
-                    socketScrutateur.setSoTimeout(0);
-                } catch (SocketException ignored) {}
-            } catch (IOException | ClassNotFoundException e2) {
-                System.out.println("Erreur: le scrutateur déconnecté");
-            }
+        private synchronized ClePubliqueFeedbackPaquet demanderClePublique(int idVote) throws IOException, ClassNotFoundException {
+            outputScrutateur.writeObject(new DemanderClePubliquePaquet(idVote));
+            return (ClePubliqueFeedbackPaquet) inputScrutateur.readObject();
+        }
+
+        private synchronized boolean estAuthentifie() {
+            return idUtilisateurCourant != null && utilisateursAuthentifies.contains(idUtilisateurCourant);
+        }
+
+        private synchronized void authentification() {
+            utilisateursAuthentifies.add(idUtilisateurCourant);
+        }
+
+        private synchronized void deconnexion() {
+            utilisateursAuthentifies.remove(idUtilisateurCourant);
         }
     }
 }

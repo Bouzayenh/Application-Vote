@@ -1,82 +1,139 @@
 package app;
 
 import controller.Serveur;
+import dataobject.Vote;
+import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class AppServeur {
 
     public static void main(String[] args) {
         try {
-            System.out.println("Création du serveur... ");
+            // initialisation
+            System.out.println("Ouverture du serveur...");
             Serveur serveur = new Serveur();
-
-            System.out.println("Controller.Serveur lancé, connexions client possibles");
+            System.out.println("Serveur ouvert. Lancement...");
             serveur.run();
+            System.out.println("Serveur lancé. Connexions possibles");
 
-            //gestion des choix possibles de l'administrateur
             Scanner sc = new Scanner(System.in);
-            String input;
-            System.out.println("Entrez : 1 pour ajouter un utilisateur\n         2 pour supprimer un utilisateur\n         3 pour modifier un utilisateur\n         4 pour créer un vote");
+            String intitule, option1, option2, identifiant, motDePasse;
 
-            do {
-                String rep;
-                input = sc.nextLine();
-                switch (input) {
-                    case "1":
-                        do {
-                            //demande des informations du nouveau utilisateur
-                            System.out.print("Veuillez entre le login: ");
-                            String login = sc.nextLine();
-                            System.out.print("Veuillez entre le mot de passe: ");
-                            String mdp = sc.nextLine();
-                            //confirmation des données saisies
-                            System.out.println("Login: " + login + ", mot de passe: " + mdp);
+            // interface de l'administrateur
+            boucle:while (true) {
+                System.out.print("\nChoisissez l'une des options suivantes :\n"
+                        + " [1] Créer un vote\n"
+                        + " [2] Consulter les votes\n"
+                        + " [3] Terminer un vote\n"
+                        + " [4] Consulter les résultats d'un vote\n"
+                        + " [5] Créer un utilisateur\n"
+                        + " [x] Arrêter le serveur\n"
+                        + "> ");
+                String input = sc.nextLine().toLowerCase();
 
-                            System.out.println("Voulez-vous créer l'utlisiteur (" + login + "): tapez 1");
-                            System.out.println("Voulez-vous modifier les données saisies: tapez 2");
-                            System.out.println("Voulez-vous annuler la création d'un nouveau utilisateur: tapez 3");
+                try {
+                    switch (input) {
+                        // TODO on pourra externaliser chaque cas comme méthode pour que ce soit plus clair
 
-                            rep = sc.nextLine();
-                            if (rep.equals("1")) {
-                                if (serveur.creerUtilisateur(login, mdp)) {
-                                    System.out.println("L'utilisateur " + login + " a été créé avec succès");
-                                } else {
-                                    System.out.println("L'enregistrement a échoué");
-                                }
-                                rep = "3";
-                            }
-                        } while (!rep.equals("3"));
-                        break;
-                    case "2":
+                        case "1":
+                            System.out.print("Entrez [q] à tout moment pour annuler la création du vote :\n"
+                                    + "Intitulé du vote :\n"
+                                    + "> ");
+                            intitule = sc.nextLine();
+                            if (intitule.equals("q")) break;
 
-                        break;
-                    case "3":
+                            System.out.print("Première option :\n"
+                                    + "> ");
+                            option1 = sc.nextLine();
+                            if (option1.equals("q")) break;
 
-                        break;
-                    case "4":
-                        System.out.print("Veuillez l'intitulé du vote: ");
-                        String intitule = sc.nextLine();
-                        System.out.print("Veuillez entre le chois n°1: ");
-                        String c1 = sc.nextLine();
-                        System.out.print("Veuillez entre le chois n°2: ");
-                        String c2 = sc.nextLine();
+                            System.out.print("Deuxième option :\n"
+                                    + "> ");
+                            option2 = sc.nextLine();
+                            if (option2.equals("q")) break;
 
-                        serveur.creerVote(intitule, c1, c2);
-                        break;
-                    default:
-                        System.out.println("Commande non reconnue");
+                            serveur.creerVote(intitule, option1, option2);
+                            System.out.println("Vote créé");
+                            break;
+
+                        case "2":
+                            Map<Integer, Vote> votes = serveur.consulterVotes();
+                            System.out.println("Identifiant | Intitulé | Option 1 | Option 2");
+                            for (Vote vote : votes.values())
+                                System.out.println(vote.getIdentifiant() + " | "
+                                        + vote.getIntitule() + " | "
+                                        + vote.getOption1() + " | "
+                                        + vote.getOption2());
+                            break;
+
+                        case "3":
+                            System.out.print("Entrez [q] à tout moment pour annuler la terminaison du vote :\n"
+                                    + "Identifiant du vote :\n"
+                                    + "> ");
+                            identifiant = sc.nextLine();
+                            if (identifiant.equals("q")) break;
+
+                            serveur.terminerVote(Integer.parseInt(identifiant));
+                            System.out.println("Vote terminé");
+                            break;
+
+                        case "4":
+                            System.out.print("Entrez [q] à tout moment pour annuler la consultation des résultats du vote :\n"
+                                    + "Identifiant du vote :\n"
+                                    + "> ");
+                            identifiant = sc.nextLine();
+                            if (identifiant.equals("q")) break;
+
+                            Vote vote = serveur.consulterResultats(Integer.parseInt(identifiant));
+                            System.out.println(vote.getIntitule());
+                            double resultat = vote.getUrne() / (double) vote.getNbBulletins();
+                            if (resultat > 0.5) System.out.println("L'option « " + vote.getOption1() +
+                                    " » gagne avec " + ((double) (int) (resultat * 10000)) / 100 + "% des voix");
+                            else if (resultat < 0.5) System.out.println("L'option « " + vote.getOption2() +
+                                    " » gagne avec " + ((double) (int) ((1 - resultat) * 10000)) / 100 + "% des voix");
+                            else System.out.println("Les options « " + vote.getOption1() +
+                                        " » et « " + vote.getOption2() + " » sont à égalité");
+                            break;
+
+                        case "5":
+                            System.out.print("Entrez [q] à tout moment pour annuler la création de l'utilisateur :\n"
+                                    + "Identifiant de l'utilisateur :\n"
+                                    + "> ");
+                            identifiant = sc.nextLine();
+                            if (identifiant.equals("q")) break;
+
+                            System.out.print("Mot de passe :\n"
+                                    + "> ");
+                            motDePasse = sc.nextLine();
+                            if (motDePasse.equals("q")) break;
+
+                            serveur.creerUtilisateur(identifiant, motDePasse);
+                            break;
+
+                        case "x":
+                            break boucle;
+
+                        default:
+                            System.out.println("Commande non reconnue");
+                    }
+
+                } catch (FeedbackException e) {
+                    System.out.println("Erreur : " + e.getMessage());
+                } catch (NumberFormatException e) {
+                    System.out.println("Erreur : Pas un nombre");
+                } catch (IOException | ClassNotFoundException e) {
+                    if (!serveur.estConnecteScrutateur())
+                        System.out.println("Erreur : Impossible de se connecter au scrutateur");
+                    else
+                        throw e;
                 }
-            } while (!input.equals("x"));
+            }
 
-            System.out.println("DataObject.Vote terminé");
-            serveur.arreterVote();
-
-            System.out.println(serveur.consulterResultats());
-
-        } catch (IOException e) {
-            System.out.println("Erreur de connexion");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Erreur critique : Arrêt du serveur");
         }
     }
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 public class Chiffre implements Serializable {
+
     private BigInteger u;
     private BigInteger v;
 

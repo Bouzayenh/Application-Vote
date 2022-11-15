@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Database {
+
     private String url = "jdbc:oracle:thin:@orainfo.iutmontp.univ-montp2.fr:1521:IUT";
     private String uname = "bouazzatiy"; //votre login
     private String password = "Azertyuiop";  // votre mdp

@@ -1,20 +1,24 @@
 package controller;
 
-import dataobject.Chiffre;
-import dataobject.ClePublique;
 import dataobject.Utilisateur;
 import dataobject.Vote;
+import dataobject.exception.*;
+import dataobject.paquet.*;
+import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
+import dataobject.paquet.feedback.FeedbackPaquet;
+import dataobject.paquet.feedback.ResultatFeedbackPaquet;
+import dataobject.paquet.feedback.VotesPaquet;
 import datastatic.Chiffrement;
-import datastatic.Requete;
-import exception.AuthentificationRefuseeException;
-import exception.BulletinInvalideException;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client {
+
     private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
@@ -26,43 +30,39 @@ public class Client {
         inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
     }
 
-    public void authentification(String login, String mdp) throws IOException, ClassNotFoundException, AuthentificationRefuseeException {
-        // demande d'authentification au serveur
-        outputServeur.writeObject(Requete.CLIENT_CONNEXION);
-        outputServeur.writeObject(new Utilisateur(login, mdp));
-
-        // lèvement d'erreur : authentification refusée
-        if (!(boolean) inputServeur.readObject()) throw new AuthentificationRefuseeException();
+    public void authentification(String identifiant, String motDePasse) throws FeedbackException, IOException, ClassNotFoundException {
+        outputServeur.writeObject(new AuthentificationPaquet(new Utilisateur(identifiant, motDePasse)));
+        ((FeedbackPaquet) inputServeur.readObject()).throwException();
     }
 
-    public ClePublique demanderClePublique() throws IOException, ClassNotFoundException {
-        outputServeur.writeObject(Requete.CLIENT_DEMANDER_CLE_PUBLIQUE);
-        return (ClePublique) inputServeur.readObject();
+    public void deconnexion() throws FeedbackException, IOException, ClassNotFoundException {
+        outputServeur.writeObject(new DeconnexionPaquet());
+        ((FeedbackPaquet) inputServeur.readObject()).throwException();
     }
 
-    public Vote consulterVoteEnCours() throws IOException, ClassNotFoundException {
-        outputServeur.writeObject(Requete.CLIENT_DEMANDER_VOTE_EN_COURS);
-        return (Vote) inputServeur.readObject();
-    }
-
-    public void voter(int bulletin) throws IOException, ClassNotFoundException, BulletinInvalideException {
-        // lèvement d'erreur : bulletin hors du bon intervalle
+    public void voter(int bulletin, int idVote) throws FeedbackException, IOException, ClassNotFoundException {
         if (bulletin < 1 || bulletin > 2) throw new BulletinInvalideException();
-        else {
-            // chiffrement du bulletin
-            ClePublique clePublique = demanderClePublique();
-            Chiffre chiffre = Chiffrement.encrypt(bulletin-1, clePublique);
 
-            // demande à voter au serveur
-            outputServeur.writeObject(Requete.CLIENT_VOTER);
-            outputServeur.writeObject(chiffre);
+        // chiffrement et envoi du bulletin
+        outputServeur.writeObject(new DemanderClePubliquePaquet(idVote));
+        ClePubliqueFeedbackPaquet clePaquet = (ClePubliqueFeedbackPaquet) inputServeur.readObject();
+        clePaquet.throwException();
+        outputServeur.writeObject(new BulletinPaquet(Chiffrement.encrypt(bulletin-1, clePaquet.getClePublique()), idVote));
 
-            // lèvement d'erreur : bulletin jugé invalide par le serveur
-            if (!(boolean) inputServeur.readObject()) throw new BulletinInvalideException();
-        }
+        ((FeedbackPaquet) inputServeur.readObject()).throwException();
     }
 
-    public void deconnexion() throws IOException {
-        outputServeur.writeObject(Requete.CLIENT_DECONNEXION);
+    public Map<Integer, Vote> consulterVotes() throws FeedbackException, IOException, ClassNotFoundException {
+        outputServeur.writeObject(new DemanderVotesPaquet());
+        VotesPaquet votesPaquet = (VotesPaquet) inputServeur.readObject();
+        votesPaquet.throwException();
+        return votesPaquet.getVotes();
+    }
+
+    public Vote consulterResultats(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
+        outputServeur.writeObject(new DemanderResultatPaquet(idVote));
+        ResultatFeedbackPaquet resPaquet = (ResultatFeedbackPaquet) inputServeur.readObject();
+        resPaquet.throwException();
+        return resPaquet.getVote();
     }
 }

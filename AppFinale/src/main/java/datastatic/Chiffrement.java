@@ -3,11 +3,11 @@ package datastatic;
 import dataobject.Chiffre;
 import dataobject.ClePublique;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class Chiffrement {
+
     private static SecureRandom random;
 
     static {
