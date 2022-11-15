@@ -13,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +28,14 @@ public class Serveur {
     private ObjectOutputStream outputScrutateur;
     private ObjectInputStream inputScrutateur;
 
-    public Serveur() throws IOException {
+    private CBDServeur connexionBD;
+    public Serveur() throws IOException, SQLException {
         utilisateursAuthentifies = new ArrayList<>();
 
         // ouvre le serveur
         serverSocket = new ServerSocket(2999);
+
+        connexionBD = new CBDServeur();
     }
 
     public void run() {
@@ -61,13 +65,18 @@ public class Serveur {
         }
     }
 
-    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException {
+    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
         Vote vote = new Vote.VoteBuilder()
                 .informations(intitule, option1, option2)
                 .build();
-        // TODO envoyer vote à la base de données, qui l'insère
-            // TODO récupérer sur la base de données : voteAvecId
-        Vote voteAvecId = null; // placeholder
+
+        //créé le vote et conserve l'id du vote
+        int idVote = connexionBD.creerVote(vote);
+
+        Vote voteAvecId = new Vote.VoteBuilder()
+                .informations(intitule, option1, option2)
+                .identifiant(idVote)
+                        .build();
 
         outputScrutateur.writeObject(new CreerVotePaquet(voteAvecId));
         ((FeedbackPaquet) inputScrutateur.readObject()).throwException();

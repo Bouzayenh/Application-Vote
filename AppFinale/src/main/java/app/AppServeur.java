@@ -5,6 +5,7 @@ import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -132,7 +133,7 @@ public class AppServeur {
                 }
             }
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | SQLException e) {
             System.out.println("Erreur critique : Arrêt du serveur");
         }
     }
