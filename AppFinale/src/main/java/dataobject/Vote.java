@@ -11,6 +11,7 @@ public class Vote implements Serializable {
     private String intitule;
     private String option1;
     private String option2;
+    private Date dateDeFin;
     private int urne;
     private int nbBulletins;
     private boolean fini;
@@ -20,6 +21,7 @@ public class Vote implements Serializable {
         this.intitule = voteBuilder.intitule;
         this.option1 = voteBuilder.option1;
         this.option2 = voteBuilder.option2;
+        this.dateDeFin = voteBuilder.dateDeFin;
         this.urne = voteBuilder.urne;
         this.nbBulletins = voteBuilder.nbBulletins;
         this.fini = voteBuilder.fini;
@@ -59,6 +61,7 @@ public class Vote implements Serializable {
         private String intitule;
         private String option1;
         private String option2;
+        private Date dateDeFin;
         private int urne;
         private int nbBulletins;
         private boolean fini;
@@ -74,6 +77,11 @@ public class Vote implements Serializable {
             this.intitule = intitule;
             this.option1 = option1;
             this.option2 = option2;
+            return this;
+        }
+
+        public VoteBuilder dateDeFin(Date dateDeFin){
+            this.dateDeFin = dateDeFin;
             return this;
         }
 
