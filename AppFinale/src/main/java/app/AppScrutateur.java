@@ -3,6 +3,7 @@ package app;
 import controller.Scrutateur;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class AppScrutateur {
 
@@ -16,6 +17,8 @@ public class AppScrutateur {
 
         } catch (IOException e) {
             System.out.println("Erreur critique : Impossible de se connecter au serveur. Arrêt du scrutateur");
+        } catch (SQLException e) {
+            System.out.println("Erreur critique : Impossible de se connecter à la base de données. Arrêt du scrutateur");
         }
     }
 }

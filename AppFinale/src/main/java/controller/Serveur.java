@@ -1,5 +1,6 @@
 package controller;
 
+import controller.database.CBDServeur;
 import dataobject.Chiffre;
 import dataobject.Utilisateur;
 import dataobject.Vote;
@@ -15,7 +16,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Serveur {
@@ -82,10 +82,10 @@ public class Serveur {
         ((FeedbackPaquet) inputScrutateur.readObject()).throwException();
     }
 
-    public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
+    public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
         // TODO récupérer sur la base de données : urne, nbBulletins correspondant à idVote
         Chiffre urne = null; // placeholder
-        int nbBulletins = 0; // placeholder
+        int nbBulletins = connexionBD.getNbBulletinsVote(idVote);
 
         outputScrutateur.writeObject(new DechiffrerPaquet(urne, idVote));
         DechiffrerFeedbackPaquet dechPaquet = (DechiffrerFeedbackPaquet) inputScrutateur.readObject();
@@ -112,14 +112,8 @@ public class Serveur {
             return vote;
     }
 
-    public void creerUtilisateur(String identifiant, String motDePasse) throws FeedbackException {
-        Utilisateur utilisateur = new Utilisateur(identifiant, motDePasse);
-        // TODO envoyer utilisateur à la base de données, qui l'insère
-        // TODO récupérer sur la base de données : exception
-        FeedbackException exception = null; // placeholder
-
-        if (exception != null)
-            throw exception;
+    public void creerUtilisateur(String identifiant, String motDePasse) throws SQLException {
+        connexionBD.creerUtilisateur(new Utilisateur(identifiant, motDePasse));
     }
 
     private class ThreadGestionConnexion implements Runnable {

@@ -1,5 +1,7 @@
-package controller;
+package controller.database;
 
+import java.math.BigInteger;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,5 +20,9 @@ public abstract class AbstractCBD {
 
     protected Connection getConnection() {
         return connection;
+    }
+
+    public static BigInteger blobToBigInteger(Blob blob) throws SQLException {
+        return new BigInteger(blob.getBytes(1, (int) blob.length()));
     }
 }

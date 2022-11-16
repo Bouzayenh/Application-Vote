@@ -1,8 +1,10 @@
-package controller;
+package controller.database;
 
+import dataobject.Chiffre;
 import dataobject.Utilisateur;
 import dataobject.Vote;
 
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -70,5 +72,47 @@ public class CBDServeur extends AbstractCBD{
         result.next();
 
         return result.getString(1);
+    }
+
+    public int getNbBulletinsVote(int idVote) throws SQLException {
+        PreparedStatement statement = super.getConnection().prepareStatement(
+                "SELECT SAEGETNBBULLETINSVOTE(?)" +
+                        "FROM DUAL"
+        );
+
+        statement.setInt(1, idVote);
+
+        ResultSet result = statement.executeQuery();
+        result.next();
+
+        return result.getInt(1);
+    }
+
+    public Chiffre getResultatsChiffresVote(int idVote) throws SQLException {
+        BigInteger u, v;
+
+        //On choppe u
+        PreparedStatement statement = super.getConnection().prepareStatement(
+                "SELECT SAEGETUVVOTE(?)" +
+                        "FROM DUAL"
+        );
+
+        ResultSet result = statement.executeQuery();
+        result.next();
+
+        u = AbstractCBD.blobToBigInteger(result.getBlob(1));
+
+        //Similairement, on choppe v
+        statement = super.getConnection().prepareStatement(
+                "SELECT SAEGETVVVOTE(?)" +
+                        "FROM DUAL"
+        );
+
+        result = statement.executeQuery();
+        result.next();
+
+        v = AbstractCBD.blobToBigInteger(result.getBlob(1));
+
+        return new Chiffre(u, v);
     }
 }

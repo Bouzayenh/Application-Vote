@@ -1,6 +1,8 @@
 package controller;
 
+import controller.database.CBDScrutateur;
 import dataobject.ClePublique;
+import dataobject.exception.ConnexionBaseDeDonneeException;
 import dataobject.exception.FeedbackException;
 import dataobject.paquet.CreerVotePaquet;
 import dataobject.paquet.DechiffrerPaquet;
@@ -15,6 +17,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class Scrutateur {
 
@@ -23,14 +26,17 @@ public class Scrutateur {
     private Socket serveurSocket;
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
+    private CBDScrutateur connexionBD;
 
-    public Scrutateur(int l) throws IOException {
+    public Scrutateur(int l) throws IOException, SQLException {
         this.l = l;
 
         // demande de connexion au serveur
         serveurSocket = new Socket("localhost", 2999);
         outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
         inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
+
+        connexionBD = new CBDScrutateur();
     }
 
     public void run() {
@@ -51,11 +57,14 @@ public class Scrutateur {
                     case CREER_VOTE:
                         CreerVotePaquet votePaquet = (CreerVotePaquet) paquet;
                         BigInteger[] cles = Chiffrement.keygen(l);
-                        clePublique = new ClePublique(cles[0], cles[1], cles[2]);
-                        BigInteger clePrivee = cles[3];
-                        // TODO envoyer clePublique, clePrivee à base de données, qui mets à jour votePaquet.getVote()
-                        // TODO récupérer sur la base de données : exception
-                        FeedbackException exception = null; // placeholder
+
+                        FeedbackException exception = null;
+
+                        try {
+                            connexionBD.insererCles(votePaquet.getVote().getIdentifiant(), cles[0], cles[1], cles[2], cles[3]);
+                        } catch (SQLException e) {
+                            exception = new ConnexionBaseDeDonneeException();
+                        }
 
                         outputServeur.writeObject(new FeedbackPaquet(exception));
                         break;
@@ -64,7 +73,7 @@ public class Scrutateur {
                         DechiffrerPaquet dechPaquet = (DechiffrerPaquet) paquet;
                         // TODO récupérer sur base de données : clePublique, clePrivee correspondants à dechPaquet.getIdVote()
                         clePublique = null; // placeholder
-                        clePrivee = null; // placeholder
+                        BigInteger clePrivee = null; // placeholder
 
                         int resultat = Chiffrement.decrypt(dechPaquet.getChiffre(), clePublique, clePrivee);
                         outputServeur.writeObject(new DechiffrerFeedbackPaquet(resultat));
