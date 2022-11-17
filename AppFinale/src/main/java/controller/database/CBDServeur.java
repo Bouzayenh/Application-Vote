@@ -74,6 +74,12 @@ public class CBDServeur extends AbstractCBD{
         return result.getString(1);
     }
 
+    /**
+     *
+     * @param idVote : L'identifiant du vote.
+     * @return Le nombre de personnes ayant voté.
+     * @throws SQLException
+     */
     public int getNbBulletinsVote(int idVote) throws SQLException {
         PreparedStatement statement = super.getConnection().prepareStatement(
                 "SELECT SAEGETNBBULLETINSVOTE(?)" +
@@ -88,6 +94,12 @@ public class CBDServeur extends AbstractCBD{
         return result.getInt(1);
     }
 
+    /**
+     *
+     * @param idVote L'identifiant du vote.
+     * @return Le résultat chiffré du vote passé en paramêtre.
+     * @throws SQLException
+     */
     public Chiffre getResultatsChiffresVote(int idVote) throws SQLException {
         BigInteger u, v;
 
@@ -96,23 +108,42 @@ public class CBDServeur extends AbstractCBD{
                 "SELECT SAEGETUVVOTE(?)" +
                         "FROM DUAL"
         );
-
+        statement.setInt(1, idVote);
         ResultSet result = statement.executeQuery();
         result.next();
 
-        u = AbstractCBD.blobToBigInteger(result.getBlob(1));
+        u = new BigInteger(result.getString(1));
 
         //Similairement, on choppe v
         statement = super.getConnection().prepareStatement(
                 "SELECT SAEGETVVVOTE(?)" +
                         "FROM DUAL"
         );
-
+        statement.setInt(1, idVote);
         result = statement.executeQuery();
         result.next();
 
-        v = AbstractCBD.blobToBigInteger(result.getBlob(1));
+        v = new BigInteger(result.getString(1));
 
         return new Chiffre(u, v);
+    }
+
+    /**
+     *
+     * @param idVote L'identifiant du vote.
+     * @param chiffre Le chiffré correspondant au nouveau résultat du vote.
+     * @throws SQLException
+     */
+    public void mettreAJourResultatChiffre(int idVote, Chiffre chiffre) throws SQLException {
+
+        PreparedStatement statement = super.getConnection().prepareStatement(
+                "CALL SAEMAJRESULTATCHIFFRE(?, ?, ?)"
+        );
+
+        statement.setInt(1, idVote);
+        statement.setString(2, chiffre.getU().toString());
+        statement.setString(3, chiffre.getV().toString());
+
+        statement.executeQuery();
     }
 }
