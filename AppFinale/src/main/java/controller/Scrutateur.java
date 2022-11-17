@@ -6,6 +6,7 @@ import dataobject.exception.ConnexionBaseDeDonneeException;
 import dataobject.exception.FeedbackException;
 import dataobject.paquet.CreerVotePaquet;
 import dataobject.paquet.DechiffrerPaquet;
+import dataobject.paquet.DemanderClePubliquePaquet;
 import dataobject.paquet.Paquet;
 import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
 import dataobject.paquet.feedback.FeedbackPaquet;
@@ -48,8 +49,10 @@ public class Scrutateur {
                 // traîte le paquet
                 switch (paquet.getType()) {
                     case DEMANDER_CLE_PUBLIQUE:
-                        // TODO récupérer sur la base de données : clePublique
-                        ClePublique clePublique = null; // placeholder
+
+                        DemanderClePubliquePaquet demanderClePubliquePaquet = (DemanderClePubliquePaquet) paquet;
+
+                        ClePublique clePublique = connexionBD.getClePublique(demanderClePubliquePaquet.getIdVote());
 
                         outputServeur.writeObject(new ClePubliqueFeedbackPaquet(clePublique));
                         break;
@@ -71,16 +74,17 @@ public class Scrutateur {
 
                     case DECHIFFRER:
                         DechiffrerPaquet dechPaquet = (DechiffrerPaquet) paquet;
-                        // TODO récupérer sur base de données : clePublique, clePrivee correspondants à dechPaquet.getIdVote()
-                        clePublique = null; // placeholder
-                        BigInteger clePrivee = null; // placeholder
+                        clePublique = connexionBD.getClePublique(dechPaquet.getIdVote());
+                        BigInteger clePrivee = connexionBD.getClePrivee(dechPaquet.getIdVote());
 
                         int resultat = Chiffrement.decrypt(dechPaquet.getChiffre(), clePublique, clePrivee);
                         outputServeur.writeObject(new DechiffrerFeedbackPaquet(resultat));
                         break;
                 }
 
-            } catch (IOException | ClassNotFoundException ignored) {}
+            } catch (IOException | ClassNotFoundException ignored) {} catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
