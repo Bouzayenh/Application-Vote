@@ -8,6 +8,7 @@ public class AuthentificationPaquet extends Paquet {
 
     public AuthentificationPaquet(Utilisateur utilisateur) {
         super(Type.AUTHENTIFICATION);
+        this.utilisateur = utilisateur;
     }
 
     public Utilisateur getUtilisateur() {
