@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class Serveur {
 
@@ -44,7 +45,7 @@ public class Serveur {
                 try {
                     // attend une connexion et la traite séparément afin d'écouter de nouveau
                     Socket socket = serverSocket.accept();
-                    new Thread(new ThreadGestionConnexion(socket)).start();
+                    new ThreadGestionConnexion(socket).start();
                 } catch (IOException e) {
                     e.printStackTrace(); // TODO DEBUG, sera ignored
                 }
@@ -60,7 +61,7 @@ public class Serveur {
             inputScrutateur.readObject();
             socketScrutateur.setSoTimeout(timeout);
             return true;
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | NullPointerException e) {
             return false;
         }
     }
@@ -70,7 +71,7 @@ public class Serveur {
                 .informations(intitule, option1, option2)
                 .build();
 
-        //créé le vote et conserve l'id du vote
+        //crée le vote et conserve l'id du vote
         int idVote = connexionBD.creerVote(vote);
 
         Vote voteAvecId = new Vote.VoteBuilder()
@@ -116,7 +117,7 @@ public class Serveur {
         connexionBD.creerUtilisateur(new Utilisateur(identifiant, motDePasse));
     }
 
-    private class ThreadGestionConnexion implements Runnable {
+    private class ThreadGestionConnexion extends Thread {
         Socket socket;
 
         public ThreadGestionConnexion(Socket socket) {
@@ -129,21 +130,23 @@ public class Serveur {
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
-                // demande à l'auteur de la connexion de s'identifier
-                output.writeObject(new DemanderIdentificationPaquet());
+                // identifie l'auteur de la connexion
                 IdentificationPaquet paquet = (IdentificationPaquet) input.readObject();
 
                 // gère la connexion selon l'identité de l'auteur
                 switch (paquet.getSource()) {
 
                     case CLIENT:
-                        new Thread(new ThreadConnexionVersClient(socket)).start();
+                        ThreadConnexionVersClient connexionVersClient = new ThreadConnexionVersClient(socket, input, output);
+                        connexionVersClient.start();
+                        output.writeObject(new FeedbackPaquet());
                         break;
 
                     case SCRUTATEUR:
                         // attribue la connexion s'il n'y pas déjà une connexion scrutateur
-                        if (estConnecteScrutateur())
+                        if (estConnecteScrutateur()) {
                             output.writeObject(new FeedbackPaquet(new ScrutateurDejaConnecteException()));
+                        }
                         else {
                             socketScrutateur = socket;
                             outputScrutateur = output;
@@ -152,21 +155,23 @@ public class Serveur {
                         }
                         break;
                 }
-            } catch (IOException | ClassNotFoundException ignored) {}
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private class ThreadConnexionVersClient implements Runnable {
+    private class ThreadConnexionVersClient extends Thread {
 
         Socket socketClient;
         ObjectOutputStream outputClient;
         ObjectInputStream inputClient;
         String idUtilisateurCourant;
 
-        public ThreadConnexionVersClient(Socket socket) throws IOException {
+        public ThreadConnexionVersClient(Socket socket, ObjectInputStream input, ObjectOutputStream output) throws IOException {
             this.socketClient = socket;
-            this.inputClient = new ObjectInputStream(socket.getInputStream());
-            this.outputClient = new ObjectOutputStream(socket.getOutputStream());
+            this.inputClient = input;
+            this.outputClient = output;
         }
 
         @Override
@@ -201,8 +206,10 @@ public class Serveur {
                             case DECONNEXION:
                                 if (!estAuthentifie())
                                     outputClient.writeObject(new FeedbackPaquet(new UtilisateurDeconnecteException()));
-                                deconnexion();
-                                outputClient.writeObject(new FeedbackPaquet());
+                                else {
+                                    deconnexion();
+                                    outputClient.writeObject(new FeedbackPaquet());
+                                }
                                 break;
 
                             case DEMANDER_CLE_PUBLIQUE:

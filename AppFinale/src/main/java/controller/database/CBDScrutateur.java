@@ -14,7 +14,6 @@ public class CBDScrutateur extends AbstractCBD {
         super("sanchezj", "Azertyuiop");
     }
 
-
     /**
      *
      * @param idVote L'identifiant du vote.

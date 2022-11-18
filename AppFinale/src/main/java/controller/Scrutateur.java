@@ -4,10 +4,7 @@ import controller.database.CBDScrutateur;
 import dataobject.ClePublique;
 import dataobject.exception.ConnexionBaseDeDonneeException;
 import dataobject.exception.FeedbackException;
-import dataobject.paquet.CreerVotePaquet;
-import dataobject.paquet.DechiffrerPaquet;
-import dataobject.paquet.DemanderClePubliquePaquet;
-import dataobject.paquet.Paquet;
+import dataobject.paquet.*;
 import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
 import dataobject.paquet.feedback.FeedbackPaquet;
 import dataobject.paquet.feedback.DechiffrerFeedbackPaquet;
@@ -29,13 +26,18 @@ public class Scrutateur {
     private ObjectInputStream inputServeur;
     private CBDScrutateur connexionBD;
 
-    public Scrutateur(int l) throws IOException, SQLException {
+    public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException, FeedbackException {
         this.l = l;
 
         // demande de connexion au serveur
         serveurSocket = new Socket("localhost", 2999);
         outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
         inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
+
+        inputServeur.readObject();
+        outputServeur.writeObject(new IdentificationPaquet(IdentificationPaquet.Source.SCRUTATEUR));
+        FeedbackPaquet paquet = (FeedbackPaquet) inputServeur.readObject();
+        paquet.throwException();
 
         connexionBD = new CBDScrutateur();
     }
@@ -48,8 +50,8 @@ public class Scrutateur {
 
                 // traîte le paquet
                 switch (paquet.getType()) {
-                    case DEMANDER_CLE_PUBLIQUE:
 
+                    case DEMANDER_CLE_PUBLIQUE:
                         DemanderClePubliquePaquet demanderClePubliquePaquet = (DemanderClePubliquePaquet) paquet;
 
                         ClePublique clePublique = connexionBD.getClePublique(demanderClePubliquePaquet.getIdVote());

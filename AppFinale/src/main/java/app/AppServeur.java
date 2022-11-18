@@ -126,6 +126,7 @@ public class AppServeur {
                 } catch (NumberFormatException e) {
                     System.out.println("Erreur : Pas un nombre");
                 } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
                     if (!serveur.estConnecteScrutateur())
                         System.out.println("Erreur : Impossible de se connecter au scrutateur");
                     else

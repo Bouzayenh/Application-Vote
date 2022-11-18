@@ -1,13 +1,14 @@
 package app;
 
 import controller.Scrutateur;
+import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
 public class AppScrutateur {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FeedbackException {
         try {
             // initialisation
             System.out.println("Connexion au serveur...");
@@ -15,7 +16,7 @@ public class AppScrutateur {
             System.out.println("Connecté avec succès. Scrutateur lancé");
             scrutateur.run();
 
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             System.out.println("Erreur critique : Impossible de se connecter au serveur. Arrêt du scrutateur");
         } catch (SQLException e) {
             System.out.println("Erreur critique : Impossible de se connecter à la base de données. Arrêt du scrutateur");

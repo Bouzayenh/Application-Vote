@@ -23,11 +23,13 @@ public class Client {
     private ObjectOutputStream outputServeur;
     private ObjectInputStream inputServeur;
 
-    public Client() throws IOException {
+    public Client() throws IOException, ClassNotFoundException, FeedbackException {
         // demande de connexion au serveur
         serveurSocket = new Socket("localhost", 2999);
         outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
         inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
+
+        outputServeur.writeObject(new IdentificationPaquet(IdentificationPaquet.Source.CLIENT));
     }
 
     public void authentification(String identifiant, String motDePasse) throws FeedbackException, IOException, ClassNotFoundException {
