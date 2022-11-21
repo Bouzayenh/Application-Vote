@@ -146,4 +146,21 @@ public class CBDServeur extends AbstractCBD{
 
         statement.executeQuery();
     }
+
+
+    /**
+     *
+     * @param idVote L'identifiant du vote.
+     * @param resultat Résultat claire du vote.
+     * @throws SQLException
+     */
+    // a faire en propre avec une procedure
+    public void mettreAJourResultatclaire(int idVote,int resultat) throws SQLException {
+        PreparedStatement statement = super.getConnection().prepareStatement(
+                "Insert into SAEVOTES (resultatclair) values (?) where idvote=?"
+        );
+        statement.setInt(1,resultat);
+        statement.setInt(1,idVote);
+    }
+
 }

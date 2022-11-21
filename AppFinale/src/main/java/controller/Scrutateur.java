@@ -31,13 +31,15 @@ public class Scrutateur {
 
         // demande de connexion au serveur
         serveurSocket = new Socket("localhost", 2999);
+
         outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
+
         inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
 
-        inputServeur.readObject();
+
         outputServeur.writeObject(new IdentificationPaquet(IdentificationPaquet.Source.SCRUTATEUR));
-        FeedbackPaquet paquet = (FeedbackPaquet) inputServeur.readObject();
-        paquet.throwException();
+
+
 
         connexionBD = new CBDScrutateur();
     }

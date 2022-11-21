@@ -85,13 +85,17 @@ public class Serveur {
 
     public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
         // TODO récupérer sur la base de données : urne, nbBulletins correspondant à idVote
-        Chiffre urne = null; // placeholder
+
+        Chiffre urne = connexionBD.getResultatsChiffresVote(idVote); // a vérifier si c'est ca
+
         int nbBulletins = connexionBD.getNbBulletinsVote(idVote);
 
         outputScrutateur.writeObject(new DechiffrerPaquet(urne, idVote));
         DechiffrerFeedbackPaquet dechPaquet = (DechiffrerFeedbackPaquet) inputScrutateur.readObject();
         dechPaquet.throwException();
+
         // TODO envoyer dechPaquet.getResultat(), idVote à la base de données, qui mets à jour le résultat en clair du vote correspondant à idVote
+        connexionBD.mettreAJourResultatclaire(idVote,dechPaquet.getResultat());
     }
 
     public Map<Integer, Vote> consulterVotes() throws FeedbackException {
