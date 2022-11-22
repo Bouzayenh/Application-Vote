@@ -79,8 +79,8 @@ public class Scrutateur {
                     case DECHIFFRER:
                         DechiffrerPaquet dechPaquet = (DechiffrerPaquet) paquet;
                         clePublique = connexionBD.getClePublique(dechPaquet.getIdVote());
+                        
                         BigInteger clePrivee = connexionBD.getClePrivee(dechPaquet.getIdVote());
-
                         int resultat = Chiffrement.decrypt(dechPaquet.getChiffre(), clePublique, clePrivee);
                         outputServeur.writeObject(new DechiffrerFeedbackPaquet(resultat));
                         break;

@@ -8,6 +8,11 @@ import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 public class CBDServeur extends AbstractCBD{
 
@@ -45,16 +50,67 @@ public class CBDServeur extends AbstractCBD{
     /**
      * @param utilisateur L'utilisateur à insérer dans la BD (login, mdp)
      */
-    public void creerUtilisateur(Utilisateur utilisateur) throws SQLException {
+    public boolean creerUtilisateur(Utilisateur utilisateur) throws SQLException {
         PreparedStatement statement = super.getConnection().prepareStatement(
-                "CALL SAECREERUTILISATEUR(?, ?, ?)"
+                "INSERT INTO SAEUTILISATEURS (LOGIN,MOTDEPASSE) VALUES(?,?)"
         );
 
         statement.setString(1, utilisateur.getIdentifiant());
         statement.setString(2, utilisateur.getMotDePasseHache());
 
         statement.executeQuery();
+        return true;
     }
+
+    public boolean supprimerUtilisateur(String identifiant) throws SQLException {
+        PreparedStatement statement = super.getConnection().prepareStatement(
+                "DELETE FROM SAEUTILISATEURS WHERE LOGIN=?"
+        );
+
+        statement.setString(1, identifiant);
+
+        statement.executeQuery();
+        return true;
+    }
+
+    public boolean modifierUtilisateur(String identifiant, String newIdentifiant, String newMDP, String newEmail) throws SQLException {
+        
+        if(!newEmail.equals("null")){
+            PreparedStatement statement = super.getConnection().prepareStatement(
+                "UPDATE SAEUTILISATEURS SET MAIL = ? WHERE LOGIN = ?"
+            );
+
+            statement.setString(1, newEmail);
+            statement.setString(2, identifiant);
+
+            statement.executeUpdate();
+        }
+
+        if(!newMDP.equals("null")){
+            PreparedStatement statement = super.getConnection().prepareStatement(
+                "UPDATE SAEUTILISATEURS SET MOTDEPASSE = ? WHERE LOGIN = ?"
+            );
+
+            statement.setString(1, BCrypt.hashpw(newMDP, BCrypt.gensalt()));
+            statement.setString(2, identifiant);
+
+            statement.executeUpdate();
+        }
+
+        if(!newIdentifiant.equals("null")){
+            PreparedStatement statement = super.getConnection().prepareStatement(
+                "UPDATE SAEUTILISATEURS SET LOGIN = ? WHERE LOGIN = ?"
+            );
+
+            statement.setString(1, newIdentifiant);
+            statement.setString(2, identifiant);
+
+            statement.executeUpdate();
+        }
+        return true;
+    }
+    
+    
 
     /**
      * @param utilisateur L'utilisateur dont on souhaite le mot de passe.
@@ -161,6 +217,51 @@ public class CBDServeur extends AbstractCBD{
         );
         statement.setInt(1,resultat);
         statement.setInt(1,idVote);
+    }
+
+    public Map<Integer, Vote> consulterVotes() throws SQLException {
+        Map<Integer, Vote> listeVotes = new HashMap<Integer, Vote>();
+
+        Statement statement = super.getConnection().createStatement();
+        ResultSet rs = statement.executeQuery(
+            "SELECT idvote, intitule, option1, option2 FROM SAEVOTES"
+        );
+        
+        int i = 1;
+        while(rs.next()){
+            
+            Vote v = new Vote.VoteBuilder()
+            .identifiant(rs.getInt(1))
+            .informations(  rs.getString(2),
+                            rs.getString(3), 
+                            rs.getString(4))
+            .build();
+            listeVotes.put(i, v);
+            i++;
+        }
+        return listeVotes;
+    }
+
+    public Vote consulterResultat(int idVote) throws SQLException {
+
+        PreparedStatement statement = super.getConnection().prepareStatement(
+            "SELECT intitule, option1, option2  FROM SAEVOTES WHERE IDVOTE = ?"
+        );
+        statement.setInt(1, idVote);
+        ResultSet rs = statement.executeQuery();
+        
+        rs.next();
+
+        Vote v = new Vote.VoteBuilder()
+        .identifiant(idVote)
+        .informations(  rs.getString(1),
+                        rs.getString(2), 
+                        rs.getString(3))
+        .nbBulletins(this.getNbBulletinsVote(idVote))
+        .build();
+
+        return v;
+
     }
 
 }

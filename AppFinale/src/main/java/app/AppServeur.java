@@ -1,6 +1,7 @@
 package app;
 
 import controller.Serveur;
+import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 
@@ -31,6 +32,8 @@ public class AppServeur {
                         + " [3] Terminer un vote\n"
                         + " [4] Consulter les résultats d'un vote\n"
                         + " [5] Créer un utilisateur\n"
+                        + " [6] Modifier un utilisateur\n"
+                        + " [7] Supprimer un utilisateur\n"
                         + " [x] Arrêter le serveur\n"
                         + "> ");
                 String input = sc.nextLine().toLowerCase();
@@ -110,8 +113,58 @@ public class AppServeur {
                                     + "> ");
                             motDePasse = sc.nextLine();
                             if (motDePasse.equals("q")) break;
+                            
+                            if(serveur.creerUtilisateur(identifiant, motDePasse)){
+                                System.out.println("L'utilisateur: " + identifiant +" a bien été créé");
+                            }else{
+                                System.out.println("Erreur: Utilisateur non créé");
+                            }
+                            break;
 
-                            serveur.creerUtilisateur(identifiant, motDePasse);
+                        case "6":
+                            System.out.print("Entrez [q] à tout moment pour annuler la création de l'utilisateur :\n"
+                            + "Identifiant de l'utilisateur à modifier :\n"
+                            + "> ");
+                            identifiant = sc.nextLine();
+                            if (identifiant.equals("q")) break;
+
+                            System.out.print("Entrez les nouvelles informations ou entrez null: \n" +
+                            "Nouvelle identifiant :\n"
+                            + "> ");
+                            String newIdentifiant = sc.nextLine();
+                            if (newIdentifiant.equals("q")) break;
+
+                            System.out.print("Nouveau mot de passe :\n"
+                                    + "> ");
+                            String newMotDePasse = sc.nextLine();
+                            if (newMotDePasse.equals("q")) break;
+
+                            System.out.print("Nouvelle adresse mail :\n"
+                                    + "> ");
+                            String newEmail = sc.nextLine();
+                            if (newEmail.equals("q")) break;
+
+                            if(serveur.modifierUtilisateur(identifiant, newIdentifiant, newMotDePasse, newEmail)){
+                                System.out.println("L'utilisateur: " + identifiant +" a bien été modifié");
+                            }else{
+                                System.out.println("Erreur: Utilisateur non modifié");
+                            }
+                            
+                            break;
+
+                        case "7":
+
+                            System.out.print("Entrez [q] à tout moment pour annuler la création de l'utilisateur :\n"
+                            + "Identifiant de l'utilisateur à supprimer:\n"
+                            + "> ");
+                            identifiant = sc.nextLine();
+                            if (identifiant.equals("q")) break;
+                            if(serveur.supprimerUtilisateur(identifiant)){
+                                System.out.println("L'utilisateur: " + identifiant +" a bien été supprimé");
+                            }else{
+                                System.out.println("Erreur: Utilisateur non supprimé");
+                            }
+
                             break;
 
                         case "x":
@@ -136,6 +189,7 @@ public class AppServeur {
 
         } catch (IOException | ClassNotFoundException | SQLException e) {
             System.out.println("Erreur critique : Arrêt du serveur");
+            e.printStackTrace();
         }
     }
 }

@@ -43,19 +43,16 @@ public class Chiffrement {
 
     public static int decrypt(Chiffre chiffre, ClePublique clePublique, BigInteger clePrivee) {
         BigInteger p, g, M;
-
         p = clePublique.getP();
         g = clePublique.getG();
         // def M
         M = chiffre.getV().multiply(chiffre.getU().modPow(clePrivee.multiply(BigInteger.valueOf(-1)), p)).mod(p);
-
         // def m (message en clair)
         int m = 0;
-        while (!M.equals(g.modPow(BigInteger.valueOf(m), p))) {
+        /*while (!M.equals(g.modPow(BigInteger.valueOf(m), p))) {
             if (m == Integer.MAX_VALUE) return -1;
             m++;
-        }
-
+        }*/
         return m;
     }
 

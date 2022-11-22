@@ -2,6 +2,7 @@ package controller;
 
 import controller.database.CBDServeur;
 import dataobject.Chiffre;
+import dataobject.ClePublique;
 import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.*;
@@ -98,18 +99,24 @@ public class Serveur {
         connexionBD.mettreAJourResultatclaire(idVote,dechPaquet.getResultat());
     }
 
-    public Map<Integer, Vote> consulterVotes() throws FeedbackException {
-        // TODO récupérer sur la base de données : votes (tous)
-        Map<Integer, Vote> votes = null; // placeholder
+    public Map<Integer, Vote> consulterVotes() throws FeedbackException, SQLException {
+        
+        Map<Integer, Vote> votes = connexionBD.consulterVotes();
 
         if (votes.size() == 0)
             throw new AucunVoteException();
         return votes;
     }
 
-    public Vote consulterResultats(int idVote) throws FeedbackException {
-        // TODO récupérer sur la base de données : vote correspondant à idVote
-        Vote vote = null; // placeholder
+    public Vote consulterResultats(int idVote) throws FeedbackException, SQLException, IOException, ClassNotFoundException {
+        
+        Vote vote = connexionBD.consulterResultat(idVote);
+
+        outputScrutateur.writeObject( new DechiffrerPaquet(connexionBD.getResultatsChiffresVote(idVote), idVote));
+        DechiffrerFeedbackPaquet dechPaquet = (DechiffrerFeedbackPaquet) inputScrutateur.readObject();
+        dechPaquet.throwException();
+
+        vote.setUrne(dechPaquet.getResultat());
 
         if (!vote.estFini())
             throw new VoteNonTermineException();
@@ -117,8 +124,20 @@ public class Serveur {
             return vote;
     }
 
-    public void creerUtilisateur(String identifiant, String motDePasse) throws SQLException {
-        connexionBD.creerUtilisateur(new Utilisateur(identifiant, motDePasse));
+    public boolean creerUtilisateur(String identifiant, String motDePasse) throws SQLException {
+        
+        if(connexionBD.creerUtilisateur(new Utilisateur(identifiant, motDePasse)))return true;
+        return false;
+    }
+
+    public boolean supprimerUtilisateur(String identifiant) throws SQLException {
+        if(connexionBD.supprimerUtilisateur(identifiant))return true;
+        return false;
+    }
+
+    public boolean modifierUtilisateur(String identifiant, String newIdentifiant, String newMDP, String newEmail) throws SQLException {
+        if(connexionBD.modifierUtilisateur(identifiant,newIdentifiant, newMDP, newEmail))return true;
+        return false;
     }
 
     private class ThreadGestionConnexion extends Thread {

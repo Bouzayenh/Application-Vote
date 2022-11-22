@@ -27,6 +27,10 @@ public class Vote implements Serializable {
         this.fini = voteBuilder.fini;
     }
 
+    public void setUrne(int urne) {
+        this.urne = urne;
+    }
+    
     public int getIdentifiant() {
         return identifiant;
     }
