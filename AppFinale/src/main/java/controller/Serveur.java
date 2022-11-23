@@ -1,122 +1,49 @@
 package controller;
 
-import controller.database.CBDServeur;
+import controller.communication.Connexion;
+import controller.communication.EmetteurConnexion;
+import controller.communication.RecepteurConnexion;
+import controller.database.ServeurCBDD;
 import dataobject.Chiffre;
-import dataobject.ClePublique;
 import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.*;
 import dataobject.paquet.*;
-import dataobject.paquet.feedback.*;
+import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
+import dataobject.paquet.feedback.DechiffrerFeedbackPaquet;
+import dataobject.paquet.feedback.ResultatFeedbackPaquet;
+import dataobject.paquet.feedback.VotesPaquet;
 import datastatic.Chiffrement;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class Serveur {
-
     private ArrayList<String> utilisateursAuthentifies;
 
     private ServerSocket serverSocket;
+    private RecepteurConnexion scrutateur;
+    private ServeurCBDD connexionBDD;
 
-    private Socket socketScrutateur;
-    private ObjectOutputStream outputScrutateur;
-    private ObjectInputStream inputScrutateur;
-
-    private CBDServeur connexionBD;
     public Serveur() throws IOException, SQLException {
         utilisateursAuthentifies = new ArrayList<>();
-
-        // ouvre le serveur
         serverSocket = new ServerSocket(2999);
-
-        connexionBD = new CBDServeur();
+        connexionBDD = new ServeurCBDD();
     }
 
-    public void run() {
-        new Thread(() -> { // thread d'attente de connexions
-            while (true) {
-                try {
-                    // attend une connexion et la traite séparément afin d'écouter de nouveau
-                    Socket socket = serverSocket.accept();
-                    new ThreadGestionConnexion(socket).start();
-                } catch (IOException e) {
-                    e.printStackTrace(); // TODO DEBUG, sera ignored
-                }
-            }
-        }).start();
-    }
-
-    public synchronized boolean estConnecteScrutateur() {
-        try {
-            outputScrutateur.writeObject(new HeartbeatPaquet());
-            int timeout = socketScrutateur.getSoTimeout();
-            socketScrutateur.setSoTimeout(1000);
-            inputScrutateur.readObject();
-            socketScrutateur.setSoTimeout(timeout);
-            return true;
-        } catch (IOException | ClassNotFoundException | NullPointerException e) {
-            return false;
-        }
-    }
-
-    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
-        Vote vote = new Vote.VoteBuilder()
-                .informations(intitule, option1, option2)
-                .build();
-
-        //crée le vote et conserve l'id du vote
-        int idVote = connexionBD.creerVote(vote);
-
-        Vote voteAvecId = new Vote.VoteBuilder()
-                .informations(intitule, option1, option2)
-                .identifiant(idVote)
-                        .build();
-
-        outputScrutateur.writeObject(new CreerVotePaquet(voteAvecId));
-        ((FeedbackPaquet) inputScrutateur.readObject()).throwException();
-    }
-
-    public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
-        // TODO récupérer sur la base de données : urne, nbBulletins correspondant à idVote
-
-        Chiffre urne = connexionBD.getResultatsChiffresVote(idVote); // a vérifier si c'est ca
-
-        int nbBulletins = connexionBD.getNbBulletinsVote(idVote);
-
-        outputScrutateur.writeObject(new DechiffrerPaquet(urne, idVote));
-        DechiffrerFeedbackPaquet dechPaquet = (DechiffrerFeedbackPaquet) inputScrutateur.readObject();
-        dechPaquet.throwException();
-
-        // TODO envoyer dechPaquet.getResultat(), idVote à la base de données, qui mets à jour le résultat en clair du vote correspondant à idVote
-        connexionBD.mettreAJourResultatclaire(idVote,dechPaquet.getResultat());
-    }
-
-    public Map<Integer, Vote> consulterVotes() throws FeedbackException, SQLException {
-        
-        Map<Integer, Vote> votes = connexionBD.consulterVotes();
-
+    public Set<Vote> consulterVotes() throws FeedbackException, SQLException {
+        Set<Vote> votes = connexionBDD.selectVotes();
         if (votes.size() == 0)
             throw new AucunVoteException();
         return votes;
     }
 
-    public Vote consulterResultats(int idVote) throws FeedbackException, SQLException, IOException, ClassNotFoundException {
-        
-        Vote vote = connexionBD.consulterResultat(idVote);
-
-        outputScrutateur.writeObject( new DechiffrerPaquet(connexionBD.getResultatsChiffresVote(idVote), idVote));
-        DechiffrerFeedbackPaquet dechPaquet = (DechiffrerFeedbackPaquet) inputScrutateur.readObject();
-        dechPaquet.throwException();
-
-        vote.setUrne(dechPaquet.getResultat());
+    public Vote consulterResultats(int idVote) throws FeedbackException, SQLException {
+        Vote vote = connexionBDD.selectVote(idVote);
 
         if (!vote.estFini())
             throw new VoteNonTermineException();
@@ -124,85 +51,120 @@ public class Serveur {
             return vote;
     }
 
-    public boolean creerUtilisateur(String identifiant, String motDePasse) throws SQLException {
-        
-        if(connexionBD.creerUtilisateur(new Utilisateur(identifiant, motDePasse)))return true;
-        return false;
+    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
+        scrutateur.ecrirePaquet(new CreerVotePaquet(connexionBDD.insertVote(new Vote(intitule, option1, option2))));
+        scrutateur.lireFeedback();
     }
 
-    public boolean supprimerUtilisateur(String identifiant) throws SQLException {
-        if(connexionBD.supprimerUtilisateur(identifiant))return true;
-        return false;
+    public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
+        Vote vote = connexionBDD.selectVote(idVote);
+        double nbBulletins = vote.getNbBulletins();
+        if (nbBulletins == 0)
+            nbBulletins = 1;
+
+        // récupère le résultat en clair
+        scrutateur.ecrirePaquet(new DechiffrerPaquet(idVote, vote.getUrne()));
+        DechiffrerFeedbackPaquet paquet = (DechiffrerFeedbackPaquet) scrutateur.lireFeedback();
+
+        connexionBDD.terminerVote(idVote, paquet.getSomme() / nbBulletins);
     }
 
-    public boolean modifierUtilisateur(String identifiant, String newIdentifiant, String newMDP, String newEmail) throws SQLException {
-        if(connexionBD.modifierUtilisateur(identifiant,newIdentifiant, newMDP, newEmail))return true;
-        return false;
+    public Set<Utilisateur> consulterUtilisateurs() throws FeedbackException, SQLException {
+        Set<Utilisateur> utilisateurs = connexionBDD.selectUtilisateurs();
+        if (utilisateurs.size() == 0)
+            throw new AucunUtilisateurException();
+        return utilisateurs;
+    }
+
+    public void creerUtilisateur(String login, String motDePasse, String email) throws SQLException {
+        connexionBDD.insertUtilisateur(new Utilisateur(login, motDePasse, email).hasherMotdePasse());
+    }
+
+    public void supprimerUtilisateur(String login) throws SQLException {
+        connexionBDD.deleteUtilisateur(login);
+        deconnexion(login);
+    }
+
+    public void modifierUtilisateur(String login, String motDePasse, String email) throws SQLException {
+        Utilisateur utilisateur = new Utilisateur(login, motDePasse, email).hasherMotdePasse();
+        if (!Objects.equals(motDePasse, ""))
+            connexionBDD.updateUtilisateurMotDePasse(utilisateur);
+        if (!Objects.equals(email, ""))
+            connexionBDD.updateUtilisateurEmail(utilisateur);
+    }
+
+    private synchronized void deconnexion(String login) {
+        utilisateursAuthentifies.remove(login);
+    }
+
+    public synchronized boolean estConnecteScrutateur() {
+        try {
+            scrutateur.ecrirePaquet(new HeartbeatPaquet());
+            scrutateur.lirePaquet();
+            return true;
+        } catch (IOException | ClassNotFoundException | NullPointerException e) {
+            return false;
+        }
+    }
+
+    public void run() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    // attend une connexion et la traite séparément afin d'écouter de nouveau
+                    new ThreadGestionConnexion(new Connexion(serverSocket.accept())).start();
+                } catch (IOException e) {
+                    e.printStackTrace(); // TODO DEBUG, sera ignored
+                }
+            }
+        }).start();
     }
 
     private class ThreadGestionConnexion extends Thread {
-        Socket socket;
+        Connexion connexion;
 
-        public ThreadGestionConnexion(Socket socket) {
-            this.socket = socket;
+        public ThreadGestionConnexion(Connexion connexion) {
+            this.connexion = connexion;
         }
 
         @Override
         public void run() {
             try {
-                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-
-                // identifie l'auteur de la connexion
-                IdentificationPaquet paquet = (IdentificationPaquet) input.readObject();
-
-                // gère la connexion selon l'identité de l'auteur
-                switch (paquet.getSource()) {
+                // gère la connexion selon l'identité de l'auteur de la connexion
+                switch (((IdentificationPaquet) connexion.lirePaquet()).getIdentification()) {
 
                     case CLIENT:
-                        ThreadConnexionVersClient connexionVersClient = new ThreadConnexionVersClient(socket, input, output);
-                        connexionVersClient.start();
-                        output.writeObject(new FeedbackPaquet());
+                        new ThreadConnexionClient((EmetteurConnexion) connexion).start();
                         break;
 
                     case SCRUTATEUR:
                         // attribue la connexion s'il n'y pas déjà une connexion scrutateur
-                        if (estConnecteScrutateur()) {
-                            output.writeObject(new FeedbackPaquet(new ScrutateurDejaConnecteException()));
-                        }
-                        else {
-                            socketScrutateur = socket;
-                            outputScrutateur = output;
-                            inputScrutateur = input;
-                            output.writeObject(new FeedbackPaquet());
-                        }
+                        if (estConnecteScrutateur())
+                            connexion.ecrirePaquet(new DeconnexionPaquet());
+                        else
+                            scrutateur = (RecepteurConnexion) connexion;
                         break;
                 }
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                e.printStackTrace(); // TODO DEBUG, sera ignored
             }
         }
     }
 
-    private class ThreadConnexionVersClient extends Thread {
+    private class ThreadConnexionClient extends Thread {
+        private EmetteurConnexion client;
+        private String idUtilisateurCourant;
 
-        Socket socketClient;
-        ObjectOutputStream outputClient;
-        ObjectInputStream inputClient;
-        String idUtilisateurCourant;
-
-        public ThreadConnexionVersClient(Socket socket, ObjectInputStream input, ObjectOutputStream output) throws IOException {
-            this.socketClient = socket;
-            this.inputClient = input;
-            this.outputClient = output;
+        public ThreadConnexionClient(EmetteurConnexion client) throws IOException {
+            this.client = client;
         }
 
         @Override
         public void run() {
-            while (true) {
-                try {
+            try {
+                while (true) {
                     // attend un paquet du client
-                    Paquet paquet = (Paquet) inputClient.readObject();
+                    Paquet paquet = client.lirePaquet();
                     try {
                         // traîte le paquet
                         switch (paquet.getType()) {
@@ -210,112 +172,99 @@ public class Serveur {
 
                             case AUTHENTIFICATION:
                                 AuthentificationPaquet authPaquet = (AuthentificationPaquet) paquet;
-                                idUtilisateurCourant = authPaquet.getUtilisateur().getIdentifiant();
+                                idUtilisateurCourant = authPaquet.getUtilisateur().getLogin();
                                 if (estAuthentifie())
-                                    outputClient.writeObject(new FeedbackPaquet(new UtilisateurDejaConnecteException()));
+                                    client.ecrireException(new UtilisateurDejaConnecteException());
                                 else {
-                                    // TODO envoyer authPaquet.getUtilisateur() à la base de données, qui vérifie si l'utilisateur existe
-                                    // TODO récupérer sur la base de données : exception
-                                    FeedbackException exception = null; // placeholder
-
-                                    FeedbackPaquet feedback = new FeedbackPaquet(exception);
-
-                                    if (feedback.estPositif())
+                                    if (!connexionBDD.authentifier(authPaquet.getUtilisateur()))
+                                        client.ecrireException(new ConnexionBDDException());
+                                    else {
                                         authentification();
-                                    outputClient.writeObject(feedback);
+                                        client.ecrireConfirmation();
+                                    }
                                     break;
                                 }
 
                             case DECONNEXION:
                                 if (!estAuthentifie())
-                                    outputClient.writeObject(new FeedbackPaquet(new UtilisateurDeconnecteException()));
+                                    client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
-                                    deconnexion();
-                                    outputClient.writeObject(new FeedbackPaquet());
+                                    deconnexion(idUtilisateurCourant);
+                                    client.ecrireConfirmation();
                                 }
                                 break;
 
                             case DEMANDER_CLE_PUBLIQUE:
                                 if (!estAuthentifie())
-                                    outputClient.writeObject(new ClePubliqueFeedbackPaquet(new UtilisateurDeconnecteException()));
+                                    client.ecrireException(new UtilisateurDeconnecteException());
                                 else
-                                    outputClient.writeObject(demanderClePublique(((DemanderClePubliquePaquet) paquet).getIdVote()));
+                                    client.ecrirePaquet(demanderClePublique(((DemanderClePubliquePaquet) paquet).getIdVote()));
                                 break;
 
                             case DEMANDER_VOTES:
                                 if (!estAuthentifie())
-                                    outputClient.writeObject(new VotesPaquet(new UtilisateurDeconnecteException()));
+                                    client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
-                                    // TODO récupérer sur la base de données : votes (tous)
-                                    Map<Integer, Vote> votes = null; // placeholder
-
+                                    Set<Vote> votes = connexionBDD.selectVotes();
                                     if (votes.size() == 0)
-                                        outputClient.writeObject(new VotesPaquet(new AucunVoteException()));
+                                        client.ecrireException(new AucunVoteException());
                                     else
-                                        outputClient.writeObject(new VotesPaquet(votes));
+                                        client.ecrirePaquet(new VotesPaquet(votes));
                                 }
                                 break;
 
                             case DEMANDER_RESULTAT:
                                 if (!estAuthentifie())
-                                    outputClient.writeObject(new ResultatFeedbackPaquet(new UtilisateurDeconnecteException()));
+                                    client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
-                                    DemanderResultatPaquet resPaquet = (DemanderResultatPaquet) paquet;
-                                    // TODO récupérer sur la base de données : vote correspondant à resPaquet.getIdVote()
-                                    Vote vote = null; // placeholder
-
+                                    Vote vote = connexionBDD.selectVote(((DemanderResultatPaquet) paquet).getIdVote());
                                     if (!vote.estFini())
-                                        outputClient.writeObject(new ResultatFeedbackPaquet(new VoteNonTermineException()));
+                                        client.ecrireException(new VoteNonTermineException());
                                     else
-                                        outputClient.writeObject(new ResultatFeedbackPaquet(vote));
+                                        client.ecrirePaquet(new ResultatFeedbackPaquet(vote));
                                 }
 
                             case BULLETIN:
                                 if (!estAuthentifie())
-                                    outputClient.writeObject(new FeedbackPaquet(new UtilisateurDeconnecteException()));
+                                    client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
                                     BulletinPaquet bulPaquet = (BulletinPaquet) paquet;
-                                    // TODO récupérer sur la base de données : urne correspondant à bulPaquet.getIdVote()
-                                    Chiffre urne = null; // placeholder
-
-                                    if (urne == null)
-                                        outputClient.writeObject(new FeedbackPaquet(new VoteInexistantException()));
+                                    // TODO vérifier que l'utilisateur n'a pas déjà voté
+                                    Vote vote = connexionBDD.selectVote(bulPaquet.getIdVote());
+                                    if (vote == null)
+                                        client.ecrireException(new VoteInexistantException());
                                     else {
                                         // TODO vérifier que le bulletin est bien un 0 ou un 1
-                                        ClePubliqueFeedbackPaquet clePaquet = demanderClePublique(((BulletinPaquet) paquet).getIdVote());
-                                        if (!clePaquet.estPositif())
-                                            outputClient.writeObject(clePaquet);
+                                        ClePubliqueFeedbackPaquet clePaquet = demanderClePublique(bulPaquet.getIdVote());
+                                        if (clePaquet.getException() != null)
+                                            client.ecrireException(clePaquet.getException());
                                         else {
                                             // agrège le bulletin dans l'urne
-                                            Chiffre bulletin = ((BulletinPaquet) paquet).getBulletin();
-                                            urne = Chiffrement.agreger(bulletin, urne, clePaquet.getClePublique());
-
-                                            // TODO envoyer urne, bulPaquet.getIdVote() à la base de données, qui la met à jour
-                                            outputClient.writeObject(new FeedbackPaquet());
+                                            Chiffre bulletin = bulPaquet.getBulletin();
+                                            connexionBDD.updateUrneEtNbBulletins(
+                                                    bulPaquet.getIdVote(),
+                                                    Chiffrement.agreger(bulletin, vote.getUrne(), clePaquet.getClePublique())
+                                            );
+                                            client.ecrireConfirmation();
                                         }
                                     }
                                 }
                                 break;
                         }
-
                     } catch (IOException | ClassNotFoundException e) {
-                        if (!estConnecteScrutateur())
-                            switch (paquet.getType()) {
-                                // différencier les héritiers de FeedbackPaquet
-                                case DEMANDER_CLE_PUBLIQUE -> outputClient.writeObject(new ClePubliqueFeedbackPaquet(new ScrutateurDeconnecteException()));
-                                default -> outputClient.writeObject(new FeedbackPaquet(new ScrutateurDeconnecteException()));
-                            }
-                        else
-                            outputClient.writeObject(0);
+                        client.ecrireException(new ScrutateurDeconnecteException());
+                    } catch (SQLException e) {
+                        client.ecrireException(new ConnexionBDDException());
                     }
-
-                } catch (IOException | ClassNotFoundException ignored) {}
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                deconnexion(idUtilisateurCourant);
             }
         }
 
         private synchronized ClePubliqueFeedbackPaquet demanderClePublique(int idVote) throws IOException, ClassNotFoundException {
-            outputScrutateur.writeObject(new DemanderClePubliquePaquet(idVote));
-            return (ClePubliqueFeedbackPaquet) inputScrutateur.readObject();
+            scrutateur.ecrirePaquet(new DemanderClePubliquePaquet(idVote));
+            return (ClePubliqueFeedbackPaquet) scrutateur.transfererFeedback();
         }
 
         private synchronized boolean estAuthentifie() {
@@ -324,10 +273,6 @@ public class Serveur {
 
         private synchronized void authentification() {
             utilisateursAuthentifies.add(idUtilisateurCourant);
-        }
-
-        private synchronized void deconnexion() {
-            utilisateursAuthentifies.remove(idUtilisateurCourant);
         }
     }
 }

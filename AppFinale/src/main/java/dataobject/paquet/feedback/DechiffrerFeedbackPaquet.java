@@ -3,19 +3,18 @@ package dataobject.paquet.feedback;
 import dataobject.exception.FeedbackException;
 
 public class DechiffrerFeedbackPaquet extends FeedbackPaquet {
+    private int somme;
 
-    private int resultat;
-
-    public DechiffrerFeedbackPaquet(int resultat) {
+    public DechiffrerFeedbackPaquet(int somme) {
         this(null);
-        this.resultat = resultat;
+        this.somme = somme;
     }
 
     public DechiffrerFeedbackPaquet(FeedbackException exception) {
         super(exception);
     }
 
-    public int getResultat() {
-        return resultat;
+    public int getSomme() {
+        return somme;
     }
 }

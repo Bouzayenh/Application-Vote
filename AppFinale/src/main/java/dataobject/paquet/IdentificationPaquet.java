@@ -1,21 +1,16 @@
 package dataobject.paquet;
 
+import controller.communication.Connexion;
+
 public class IdentificationPaquet extends Paquet {
+        private Connexion.Source source;
 
-    public enum Source {
-        CLIENT,
-        SCRUTATEUR,
-        DATABASE
-    }
-
-    private Source source;
-
-    public IdentificationPaquet(Source source) {
+    public IdentificationPaquet(Connexion.Source source) {
         super(Type.IDENTIFICATION);
         this.source = source;
     }
 
-    public Source getSource() {
+    public Connexion.Source getIdentification() {
         return source;
     }
 }

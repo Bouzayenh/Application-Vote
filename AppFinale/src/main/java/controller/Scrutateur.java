@@ -1,94 +1,84 @@
 package controller;
 
-import controller.database.CBDScrutateur;
+import controller.communication.Connexion;
+import controller.communication.EmetteurConnexion;
+import controller.database.ScrutateurCBDD;
 import dataobject.ClePublique;
-import dataobject.exception.ConnexionBaseDeDonneeException;
-import dataobject.exception.FeedbackException;
+import dataobject.exception.ConnexionBDDException;
+import dataobject.exception.VoteInexistantException;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
-import dataobject.paquet.feedback.FeedbackPaquet;
 import dataobject.paquet.feedback.DechiffrerFeedbackPaquet;
 import datastatic.Chiffrement;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.sql.SQLException;
 
 public class Scrutateur {
-
     private int l;
 
-    private Socket serveurSocket;
-    private ObjectOutputStream outputServeur;
-    private ObjectInputStream inputServeur;
-    private CBDScrutateur connexionBD;
+    private EmetteurConnexion serveur;
+    private ScrutateurCBDD connexionBDD;
 
-    public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException, FeedbackException {
+    public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
         this.l = l;
 
-        // demande de connexion au serveur
-        serveurSocket = new Socket("localhost", 2999);
-
-        outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
-
-        inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
-
-
-        outputServeur.writeObject(new IdentificationPaquet(IdentificationPaquet.Source.SCRUTATEUR));
-
-
-
-        connexionBD = new CBDScrutateur();
+        serveur = new EmetteurConnexion(new Socket("localhost", 2999));
+        serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
+        connexionBDD = new ScrutateurCBDD();
     }
 
     public void run() {
-        while (true) {
-            try {
-                // attend un paquet du serveur
-                Paquet paquet = (Paquet) inputServeur.readObject();
+        try {
+            boucle:while (true) {
+                try {
+                    // attend un paquet du serveur
+                    Paquet paquet = serveur.lirePaquet();
+                    ClePublique clePublique;
 
-                // traîte le paquet
-                switch (paquet.getType()) {
+                    // traîte le paquet
+                    switch (paquet.getType()) {
+                        // TODO on pourra externaliser chaque cas comme méthode pour que ce soit plus clair
 
-                    case DEMANDER_CLE_PUBLIQUE:
-                        DemanderClePubliquePaquet demanderClePubliquePaquet = (DemanderClePubliquePaquet) paquet;
+                        case HEARTBEAT:
+                            serveur.ecrireConfirmation();
+                            break;
 
-                        ClePublique clePublique = connexionBD.getClePublique(demanderClePubliquePaquet.getIdVote());
+                        case DECONNEXION:
+                            break boucle;
 
-                        outputServeur.writeObject(new ClePubliqueFeedbackPaquet(clePublique));
-                        break;
+                        case DEMANDER_CLE_PUBLIQUE:
+                            clePublique = connexionBDD.selectClePublique(((DemanderClePubliquePaquet) paquet).getIdVote());
+                            if (clePublique == null)
+                                serveur.ecrireException(new VoteInexistantException());
+                            else
+                                serveur.ecrirePaquet(new ClePubliqueFeedbackPaquet(clePublique));
+                            break;
 
-                    case CREER_VOTE:
-                        CreerVotePaquet votePaquet = (CreerVotePaquet) paquet;
-                        BigInteger[] cles = Chiffrement.keygen(l);
+                        case CREER_VOTE:
+                            BigInteger[] cles = Chiffrement.keygen(l);
+                            connexionBDD.insertVote(((CreerVotePaquet) paquet).getIdVote(), cles[0], cles[1], cles[2], cles[3]);
+                            serveur.ecrireConfirmation();
+                            break;
 
-                        FeedbackException exception = null;
-
-                        try {
-                            connexionBD.insererCles(votePaquet.getVote().getIdentifiant(), cles[0], cles[1], cles[2], cles[3]);
-                        } catch (SQLException e) {
-                            exception = new ConnexionBaseDeDonneeException();
-                        }
-
-                        outputServeur.writeObject(new FeedbackPaquet(exception));
-                        break;
-
-                    case DECHIFFRER:
-                        DechiffrerPaquet dechPaquet = (DechiffrerPaquet) paquet;
-                        clePublique = connexionBD.getClePublique(dechPaquet.getIdVote());
-                        
-                        BigInteger clePrivee = connexionBD.getClePrivee(dechPaquet.getIdVote());
-                        int resultat = Chiffrement.decrypt(dechPaquet.getChiffre(), clePublique, clePrivee);
-                        outputServeur.writeObject(new DechiffrerFeedbackPaquet(resultat));
-                        break;
+                        case DECHIFFRER:
+                            DechiffrerPaquet dechiffrerPaquet = (DechiffrerPaquet) paquet;
+                            clePublique = connexionBDD.selectClePublique(dechiffrerPaquet.getIdVote());
+                            BigInteger clePrivee = connexionBDD.selectClePrivee(dechiffrerPaquet.getIdVote());
+                            if (clePublique == null || clePrivee == null)
+                                serveur.ecrireException(new VoteInexistantException());
+                            else
+                                serveur.ecrirePaquet(new DechiffrerFeedbackPaquet(
+                                        Chiffrement.decrypt(dechiffrerPaquet.getChiffre(), clePublique, clePrivee)
+                                ));
+                            break;
+                    }
+                } catch (SQLException e) {
+                    serveur.ecrireException(new ConnexionBDDException());
                 }
-
-            } catch (IOException | ClassNotFoundException ignored) {} catch (SQLException e) {
-                throw new RuntimeException(e);
             }
-        }
+        } catch (IOException | ClassNotFoundException ignored) {}
     }
 }

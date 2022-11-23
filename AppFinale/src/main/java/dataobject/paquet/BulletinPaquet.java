@@ -3,7 +3,6 @@ package dataobject.paquet;
 import dataobject.Chiffre;
 
 public class BulletinPaquet extends Paquet {
-
     private Chiffre bulletin;
     private int idVote;
 

@@ -4,7 +4,6 @@ import dataobject.ClePublique;
 import dataobject.exception.FeedbackException;
 
 public class ClePubliqueFeedbackPaquet extends FeedbackPaquet {
-
     private ClePublique clePublique;
 
     public ClePubliqueFeedbackPaquet(ClePublique clePublique) {

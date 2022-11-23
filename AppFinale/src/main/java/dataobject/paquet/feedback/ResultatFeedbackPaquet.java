@@ -4,7 +4,6 @@ import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 
 public class ResultatFeedbackPaquet extends FeedbackPaquet {
-
     private Vote vote;
 
     public ResultatFeedbackPaquet(Vote vote) {

@@ -3,13 +3,12 @@ package dataobject.paquet.feedback;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 
-import java.util.Map;
+import java.util.Set;
 
 public class VotesPaquet extends FeedbackPaquet {
+    private Set<Vote> votes;
 
-    private Map<Integer, Vote> votes;
-
-    public VotesPaquet(Map<Integer, Vote> votes) {
+    public VotesPaquet(Set<Vote> votes) {
         this((FeedbackException) null);
         this.votes = votes;
     }
@@ -18,7 +17,7 @@ public class VotesPaquet extends FeedbackPaquet {
         super(exception);
     }
 
-    public Map<Integer, Vote> getVotes() {
+    public Set<Vote> getVotes() {
         return votes;
     }
 }

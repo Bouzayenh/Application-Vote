@@ -1,7 +1,6 @@
 package dataobject.paquet;
 
 public class DemanderClePubliquePaquet extends Paquet {
-
     private int idVote;
 
     public DemanderClePubliquePaquet(int idVote) {

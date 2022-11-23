@@ -3,21 +3,20 @@ package dataobject.paquet;
 import dataobject.Chiffre;
 
 public class DechiffrerPaquet extends Paquet {
-
-    private Chiffre chiffre;
     private int idVote;
+    private Chiffre chiffre;
 
-    public DechiffrerPaquet(Chiffre chiffre, int idVote) {
+    public DechiffrerPaquet(int idVote, Chiffre chiffre) {
         super(Type.DECHIFFRER);
-        this.chiffre = chiffre;
         this.idVote = idVote;
-    }
-
-    public Chiffre getChiffre() {
-        return chiffre;
+        this.chiffre = chiffre;
     }
 
     public int getIdVote() {
         return idVote;
+    }
+
+    public Chiffre getChiffre() {
+        return chiffre;
     }
 }

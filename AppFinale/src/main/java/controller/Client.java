@@ -1,70 +1,56 @@
 package controller;
 
+import controller.communication.Connexion;
+import controller.communication.RecepteurConnexion;
 import dataobject.Utilisateur;
 import dataobject.Vote;
-import dataobject.exception.*;
+import dataobject.exception.BulletinInvalideException;
+import dataobject.exception.FeedbackException;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
-import dataobject.paquet.feedback.FeedbackPaquet;
 import dataobject.paquet.feedback.ResultatFeedbackPaquet;
 import dataobject.paquet.feedback.VotesPaquet;
 import datastatic.Chiffrement;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 public class Client {
+    private RecepteurConnexion serveur;
 
-    private Socket serveurSocket;
-    private ObjectOutputStream outputServeur;
-    private ObjectInputStream inputServeur;
-
-    public Client() throws IOException, ClassNotFoundException, FeedbackException {
-        // demande de connexion au serveur
-        serveurSocket = new Socket("localhost", 2999);
-        outputServeur = new ObjectOutputStream(serveurSocket.getOutputStream());
-        inputServeur = new ObjectInputStream(serveurSocket.getInputStream());
-
-        outputServeur.writeObject(new IdentificationPaquet(IdentificationPaquet.Source.CLIENT));
+    public Client() throws IOException {
+        serveur = new RecepteurConnexion(new Socket("localhost", 2999));
+        serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.CLIENT));
     }
 
     public void authentification(String identifiant, String motDePasse) throws FeedbackException, IOException, ClassNotFoundException {
-        outputServeur.writeObject(new AuthentificationPaquet(new Utilisateur(identifiant, motDePasse)));
-        ((FeedbackPaquet) inputServeur.readObject()).throwException();
+        serveur.ecrirePaquet(new AuthentificationPaquet(new Utilisateur(identifiant, motDePasse).hasherMotdePasse()));
+        serveur.lireFeedback();
     }
 
     public void deconnexion() throws FeedbackException, IOException, ClassNotFoundException {
-        outputServeur.writeObject(new DeconnexionPaquet());
-        ((FeedbackPaquet) inputServeur.readObject()).throwException();
+        serveur.ecrirePaquet(new DeconnexionPaquet());
+        serveur.lireFeedback();
     }
 
     public void voter(int bulletin, int idVote) throws FeedbackException, IOException, ClassNotFoundException {
-        if (bulletin < 1 || bulletin > 2) throw new BulletinInvalideException();
+        if (bulletin != 1 && bulletin != 2) throw new BulletinInvalideException();
 
         // chiffrement et envoi du bulletin
-        outputServeur.writeObject(new DemanderClePubliquePaquet(idVote));
-        ClePubliqueFeedbackPaquet clePaquet = (ClePubliqueFeedbackPaquet) inputServeur.readObject();
-        clePaquet.throwException();
-        outputServeur.writeObject(new BulletinPaquet(Chiffrement.encrypt(bulletin-1, clePaquet.getClePublique()), idVote));
-
-        ((FeedbackPaquet) inputServeur.readObject()).throwException();
+        serveur.ecrirePaquet(new DemanderClePubliquePaquet(idVote));
+        ClePubliqueFeedbackPaquet paquet = (ClePubliqueFeedbackPaquet) serveur.lireFeedback();
+        serveur.ecrirePaquet(new BulletinPaquet(Chiffrement.encrypt(bulletin-1, paquet.getClePublique()), idVote));
+        serveur.lireFeedback();
     }
 
-    public Map<Integer, Vote> consulterVotes() throws FeedbackException, IOException, ClassNotFoundException {
-        outputServeur.writeObject(new DemanderVotesPaquet());
-        VotesPaquet votesPaquet = (VotesPaquet) inputServeur.readObject();
-        votesPaquet.throwException();
-        return votesPaquet.getVotes();
+    public Set<Vote> consulterVotes() throws FeedbackException, IOException, ClassNotFoundException {
+        serveur.ecrirePaquet(new DemanderVotesPaquet());
+        return ((VotesPaquet) serveur.lireFeedback()).getVotes();
     }
 
     public Vote consulterResultats(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
-        outputServeur.writeObject(new DemanderResultatPaquet(idVote));
-        ResultatFeedbackPaquet resPaquet = (ResultatFeedbackPaquet) inputServeur.readObject();
-        resPaquet.throwException();
-        return resPaquet.getVote();
+        serveur.ecrirePaquet(new DemanderResultatPaquet(idVote));
+        return ((ResultatFeedbackPaquet) serveur.lireFeedback()).getVote();
     }
 }

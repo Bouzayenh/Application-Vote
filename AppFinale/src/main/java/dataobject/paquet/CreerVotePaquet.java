@@ -1,17 +1,14 @@
 package dataobject.paquet;
 
-import dataobject.Vote;
-
 public class CreerVotePaquet extends Paquet {
+    private int idVote;
 
-    private Vote vote;
-
-    public CreerVotePaquet(Vote vote) {
+    public CreerVotePaquet(int idVote) {
         super(Type.CREER_VOTE);
-        this.vote = vote;
+        this.idVote = idVote;
     }
 
-    public Vote getVote() {
-        return vote;
+    public int getIdVote() {
+        return idVote;
     }
 }

@@ -5,8 +5,8 @@ import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 public class AppClient {
 
@@ -18,7 +18,7 @@ public class AppClient {
             System.out.println("Connecté avec succès");
 
             Scanner sc = new Scanner(System.in);
-            String identifiant, motDePasse, choix;
+            String login, motDePasse, idVote, choix;
 
             // interface de l'utilisateur
             boucle:while (true) {
@@ -40,15 +40,17 @@ public class AppClient {
                             System.out.print("Entrez [q] à tout moment pour annuler l'authentification :\n"
                                     + "Identifiant :\n"
                                     + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
+                            login = sc.nextLine();
+                            if (login.equals("q"))
+                                break;
 
                             System.out.print("Mot de passe :\n"
                                     + "> ");
                             motDePasse = sc.nextLine();
-                            if (motDePasse.equals("q")) break;
+                            if (motDePasse.equals("q"))
+                                break;
 
-                            client.authentification(identifiant, motDePasse);
+                            client.authentification(login, motDePasse);
                             System.out.println("Authentification réussie");
                             break;
 
@@ -58,46 +60,52 @@ public class AppClient {
                             break;
 
                         case "3":
-                            Map<Integer, Vote> votes = client.consulterVotes();
-                            System.out.println("Identifiant | Intitulé | Option 1 | Option 2");
-                            for (Vote vote : votes.values())
-                                System.out.println(vote.getIdentifiant() + " | "
-                                        + vote.getIntitule() + " | "
-                                        + vote.getOption1() + " | "
-                                        + vote.getOption2());
+                            Set<Vote> votes = client.consulterVotes();
+                            for (Vote vote : votes)
+                                System.out.println("[" + vote.getIdentifiant() + "] " + vote.getIntitule()
+                                        + "( " + vote.getOption1() + " ou " + vote.getOption2() + ")\n");
                             break;
 
                         case "4":
                             System.out.print("Entrez [q] à tout moment pour annuler le dépôt du bulletin :\n"
                                     + "Identifiant du vote :\n"
                                     + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
+                            idVote = sc.nextLine();
+                            if (idVote.equals("q"))
+                                break;
 
                             System.out.print("Choix (1 ou 2) :\n"
                                     + "> ");
                             choix = sc.nextLine();
-                            if (choix.equals("q")) break;
+                            if (choix.equals("q"))
+                                break;
 
-                            client.voter(Integer.parseInt(choix), Integer.parseInt(identifiant));
+                            client.voter(Integer.parseInt(choix), Integer.parseInt(idVote));
                             break;
 
                         case "5":
                             System.out.print("Entrez [q] à tout moment pour annuler la consultation des résultats du vote :\n"
                                     + "Identifiant du vote :\n"
                                     + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
+                            idVote = sc.nextLine();
+                            if (idVote.equals("q"))
+                                break;
 
-                            Vote vote = client.consulterResultats(Integer.parseInt(identifiant));
+                            Vote vote = client.consulterResultats(Integer.parseInt(idVote));
                             System.out.println(vote.getIntitule());
-                            double resultat = vote.getUrne() / (double) vote.getNbBulletins();
-                            if (resultat > 0.5) System.out.println("L'option « " + vote.getOption1() +
-                                    " » gagne avec " + ((double) (int) (resultat * 10000)) / 100 + "% des voix");
-                            else if (resultat < 0.5) System.out.println("L'option « " + vote.getOption2() +
-                                    " » gagne avec " + ((double) (int) ((1 - resultat) * 10000)) / 100 + "% des voix");
-                            else System.out.println("Les options « " + vote.getOption1() +
-                                        " » et « " + vote.getOption2() + " » sont à égalité");
+                            if (vote.getNbBulletins() == 0)
+                                System.out.println("Personne n'a participé à ce vote");
+                            else {
+                                if (vote.getResultat() > 0.5)
+                                    System.out.println("L'option « " + vote.getOption1() + " » gagne avec "
+                                            + ((double) (int) (vote.getResultat() * 10000)) / 100 + "% des voix");
+                                else if (vote.getResultat() < 0.5)
+                                    System.out.println("L'option « " + vote.getOption2() + " » gagne avec "
+                                            + ((double) (int) ((1 - vote.getResultat()) * 10000)) / 100 + "% des voix");
+                                else
+                                    System.out.println("Les options « " + vote.getOption1() +
+                                            " » et « " + vote.getOption2() + " » sont à égalité");
+                            }
                             break;
 
                         case "x":
@@ -106,13 +114,11 @@ public class AppClient {
                         default:
                             System.out.println("Commande non reconnue");
                     }
-
                 } catch (FeedbackException | NumberFormatException e) {
                     System.out.println("Erreur : " + e.getMessage());
                 }
             }
-
-        } catch (IOException | ClassNotFoundException | FeedbackException e) {
+        } catch (IOException | ClassNotFoundException e) {
             System.out.println("Erreur critique : Impossible de se connecter au serveur. Arrêt du client");
         }
     }

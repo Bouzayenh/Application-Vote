@@ -7,8 +7,8 @@ import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 public class AppServeur {
 
@@ -22,18 +22,19 @@ public class AppServeur {
             System.out.println("Serveur lancé. Connexions possibles");
 
             Scanner sc = new Scanner(System.in);
-            String intitule, option1, option2, identifiant, motDePasse;
+            String intitule, option1, option2, idVote, login, motDePasse, email;
 
             // interface de l'administrateur
             boucle:while (true) {
                 System.out.print("\nChoisissez l'une des options suivantes :\n"
-                        + " [1] Créer un vote\n"
-                        + " [2] Consulter les votes\n"
+                        + " [1] Consulter la liste des votes\n"
+                        + " [2] Créer un vote\n"
                         + " [3] Terminer un vote\n"
                         + " [4] Consulter les résultats d'un vote\n"
-                        + " [5] Créer un utilisateur\n"
-                        + " [6] Modifier un utilisateur\n"
+                        + " [5] Consulter la liste des utilisateurs\n"
+                        + " [6] Créer un utilisateur\n"
                         + " [7] Supprimer un utilisateur\n"
+                        + " [8] Modifier un utilisateur\n"
                         + " [x] Arrêter le serveur\n"
                         + "> ");
                 String input = sc.nextLine().toLowerCase();
@@ -43,44 +44,45 @@ public class AppServeur {
                         // TODO on pourra externaliser chaque cas comme méthode pour que ce soit plus clair
 
                         case "1":
+                            Set<Vote> votes = serveur.consulterVotes();
+                            for (Vote vote : votes)
+                                System.out.println("[" + vote.getIdentifiant() + "] " + vote.getIntitule()
+                                        + "( " + vote.getOption1() + " ou " + vote.getOption2() + ")\n");
+                            break;
+
+                        case "2":
                             System.out.print("Entrez [q] à tout moment pour annuler la création du vote :\n"
                                     + "Intitulé du vote :\n"
                                     + "> ");
                             intitule = sc.nextLine();
-                            if (intitule.equals("q")) break;
+                            if (intitule.equals("q"))
+                                break;
 
                             System.out.print("Première option :\n"
                                     + "> ");
                             option1 = sc.nextLine();
-                            if (option1.equals("q")) break;
+                            if (option1.equals("q"))
+                                break;
 
                             System.out.print("Deuxième option :\n"
                                     + "> ");
                             option2 = sc.nextLine();
-                            if (option2.equals("q")) break;
+                            if (option2.equals("q"))
+                                break;
 
                             serveur.creerVote(intitule, option1, option2);
                             System.out.println("Vote créé");
-                            break;
-
-                        case "2":
-                            Map<Integer, Vote> votes = serveur.consulterVotes();
-                            System.out.println("Identifiant | Intitulé | Option 1 | Option 2");
-                            for (Vote vote : votes.values())
-                                System.out.println(vote.getIdentifiant() + " | "
-                                        + vote.getIntitule() + " | "
-                                        + vote.getOption1() + " | "
-                                        + vote.getOption2());
                             break;
 
                         case "3":
                             System.out.print("Entrez [q] à tout moment pour annuler la terminaison du vote :\n"
                                     + "Identifiant du vote :\n"
                                     + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
+                            idVote = sc.nextLine();
+                            if (idVote.equals("q"))
+                                break;
 
-                            serveur.terminerVote(Integer.parseInt(identifiant));
+                            serveur.terminerVote(Integer.parseInt(idVote));
                             System.out.println("Vote terminé");
                             break;
 
@@ -88,83 +90,96 @@ public class AppServeur {
                             System.out.print("Entrez [q] à tout moment pour annuler la consultation des résultats du vote :\n"
                                     + "Identifiant du vote :\n"
                                     + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
+                            idVote = sc.nextLine();
+                            if (idVote.equals("q"))
+                                break;
 
-                            Vote vote = serveur.consulterResultats(Integer.parseInt(identifiant));
+                            Vote vote = serveur.consulterResultats(Integer.parseInt(idVote));
                             System.out.println(vote.getIntitule());
-                            double resultat = vote.getUrne() / (double) vote.getNbBulletins();
-                            if (resultat > 0.5) System.out.println("L'option « " + vote.getOption1() +
-                                    " » gagne avec " + ((double) (int) (resultat * 10000)) / 100 + "% des voix");
-                            else if (resultat < 0.5) System.out.println("L'option « " + vote.getOption2() +
-                                    " » gagne avec " + ((double) (int) ((1 - resultat) * 10000)) / 100 + "% des voix");
-                            else System.out.println("Les options « " + vote.getOption1() +
-                                        " » et « " + vote.getOption2() + " » sont à égalité");
+                            if (vote.getNbBulletins() == 0)
+                                System.out.println("Personne n'a participé à ce vote");
+                            else {
+                                if (vote.getResultat() > 0.5)
+                                    System.out.println("L'option « " + vote.getOption1() + " » gagne avec "
+                                            + ((double) (int) (vote.getResultat() * 10000)) / 100 + "% des voix");
+                                else if (vote.getResultat() < 0.5)
+                                    System.out.println("L'option « " + vote.getOption2() + " » gagne avec "
+                                            + ((double) (int) ((1 - vote.getResultat()) * 10000)) / 100 + "% des voix");
+                                else
+                                    System.out.println("Les options « " + vote.getOption1() +
+                                            " » et « " + vote.getOption2() + " » sont à égalité");
+                            }
                             break;
 
                         case "5":
-                            System.out.print("Entrez [q] à tout moment pour annuler la création de l'utilisateur :\n"
-                                    + "Identifiant de l'utilisateur :\n"
-                                    + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
-
-                            System.out.print("Mot de passe :\n"
-                                    + "> ");
-                            motDePasse = sc.nextLine();
-                            if (motDePasse.equals("q")) break;
-                            
-                            if(serveur.creerUtilisateur(identifiant, motDePasse)){
-                                System.out.println("L'utilisateur: " + identifiant +" a bien été créé");
-                            }else{
-                                System.out.println("Erreur: Utilisateur non créé");
-                            }
+                            Set<Utilisateur> utilisateurs = serveur.consulterUtilisateurs();
+                            for (Utilisateur utilisateur : utilisateurs)
+                                System.out.println(utilisateur.getLogin() + " (" + utilisateur.getEmail() + ") "
+                                        + utilisateur.getMotDePasse() + "\n");
                             break;
 
                         case "6":
                             System.out.print("Entrez [q] à tout moment pour annuler la création de l'utilisateur :\n"
-                            + "Identifiant de l'utilisateur à modifier :\n"
-                            + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
-
-                            System.out.print("Entrez les nouvelles informations ou entrez null: \n" +
-                            "Nouvelle identifiant :\n"
-                            + "> ");
-                            String newIdentifiant = sc.nextLine();
-                            if (newIdentifiant.equals("q")) break;
-
-                            System.out.print("Nouveau mot de passe :\n"
+                                    + "Login :\n"
                                     + "> ");
-                            String newMotDePasse = sc.nextLine();
-                            if (newMotDePasse.equals("q")) break;
+                            login = sc.nextLine();
+                            if (login.equals("q"))
+                                break;
 
-                            System.out.print("Nouvelle adresse mail :\n"
+                            System.out.print("Mot de passe :\n"
                                     + "> ");
-                            String newEmail = sc.nextLine();
-                            if (newEmail.equals("q")) break;
+                            motDePasse = sc.nextLine();
+                            if (motDePasse.equals("q"))
+                                break;
 
-                            if(serveur.modifierUtilisateur(identifiant, newIdentifiant, newMotDePasse, newEmail)){
-                                System.out.println("L'utilisateur: " + identifiant +" a bien été modifié");
-                            }else{
-                                System.out.println("Erreur: Utilisateur non modifié");
-                            }
-                            
+                            System.out.print("Adresse email :\n"
+                                    + "> ");
+                            email = sc.nextLine();
+                            if (email.equals("q"))
+                                break;
+
+                            serveur.creerUtilisateur(login, motDePasse, email);
+                            System.out.println("Utilisateur créé");
                             break;
 
                         case "7":
+                            System.out.print("Entrez [q] à tout moment pour annuler la suppression de l'utilisateur :\n"
+                                    + "Login :\n"
+                                    + "> ");
+                            login = sc.nextLine();
+                            if (login.equals("q"))
+                                break;
 
-                            System.out.print("Entrez [q] à tout moment pour annuler la création de l'utilisateur :\n"
-                            + "Identifiant de l'utilisateur à supprimer:\n"
-                            + "> ");
-                            identifiant = sc.nextLine();
-                            if (identifiant.equals("q")) break;
-                            if(serveur.supprimerUtilisateur(identifiant)){
-                                System.out.println("L'utilisateur: " + identifiant +" a bien été supprimé");
-                            }else{
-                                System.out.println("Erreur: Utilisateur non supprimé");
-                            }
+                            serveur.supprimerUtilisateur(login);
+                            System.out.println("Utilisateur supprimé");
+                            break;
 
+                        case "8":
+                            System.out.print("Entrez [q] à tout moment pour annuler la modification de l'utilisateur :\n"
+                                    + "Login :\n"
+                                    + "> ");
+                            login = sc.nextLine();
+                            if (login.equals("q"))
+                                break;
+
+                            System.out.print("Nouveau mot de passe (rien pour ne pas changer)\n" +
+                                    "> ");
+                            motDePasse = sc.nextLine();
+                            if (motDePasse.equals("q"))
+                                break;
+                            if (motDePasse.equals(""))
+                                motDePasse = null;
+
+                            System.out.print("Nouvelle adresse email (rien pour ne pas changer)\n" +
+                                    "> ");
+                            email = sc.nextLine();
+                            if (email.equals("q"))
+                                break;
+                            if (email.equals(""))
+                                email = null;
+
+                            serveur.modifierUtilisateur(login, motDePasse, email);
+                            System.out.println("Utilisateur modifié");
                             break;
 
                         case "x":
@@ -173,7 +188,6 @@ public class AppServeur {
                         default:
                             System.out.println("Commande non reconnue");
                     }
-
                 } catch (FeedbackException e) {
                     System.out.println("Erreur : " + e.getMessage());
                 } catch (NumberFormatException e) {
@@ -186,7 +200,6 @@ public class AppServeur {
                         throw e;
                 }
             }
-
         } catch (IOException | ClassNotFoundException | SQLException e) {
             System.out.println("Erreur critique : Arrêt du serveur");
             e.printStackTrace();

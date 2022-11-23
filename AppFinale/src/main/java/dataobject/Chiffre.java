@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 public class Chiffre implements Serializable {
-
     private BigInteger u;
     private BigInteger v;
 
@@ -23,6 +22,6 @@ public class Chiffre implements Serializable {
 
     @Override
     public String toString() {
-        return "DataObject.Chiffre(u=" + u + ", v=" + v + ")";
+        return "Chiffre(u=" + u + ", v=" + v + ")";
     }
 }
