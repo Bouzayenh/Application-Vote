@@ -7,6 +7,7 @@ import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class AppServeur {
             String intitule, option1, option2, idVote, login, motDePasse, email;
 
             // interface de l'administrateur
-            boucle:while (true) {
+            while (true) {
                 System.out.print("\nChoisissez l'une des options suivantes :\n"
                         + " [1] Consulter la liste des votes\n"
                         + " [2] Créer un vote\n"
@@ -45,9 +46,14 @@ public class AppServeur {
 
                         case "1":
                             Set<Vote> votes = serveur.consulterVotes();
-                            for (Vote vote : votes)
-                                System.out.println("[" + vote.getIdentifiant() + "] " + vote.getIntitule()
-                                        + "( " + vote.getOption1() + " ou " + vote.getOption2() + ")\n");
+                            for (Vote vote : votes) {
+                                System.out.print("[" + vote.getIdentifiant() + "] " + vote.getIntitule()
+                                        + " (" + vote.getOption1() + " ou " + vote.getOption2() + ")");
+                                if (vote.estFini())
+                                    System.out.println(" - Terminé");
+                                else
+                                    System.out.println();
+                            }
                             break;
 
                         case "2":
@@ -99,12 +105,12 @@ public class AppServeur {
                             if (vote.getNbBulletins() == 0)
                                 System.out.println("Personne n'a participé à ce vote");
                             else {
-                                if (vote.getResultat() > 0.5)
+                                if (vote.getResultat() < 0.5)
                                     System.out.println("L'option « " + vote.getOption1() + " » gagne avec "
-                                            + ((double) (int) (vote.getResultat() * 10000)) / 100 + "% des voix");
-                                else if (vote.getResultat() < 0.5)
-                                    System.out.println("L'option « " + vote.getOption2() + " » gagne avec "
                                             + ((double) (int) ((1 - vote.getResultat()) * 10000)) / 100 + "% des voix");
+                                else if (vote.getResultat() > 0.5)
+                                    System.out.println("L'option « " + vote.getOption2() + " » gagne avec "
+                                            + ((double) (int) (vote.getResultat() * 10000)) / 100 + "% des voix");
                                 else
                                     System.out.println("Les options « " + vote.getOption1() +
                                             " » et « " + vote.getOption2() + " » sont à égalité");
@@ -114,8 +120,7 @@ public class AppServeur {
                         case "5":
                             Set<Utilisateur> utilisateurs = serveur.consulterUtilisateurs();
                             for (Utilisateur utilisateur : utilisateurs)
-                                System.out.println(utilisateur.getLogin() + " (" + utilisateur.getEmail() + ") "
-                                        + utilisateur.getMotDePasse() + "\n");
+                                System.out.println(utilisateur.getLogin() + " (" + utilisateur.getEmail() + ")");
                             break;
 
                         case "6":
@@ -167,23 +172,19 @@ public class AppServeur {
                             motDePasse = sc.nextLine();
                             if (motDePasse.equals("q"))
                                 break;
-                            if (motDePasse.equals(""))
-                                motDePasse = null;
 
                             System.out.print("Nouvelle adresse email (rien pour ne pas changer)\n" +
                                     "> ");
                             email = sc.nextLine();
                             if (email.equals("q"))
                                 break;
-                            if (email.equals(""))
-                                email = null;
 
                             serveur.modifierUtilisateur(login, motDePasse, email);
                             System.out.println("Utilisateur modifié");
                             break;
 
                         case "x":
-                            break boucle;
+                            System.exit(0); // TODO Extrêmement irresponsable
 
                         default:
                             System.out.println("Commande non reconnue");
@@ -192,8 +193,7 @@ public class AppServeur {
                     System.out.println("Erreur : " + e.getMessage());
                 } catch (NumberFormatException e) {
                     System.out.println("Erreur : Pas un nombre");
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                } catch (IOException | ClassNotFoundException | NullPointerException e) {
                     if (!serveur.estConnecteScrutateur())
                         System.out.println("Erreur : Impossible de se connecter au scrutateur");
                     else

@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class Connexion {
+    protected Socket socket;
     protected ObjectOutputStream output;
     protected ObjectInputStream input;
 
@@ -17,9 +18,15 @@ public class Connexion {
     }
 
     public Connexion(Socket socket) throws IOException {
-        output = new ObjectOutputStream(socket.getOutputStream());
-        input = new ObjectInputStream(socket.getInputStream());
-        socket.setSoTimeout(1000);
+        this.socket = socket;
+        output = new ObjectOutputStream(this.socket.getOutputStream());
+        input = new ObjectInputStream(this.socket.getInputStream());
+    }
+
+    public Connexion(Connexion connexion) {
+        this.socket = connexion.socket;
+        this.output = connexion.output;
+        this.input = connexion.input;
     }
 
     public void ecrirePaquet(Paquet paquet) throws IOException {
@@ -28,5 +35,13 @@ public class Connexion {
 
     public Paquet lirePaquet() throws IOException, ClassNotFoundException {
         return (Paquet) input.readObject();
+    }
+
+    public int getTimeout() throws IOException {
+        return socket.getSoTimeout();
+    }
+
+    public void setTimeout(int delai) throws IOException {
+        socket.setSoTimeout(delai);
     }
 }

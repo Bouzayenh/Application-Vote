@@ -17,7 +17,7 @@ public class ServeurCBDD extends AbstractCBDD {
         super("bouazzatiy", "Azertyuiop");
     }
 
-    public synchronized Set<Vote> selectVotes() throws SQLException {
+    public synchronized Set<Vote> selectAllVotes() throws SQLException {
         ResultSet result = getConnexion().createStatement().executeQuery(
                 "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT FROM SAEVOTES"
         );
@@ -25,12 +25,11 @@ public class ServeurCBDD extends AbstractCBDD {
         Set<Vote> votes = new HashSet<>();
         while (result.next()) {
             Vote vote = new Vote(
+                    result.getInt(1),
                     result.getString(2),
                     result.getString(3),
                     result.getString(4)
-            );
-            vote.setIdentifiant(result.getInt(1));
-            vote.setResultat(result.getInt(5));
+            ).setResultat(result.getInt(5));
             votes.add(vote);
         }
         return votes;
@@ -56,8 +55,7 @@ public class ServeurCBDD extends AbstractCBDD {
                     result.getInt(6),
                     result.getDouble(7)
             );
-        else
-            return null;
+        return null;
     }
 
     public synchronized void updateUrneEtNbBulletins(int idVote, Chiffre urne) throws SQLException {
@@ -67,6 +65,15 @@ public class ServeurCBDD extends AbstractCBDD {
         statement.setString(1, urne.getU().toString());
         statement.setString(2, urne.getV().toString());
         statement.setInt(3, idVote);
+        statement.executeUpdate();
+    }
+
+    public synchronized void insertVoter(String login, int idVote) throws SQLException {
+        PreparedStatement statement = getConnexion().prepareStatement(
+                "INSERT INTO SAEVOTER(LOGIN, IDVOTE) VALUES (?, ?)"
+        );
+        statement.setString(1, login);
+        statement.setInt(2, idVote);
         statement.executeUpdate();
     }
 
@@ -91,6 +98,17 @@ public class ServeurCBDD extends AbstractCBDD {
         statement.setDouble(1, resultat);
         statement.setInt(2, idVote);
         statement.executeUpdate();
+    }
+
+    public synchronized boolean voteEstUnique(String login, int idVote) throws SQLException {
+        PreparedStatement statement = getConnexion().prepareStatement(
+                "SELECT COUNT(*) FROM SAEVOTER WHERE LOGIN = ? AND IDVOTE = ?"
+        );
+        statement.setString(1, login);
+        statement.setInt(2, idVote);
+        ResultSet result = statement.executeQuery();
+        result.next();
+        return result.getInt(1) == 0;
     }
 
     public synchronized boolean authentifier(Utilisateur utilisateur) throws SQLException {

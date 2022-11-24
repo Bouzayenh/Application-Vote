@@ -38,7 +38,7 @@ public class AppClient {
 
                         case "1":
                             System.out.print("Entrez [q] à tout moment pour annuler l'authentification :\n"
-                                    + "Identifiant :\n"
+                                    + "Login :\n"
                                     + "> ");
                             login = sc.nextLine();
                             if (login.equals("q"))
@@ -61,9 +61,14 @@ public class AppClient {
 
                         case "3":
                             Set<Vote> votes = client.consulterVotes();
-                            for (Vote vote : votes)
-                                System.out.println("[" + vote.getIdentifiant() + "] " + vote.getIntitule()
-                                        + "( " + vote.getOption1() + " ou " + vote.getOption2() + ")\n");
+                            for (Vote vote : votes) {
+                                System.out.print("[" + vote.getIdentifiant() + "] " + vote.getIntitule()
+                                        + " (" + vote.getOption1() + " ou " + vote.getOption2() + ")");
+                                if (vote.estFini())
+                                    System.out.println(" - Terminé");
+                                else
+                                    System.out.println();
+                            }
                             break;
 
                         case "4":
@@ -81,6 +86,7 @@ public class AppClient {
                                 break;
 
                             client.voter(Integer.parseInt(choix), Integer.parseInt(idVote));
+                            System.out.println("Bulletin déposé");
                             break;
 
                         case "5":
@@ -96,12 +102,12 @@ public class AppClient {
                             if (vote.getNbBulletins() == 0)
                                 System.out.println("Personne n'a participé à ce vote");
                             else {
-                                if (vote.getResultat() > 0.5)
+                                if (vote.getResultat() < 0.5)
                                     System.out.println("L'option « " + vote.getOption1() + " » gagne avec "
-                                            + ((double) (int) (vote.getResultat() * 10000)) / 100 + "% des voix");
-                                else if (vote.getResultat() < 0.5)
-                                    System.out.println("L'option « " + vote.getOption2() + " » gagne avec "
                                             + ((double) (int) ((1 - vote.getResultat()) * 10000)) / 100 + "% des voix");
+                                else if (vote.getResultat() > 0.5)
+                                    System.out.println("L'option « " + vote.getOption2() + " » gagne avec "
+                                            + ((double) (int) (vote.getResultat() * 10000)) / 100 + "% des voix");
                                 else
                                     System.out.println("Les options « " + vote.getOption1() +
                                             " » et « " + vote.getOption2() + " » sont à égalité");
@@ -114,8 +120,10 @@ public class AppClient {
                         default:
                             System.out.println("Commande non reconnue");
                     }
-                } catch (FeedbackException | NumberFormatException e) {
+                } catch (FeedbackException e) {
                     System.out.println("Erreur : " + e.getMessage());
+                } catch (NumberFormatException e) {
+                    System.out.println("Erreur : Pas un nombre");
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

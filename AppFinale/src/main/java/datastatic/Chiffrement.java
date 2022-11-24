@@ -40,7 +40,7 @@ public class Chiffrement {
         return new BigInteger[]{p, g, h, x};
     }
 
-    public static int decrypt(Chiffre chiffre, ClePublique clePublique, BigInteger clePrivee) {
+    public static int decrypt(Chiffre chiffre, int max, ClePublique clePublique, BigInteger clePrivee) {
         BigInteger p, g, M;
         p = clePublique.getP();
         g = clePublique.getG();
@@ -49,7 +49,7 @@ public class Chiffrement {
         // def m (message en clair)
         int m = 0;
         while (!M.equals(g.modPow(BigInteger.valueOf(m), p))) {
-            if (m == Integer.MAX_VALUE)
+            if (m >= max)
                 return -1;
             m++;
         }

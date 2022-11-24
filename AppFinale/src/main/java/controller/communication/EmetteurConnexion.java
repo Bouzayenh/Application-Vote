@@ -12,6 +12,10 @@ public class EmetteurConnexion extends Connexion {
         super(socket);
     }
 
+    public EmetteurConnexion(Connexion connexion) {
+        super(connexion);
+    }
+
     public FeedbackPaquet transfererFeedback() throws IOException, ClassNotFoundException {
        return (FeedbackPaquet) lirePaquet();
     }

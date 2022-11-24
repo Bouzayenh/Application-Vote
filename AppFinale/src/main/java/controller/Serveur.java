@@ -20,20 +20,20 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Serveur {
-    private ArrayList<String> utilisateursAuthentifies;
+    private Set<String> utilisateursAuthentifies;
 
     private ServerSocket serverSocket;
     private EmetteurConnexion scrutateur;
     private ServeurCBDD connexionBDD;
 
     public Serveur() throws IOException, SQLException {
-        utilisateursAuthentifies = new ArrayList<>();
+        utilisateursAuthentifies = new HashSet<>();
         serverSocket = new ServerSocket(2999);
         connexionBDD = new ServeurCBDD();
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, SQLException {
-        Set<Vote> votes = connexionBDD.selectVotes();
+        Set<Vote> votes = connexionBDD.selectAllVotes();
         if (votes.size() == 0)
             throw new AucunVoteException();
         return votes;
@@ -42,28 +42,29 @@ public class Serveur {
     public Vote consulterResultats(int idVote) throws FeedbackException, SQLException {
         Vote vote = connexionBDD.selectVote(idVote);
 
+        if (vote == null)
+            throw new VoteInexistantException();
         if (!vote.estFini())
             throw new VoteNonTermineException();
-        else
-            return vote;
+        return vote;
     }
 
     public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
-        scrutateur.ecrirePaquet(new CreerVotePaquet(connexionBDD.insertVote(new Vote(intitule, option1, option2))));
-        scrutateur.lireFeedback();
+        scrutateur.ecrirePaquet(new CreerVotePaquet());
+        CreerVoteFeedbackPaquet paquet = (CreerVoteFeedbackPaquet) scrutateur.lireFeedback();
+        connexionBDD.insertVote(new Vote(paquet.getIdVote(), intitule, option1, option2).setUrne(paquet.getChiffre()));
     }
 
     public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
         Vote vote = connexionBDD.selectVote(idVote);
-        double nbBulletins = vote.getNbBulletins();
+        int nbBulletins = vote.getNbBulletins();
         if (nbBulletins == 0)
             nbBulletins = 1;
 
         // récupère le résultat en clair
-        scrutateur.ecrirePaquet(new DechiffrerPaquet(idVote, vote.getUrne()));
+        scrutateur.ecrirePaquet(new DechiffrerPaquet(idVote, vote.getUrne(), nbBulletins));
         DechiffrerFeedbackPaquet paquet = (DechiffrerFeedbackPaquet) scrutateur.lireFeedback();
-
-        connexionBDD.terminerVote(idVote, paquet.getSomme() / nbBulletins);
+        connexionBDD.terminerVote(idVote, paquet.getResultat());
     }
 
     public Set<Utilisateur> consulterUtilisateurs() throws FeedbackException, SQLException {
@@ -79,7 +80,7 @@ public class Serveur {
 
     public void supprimerUtilisateur(String login) throws SQLException {
         connexionBDD.deleteUtilisateur(login);
-        deconnexion(login);
+        deconnecter(login);
     }
 
     public void modifierUtilisateur(String login, String motDePasse, String email) throws SQLException {
@@ -90,7 +91,7 @@ public class Serveur {
             connexionBDD.updateUtilisateurEmail(utilisateur);
     }
 
-    private synchronized void deconnexion(String login) {
+    private synchronized void deconnecter(String login) {
         utilisateursAuthentifies.remove(login);
     }
 
@@ -110,9 +111,7 @@ public class Serveur {
                 try {
                     // attend une connexion et la traite séparément afin d'écouter de nouveau
                     new ThreadGestionConnexion(new Connexion(serverSocket.accept())).start();
-                } catch (IOException e) {
-                    e.printStackTrace(); // TODO DEBUG, sera ignored
-                }
+                } catch (IOException ignored) {}
             }
         }).start();
     }
@@ -142,9 +141,7 @@ public class Serveur {
                             scrutateur = new EmetteurConnexion(connexion);
                         break;
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace(); // TODO DEBUG, sera ignored
-            }
+            } catch (IOException | ClassNotFoundException ignored) {}
         }
     }
 
@@ -169,40 +166,42 @@ public class Serveur {
 
                             case AUTHENTIFICATION:
                                 AuthentificationPaquet authPaquet = (AuthentificationPaquet) paquet;
-                                idUtilisateurCourant = authPaquet.getUtilisateur().getLogin();
-                                if (estAuthentifie())
-                                    client.ecrireException(new UtilisateurDejaConnecteException());
+                                if (estAuthentifie(idUtilisateurCourant))
+                                    client.ecrireException(new SessionDejaAuthentifieException());
+                                else if (estAuthentifie(authPaquet.getUtilisateur().getLogin()))
+                                    client.ecrireException(new UtilisateurDejaAuthentifieException());
                                 else {
-                                    if (!connexionBDD.authentifier(authPaquet.getUtilisateur()))
-                                        client.ecrireException(new ConnexionBDDException());
+                                    if (!connexionBDD.authentifier(authPaquet.getUtilisateur().hasherMotdePasse()))
+                                        client.ecrireException(new AuthentificationException());
                                     else {
-                                        authentification();
+                                        idUtilisateurCourant = authPaquet.getUtilisateur().getLogin();
+                                        authentifier();
                                         client.ecrireConfirmation();
                                     }
-                                    break;
                                 }
+                                break;
 
                             case DECONNEXION:
-                                if (!estAuthentifie())
+                                if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
-                                    deconnexion(idUtilisateurCourant);
+                                    deconnecter(idUtilisateurCourant);
                                     client.ecrireConfirmation();
                                 }
                                 break;
 
                             case DEMANDER_CLE_PUBLIQUE:
-                                if (!estAuthentifie())
+                                if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else
                                     client.ecrirePaquet(demanderClePublique(((DemanderClePubliquePaquet) paquet).getIdVote()));
                                 break;
 
                             case DEMANDER_VOTES:
-                                if (!estAuthentifie())
+                                if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
-                                    Set<Vote> votes = connexionBDD.selectVotes();
+                                    Set<Vote> votes = connexionBDD.selectAllVotes();
                                     if (votes.size() == 0)
                                         client.ecrireException(new AucunVoteException());
                                     else
@@ -211,7 +210,7 @@ public class Serveur {
                                 break;
 
                             case DEMANDER_RESULTAT:
-                                if (!estAuthentifie())
+                                if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
                                     Vote vote = connexionBDD.selectVote(((DemanderResultatPaquet) paquet).getIdVote());
@@ -220,42 +219,49 @@ public class Serveur {
                                     else
                                         client.ecrirePaquet(new ResultatFeedbackPaquet(vote));
                                 }
+                                break;
 
                             case BULLETIN:
-                                if (!estAuthentifie())
+                                if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
                                     BulletinPaquet bulPaquet = (BulletinPaquet) paquet;
-                                    // TODO vérifier que l'utilisateur n'a pas déjà voté
-                                    Vote vote = connexionBDD.selectVote(bulPaquet.getIdVote());
-                                    if (vote == null)
-                                        client.ecrireException(new VoteInexistantException());
+                                    if (!connexionBDD.voteEstUnique(idUtilisateurCourant, bulPaquet.getIdVote()))
+                                        client.ecrireException(new DejaVoteException());
                                     else {
-                                        // TODO vérifier que le bulletin est bien un 0 ou un 1
-                                        ClePubliqueFeedbackPaquet clePaquet = demanderClePublique(bulPaquet.getIdVote());
-                                        if (clePaquet.getException() != null)
-                                            client.ecrireException(clePaquet.getException());
+                                        Vote vote = connexionBDD.selectVote(bulPaquet.getIdVote());
+                                        if (vote == null)
+                                            client.ecrireException(new VoteInexistantException());
+                                        else if (vote.estFini())
+                                            client.ecrireException(new VoteTermineException());
                                         else {
-                                            // agrège le bulletin dans l'urne
-                                            Chiffre bulletin = bulPaquet.getBulletin();
-                                            connexionBDD.updateUrneEtNbBulletins(
-                                                    bulPaquet.getIdVote(),
-                                                    Chiffrement.agreger(bulletin, vote.getUrne(), clePaquet.getClePublique())
-                                            );
-                                            client.ecrireConfirmation();
+                                            scrutateur.ecrirePaquet(bulPaquet);
+                                            try {
+                                                // agrège le bulletin dans l'urne
+                                                ClePubliqueFeedbackPaquet clePaquet = (ClePubliqueFeedbackPaquet) scrutateur.lireFeedback();
+                                                Chiffre bulletin = bulPaquet.getBulletin();
+                                                connexionBDD.updateUrneEtNbBulletins(
+                                                        bulPaquet.getIdVote(),
+                                                        Chiffrement.agreger(bulletin, vote.getUrne(), clePaquet.getClePublique())
+                                                );
+                                                connexionBDD.insertVoter(idUtilisateurCourant, bulPaquet.getIdVote());
+                                                client.ecrireConfirmation();
+                                            } catch (FeedbackException e) {
+                                                client.ecrireException(e);
+                                            }
                                         }
                                     }
                                 }
                                 break;
                         }
-                    } catch (IOException | ClassNotFoundException e) {
+                    } catch (IOException | ClassNotFoundException | NullPointerException e) {
                         client.ecrireException(new ScrutateurDeconnecteException());
                     } catch (SQLException e) {
                         client.ecrireException(new ConnexionBDDException());
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
-                deconnexion(idUtilisateurCourant);
+                deconnecter(idUtilisateurCourant);
             }
         }
 
@@ -264,12 +270,12 @@ public class Serveur {
             return (ClePubliqueFeedbackPaquet) scrutateur.transfererFeedback();
         }
 
-        private synchronized boolean estAuthentifie() {
-            return idUtilisateurCourant != null && utilisateursAuthentifies.contains(idUtilisateurCourant);
+        private synchronized void authentifier() {
+            utilisateursAuthentifies.add(idUtilisateurCourant);
         }
 
-        private synchronized void authentification() {
-            utilisateursAuthentifies.add(idUtilisateurCourant);
+        private synchronized boolean estAuthentifie(String login) {
+            return login != null && utilisateursAuthentifies.contains(login);
         }
     }
 }

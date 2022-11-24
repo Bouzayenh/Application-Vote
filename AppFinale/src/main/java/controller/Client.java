@@ -25,7 +25,7 @@ public class Client {
     }
 
     public void authentification(String identifiant, String motDePasse) throws FeedbackException, IOException, ClassNotFoundException {
-        serveur.ecrirePaquet(new AuthentificationPaquet(new Utilisateur(identifiant, motDePasse).hasherMotdePasse()));
+        serveur.ecrirePaquet(new AuthentificationPaquet(new Utilisateur(identifiant, motDePasse)));
         serveur.lireFeedback();
     }
 

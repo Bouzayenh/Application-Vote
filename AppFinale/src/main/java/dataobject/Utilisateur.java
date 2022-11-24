@@ -8,6 +8,7 @@ public class Utilisateur implements Serializable {
     private String login;
     private String motDePasse;
     private String email;
+    private static String sel = "$2a$10$fromageC9kXkjBvPgrfCae";
 
     public Utilisateur(String login, String motDePasse) {
         this.login = login;
@@ -20,7 +21,7 @@ public class Utilisateur implements Serializable {
     }
 
     public Utilisateur hasherMotdePasse() {
-        this.motDePasse = BCrypt.hashpw(motDePasse, BCrypt.gensalt());
+        this.motDePasse = BCrypt.hashpw(motDePasse, sel);
         return this;
     }
 

@@ -12,6 +12,10 @@ public class RecepteurConnexion extends Connexion {
         super(socket);
     }
 
+    public RecepteurConnexion(Connexion connexion) {
+        super(connexion);
+    }
+
     public void ecrireException(FeedbackException exception) throws IOException {
         ecrirePaquet(new FeedbackPaquet(exception));
     }

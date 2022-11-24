@@ -23,8 +23,8 @@ public class Vote implements Serializable {
         this.resultat = resultat;
     }
 
-    public Vote(String intitule, String option1, String option2) {
-        this(0, intitule, option1, option2, null, 0, -1);
+    public Vote(int identifiant, String intitule, String option1, String option2) {
+        this(identifiant, intitule, option1, option2, null, 0, -1);
     }
 
     public int getIdentifiant() {
@@ -52,18 +52,20 @@ public class Vote implements Serializable {
     }
 
     public boolean estFini() {
-        return resultat == -1;
+        return resultat != -1;
     }
 
     public double getResultat() {
         return resultat;
     }
 
-    public void setIdentifiant(int identifiant) {
-        this.identifiant = identifiant;
+    public Vote setResultat(double resultat) {
+        this.resultat = resultat;
+        return this;
     }
 
-    public void setResultat(double resultat) {
-        this.resultat = resultat;
+    public Vote setUrne(Chiffre urne) {
+        this.urne = urne;
+        return this;
     }
 }
