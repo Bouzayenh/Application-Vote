@@ -12,15 +12,11 @@ public class RecepteurConnexion extends Connexion {
         super(socket);
     }
 
-    public FeedbackPaquet transfererFeedback() throws IOException, ClassNotFoundException {
-       return (FeedbackPaquet) lirePaquet();
+    public void ecrireException(FeedbackException exception) throws IOException {
+        ecrirePaquet(new FeedbackPaquet(exception));
     }
 
-    public FeedbackPaquet lireFeedback() throws FeedbackException, IOException, ClassNotFoundException {
-        FeedbackPaquet paquet = transfererFeedback();
-        FeedbackException exception = paquet.getException();
-        if (exception != null)
-            throw exception;
-        return paquet;
+    public void ecrireConfirmation() throws IOException {
+        ecrireException(null);
     }
 }

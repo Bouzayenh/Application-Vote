@@ -38,7 +38,7 @@ public class ServeurCBDD extends AbstractCBDD {
 
     public synchronized Vote selectVote(int idVote) throws SQLException {
         PreparedStatement statement = getConnexion().prepareStatement(
-                "SELECT INTITULE, OPTION1, OPTION2, URNEU, URNEV, NBBULLETINS, RESULTAT FROM SAEVOTES" +
+                "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT FROM SAEVOTES" +
                         " WHERE IDVOTE = ?"
         );
         statement.setInt(1, idVote);
@@ -54,7 +54,7 @@ public class ServeurCBDD extends AbstractCBDD {
                             new BigInteger(result.getString(5))
                     ),
                     result.getInt(6),
-                    result.getInt(8)
+                    result.getDouble(7)
             );
         else
             return null;
@@ -62,7 +62,7 @@ public class ServeurCBDD extends AbstractCBDD {
 
     public synchronized void updateUrneEtNbBulletins(int idVote, Chiffre urne) throws SQLException {
         PreparedStatement statement = getConnexion().prepareStatement(
-                "UPDATE SAEVOTES SET URNEU = ?, URNEV = ?, NBBULLETINS = NBBULLETINS + 1 WHERE IDVOTE = ?"
+                "UPDATE SAEVOTES SET URNE_U = ?, URNE_V = ?, NBBULLETINS = NBBULLETINS + 1 WHERE IDVOTE = ?"
         );
         statement.setString(1, urne.getU().toString());
         statement.setString(2, urne.getV().toString());
@@ -70,27 +70,18 @@ public class ServeurCBDD extends AbstractCBDD {
         statement.executeUpdate();
     }
 
-    public int insertVote(Vote vote) throws SQLException {
+    public synchronized void insertVote(Vote vote) throws SQLException {
         PreparedStatement statement = getConnexion().prepareStatement(
-                "INSERT INTO SAEVOTES(INTITULE, OPTION1, OPTION2, URNEU, URNEV, NBBULLETINS, RESULTAT)" +
-                        " VALUES (?, ?, ?, ?, ?, ?, ?)"
+                "INSERT INTO SAEVOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT)" +
+                        " VALUES (?, ?, ?, ?, ?, ?, 0, -1)"
         );
-        statement.setString(1, vote.getIntitule());
-        statement.setString(2, vote.getOption1());
-        statement.setString(3, vote.getOption2());
-        statement.setString(4, vote.getUrne().getU().toString());
-        statement.setString(5, vote.getUrne().getV().toString());
-        statement.setInt(6, vote.getNbBulletins());
-        statement.setDouble(8, vote.getResultat());
+        statement.setInt(1, vote.getIdentifiant());
+        statement.setString(2, vote.getIntitule());
+        statement.setString(3, vote.getOption1());
+        statement.setString(4, vote.getOption2());
+        statement.setString(5, vote.getUrne().getU().toString());
+        statement.setString(6, vote.getUrne().getV().toString());
         statement.executeUpdate();
-
-        // récupère l'identifiant du vote
-        ResultSet result = getConnexion().createStatement().executeQuery(
-                "SELECT MAX(IDVOTE) FROM SAEVOTES"
-        );
-        result.next();
-
-        return result.getInt(1);
     }
 
     public void terminerVote(int idVote, double resultat) throws SQLException {

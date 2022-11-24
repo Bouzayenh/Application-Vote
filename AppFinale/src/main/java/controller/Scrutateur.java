@@ -1,7 +1,7 @@
 package controller;
 
 import controller.communication.Connexion;
-import controller.communication.EmetteurConnexion;
+import controller.communication.RecepteurConnexion;
 import controller.database.ScrutateurCBDD;
 import dataobject.ClePublique;
 import dataobject.exception.ConnexionBDDException;
@@ -19,13 +19,13 @@ import java.sql.SQLException;
 public class Scrutateur {
     private int l;
 
-    private EmetteurConnexion serveur;
+    private RecepteurConnexion serveur;
     private ScrutateurCBDD connexionBDD;
 
     public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
         this.l = l;
 
-        serveur = new EmetteurConnexion(new Socket("localhost", 2999));
+        serveur = new RecepteurConnexion(new Socket("localhost", 2999));
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
         connexionBDD = new ScrutateurCBDD();
     }

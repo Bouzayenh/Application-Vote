@@ -1,7 +1,7 @@
 package controller;
 
 import controller.communication.Connexion;
-import controller.communication.RecepteurConnexion;
+import controller.communication.EmetteurConnexion;
 import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.BulletinInvalideException;
@@ -17,10 +17,10 @@ import java.net.Socket;
 import java.util.Set;
 
 public class Client {
-    private RecepteurConnexion serveur;
+    private EmetteurConnexion serveur;
 
     public Client() throws IOException {
-        serveur = new RecepteurConnexion(new Socket("localhost", 2999));
+        serveur = new EmetteurConnexion(new Socket("localhost", 2999));
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.CLIENT));
     }
 

@@ -13,17 +13,32 @@ public class ScrutateurCBDD extends AbstractCBDD {
         super("sanchezj", "Azertyuiop");
     }
 
-    public void insertVote(int idVote, BigInteger p, BigInteger g, BigInteger h, BigInteger x) throws SQLException {
+
+    /**
+     *
+     * @param p
+     * @param g
+     * @param h
+     * @param x
+     * @return L'id du vote créé.
+     * @throws SQLException
+     */
+    public int insertVote(BigInteger p, BigInteger g, BigInteger h, BigInteger x) throws SQLException {
         PreparedStatement statement = getConnexion().prepareStatement(
                 "INSERT INTO SAEVOTES(IDVOTE, CLEPUBLIQUE_P, CLEPUBLIQUE_G, CLEPUBLIQUE_H, CLEPRIVEE)" +
-                        " VALUES (?, ?, ?, ?, ?)"
+                        " VALUES (0, ?, ?, ?, ?)"
         );
-        statement.setString(1, String.valueOf(idVote));
-        statement.setString(2, p.toString());
-        statement.setString(3, g.toString());
-        statement.setString(4, h.toString());
-        statement.setString(5, x.toString());
+        statement.setString(1, p.toString());
+        statement.setString(2, g.toString());
+        statement.setString(3, h.toString());
+        statement.setString(4, x.toString());
         statement.executeUpdate();
+
+        ResultSet result = getConnexion().createStatement().executeQuery(
+                "SELECT SAEVOTES_AUTOINCREMENT.CURRVAL FROM DUAL"
+        );
+        result.next();
+        return result.getInt(1);
     }
 
     public ClePublique selectClePublique(int idVote) throws SQLException {

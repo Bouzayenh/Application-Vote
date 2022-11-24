@@ -9,16 +9,13 @@ import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.*;
 import dataobject.paquet.*;
-import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
-import dataobject.paquet.feedback.DechiffrerFeedbackPaquet;
-import dataobject.paquet.feedback.ResultatFeedbackPaquet;
-import dataobject.paquet.feedback.VotesPaquet;
+import dataobject.paquet.feedback.*;
 import datastatic.Chiffrement;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -26,7 +23,7 @@ public class Serveur {
     private ArrayList<String> utilisateursAuthentifies;
 
     private ServerSocket serverSocket;
-    private RecepteurConnexion scrutateur;
+    private EmetteurConnexion scrutateur;
     private ServeurCBDD connexionBDD;
 
     public Serveur() throws IOException, SQLException {
@@ -134,7 +131,7 @@ public class Serveur {
                 switch (((IdentificationPaquet) connexion.lirePaquet()).getIdentification()) {
 
                     case CLIENT:
-                        new ThreadConnexionClient((EmetteurConnexion) connexion).start();
+                        new ThreadConnexionClient(new RecepteurConnexion(connexion)).start();
                         break;
 
                     case SCRUTATEUR:
@@ -142,7 +139,7 @@ public class Serveur {
                         if (estConnecteScrutateur())
                             connexion.ecrirePaquet(new DeconnexionPaquet());
                         else
-                            scrutateur = (RecepteurConnexion) connexion;
+                            scrutateur = new EmetteurConnexion(connexion);
                         break;
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -152,10 +149,10 @@ public class Serveur {
     }
 
     private class ThreadConnexionClient extends Thread {
-        private EmetteurConnexion client;
+        private RecepteurConnexion client;
         private String idUtilisateurCourant;
 
-        public ThreadConnexionClient(EmetteurConnexion client) throws IOException {
+        public ThreadConnexionClient(RecepteurConnexion client) throws IOException {
             this.client = client;
         }
 
