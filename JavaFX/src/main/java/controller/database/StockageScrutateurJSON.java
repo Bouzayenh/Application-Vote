@@ -14,6 +14,7 @@ import java.nio.file.Path;
 public class StockageScrutateurJSON implements IStockageScrutateur{
 
     private JSONObject clesJSON;
+
     private String pathName;
 
 

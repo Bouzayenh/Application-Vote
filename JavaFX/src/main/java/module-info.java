@@ -7,8 +7,4 @@ module com.example.javafx {
 
     exports javafx;
     opens javafx to javafx.fxml;
-    exports javafx.view;
-    opens javafx.view to javafx.fxml;
-    exports javafx.controller;
-    opens javafx.controller to javafx.fxml;
 }
