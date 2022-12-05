@@ -3,7 +3,8 @@ package controller;
 import controller.communication.Connexion;
 import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
-import controller.database.ServeurCBDD;
+import controller.database.IStockageServeur;
+import controller.database.StockageServeurOracle;
 import dataobject.Chiffre;
 import dataobject.Utilisateur;
 import dataobject.Vote;
@@ -24,23 +25,23 @@ public class Serveur {
 
     private ServerSocket serverSocket;
     private EmetteurConnexion scrutateur;
-    private ServeurCBDD connexionBDD;
+    private IStockageServeur stockageServeur;
 
     public Serveur() throws IOException, SQLException {
         utilisateursAuthentifies = new HashSet<>();
         serverSocket = new ServerSocket(3615);
-        connexionBDD = new ServeurCBDD();
+        stockageServeur = new StockageServeurOracle();
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, SQLException {
-        Set<Vote> votes = connexionBDD.selectAllVotes();
+        Set<Vote> votes = stockageServeur.getVotes();
         if (votes.size() == 0)
             throw new AucunVoteException();
         return votes;
     }
 
     public Vote consulterResultats(int idVote) throws FeedbackException, SQLException {
-        Vote vote = connexionBDD.selectVote(idVote);
+        Vote vote = stockageServeur.getVote(idVote);
 
         if (vote == null)
             throw new VoteInexistantException();
@@ -52,11 +53,11 @@ public class Serveur {
     public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
         scrutateur.ecrirePaquet(new CreerVotePaquet());
         CreerVoteFeedbackPaquet paquet = (CreerVoteFeedbackPaquet) scrutateur.lireFeedback();
-        connexionBDD.insertVote(new Vote(paquet.getIdVote(), intitule, option1, option2).setUrne(paquet.getChiffre()));
+        stockageServeur.creerVote(new Vote(paquet.getIdVote(), intitule, option1, option2).setUrne(paquet.getChiffre()));
     }
 
     public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
-        Vote vote = connexionBDD.selectVote(idVote);
+        Vote vote = stockageServeur.getVote(idVote);
         int nbBulletins = vote.getNbBulletins();
         if (nbBulletins == 0)
             nbBulletins = 1;
@@ -64,31 +65,31 @@ public class Serveur {
         // récupère le résultat en clair
         scrutateur.ecrirePaquet(new DechiffrerPaquet(idVote, vote.getUrne(), nbBulletins));
         DechiffrerFeedbackPaquet paquet = (DechiffrerFeedbackPaquet) scrutateur.lireFeedback();
-        connexionBDD.terminerVote(idVote, paquet.getResultat());
+        stockageServeur.terminerVote(idVote, paquet.getResultat());
     }
 
     public Set<Utilisateur> consulterUtilisateurs() throws FeedbackException, SQLException {
-        Set<Utilisateur> utilisateurs = connexionBDD.selectUtilisateurs();
+        Set<Utilisateur> utilisateurs = stockageServeur.getUtilisateurs();
         if (utilisateurs.size() == 0)
             throw new AucunUtilisateurException();
         return utilisateurs;
     }
 
     public void creerUtilisateur(String login, String motDePasse, String email) throws SQLException {
-        connexionBDD.insertUtilisateur(new Utilisateur(login, motDePasse, email).hasherMotdePasse());
+        stockageServeur.creerUtilisateur(new Utilisateur(login, motDePasse, email).hasherMotdePasse());
     }
 
     public void supprimerUtilisateur(String login) throws SQLException {
-        connexionBDD.deleteUtilisateur(login);
+        stockageServeur.supprimerUtilisateur(login);
         deconnecter(login);
     }
 
     public void modifierUtilisateur(String login, String motDePasse, String email) throws SQLException {
         Utilisateur utilisateur = new Utilisateur(login, motDePasse, email).hasherMotdePasse();
         if (!Objects.equals(motDePasse, ""))
-            connexionBDD.updateUtilisateurMotDePasse(utilisateur);
+            stockageServeur.mettreAJourUtilisateurMotDePasse(utilisateur);
         if (!Objects.equals(email, ""))
-            connexionBDD.updateUtilisateurEmail(utilisateur);
+            stockageServeur.mettreAJourUtilisateurEmail(utilisateur);
     }
 
     private synchronized void deconnecter(String login) {
@@ -171,7 +172,7 @@ public class Serveur {
                                 else if (estAuthentifie(authPaquet.getUtilisateur().getLogin()))
                                     client.ecrireException(new UtilisateurDejaAuthentifieException());
                                 else {
-                                    if (!connexionBDD.authentifier(authPaquet.getUtilisateur().hasherMotdePasse()))
+                                    if (!stockageServeur.verifierMotDePasse(authPaquet.getUtilisateur().hasherMotdePasse()))
                                         client.ecrireException(new AuthentificationException());
                                     else {
                                         idUtilisateurCourant = authPaquet.getUtilisateur().getLogin();
@@ -201,7 +202,7 @@ public class Serveur {
                                 if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
-                                    Set<Vote> votes = connexionBDD.selectAllVotes();
+                                    Set<Vote> votes = stockageServeur.getVotes();
                                     if (votes.size() == 0)
                                         client.ecrireException(new AucunVoteException());
                                     else
@@ -213,7 +214,7 @@ public class Serveur {
                                 if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
-                                    Vote vote = connexionBDD.selectVote(((DemanderResultatPaquet) paquet).getIdVote());
+                                    Vote vote = stockageServeur.getVote(((DemanderResultatPaquet) paquet).getIdVote());
                                     if (!vote.estFini())
                                         client.ecrireException(new VoteNonTermineException());
                                     else
@@ -226,10 +227,10 @@ public class Serveur {
                                     client.ecrireException(new UtilisateurDeconnecteException());
                                 else {
                                     BulletinPaquet bulPaquet = (BulletinPaquet) paquet;
-                                    if (!connexionBDD.voteEstUnique(idUtilisateurCourant, bulPaquet.getIdVote()))
+                                    if (stockageServeur.aVote(idUtilisateurCourant, bulPaquet.getIdVote()))
                                         client.ecrireException(new DejaVoteException());
                                     else {
-                                        Vote vote = connexionBDD.selectVote(bulPaquet.getIdVote());
+                                        Vote vote = stockageServeur.getVote(bulPaquet.getIdVote());
                                         if (vote == null)
                                             client.ecrireException(new VoteInexistantException());
                                         else if (vote.estFini())
@@ -240,11 +241,11 @@ public class Serveur {
                                                 // agrège le bulletin dans l'urne
                                                 ClePubliqueFeedbackPaquet clePaquet = (ClePubliqueFeedbackPaquet) scrutateur.lireFeedback();
                                                 Chiffre bulletin = bulPaquet.getBulletin();
-                                                connexionBDD.updateUrneEtNbBulletins(
+                                                stockageServeur.updateUrne(
                                                         bulPaquet.getIdVote(),
                                                         Chiffrement.agreger(bulletin, vote.getUrne(), clePaquet.getClePublique())
                                                 );
-                                                connexionBDD.insertVoter(idUtilisateurCourant, bulPaquet.getIdVote());
+                                                stockageServeur.voter(idUtilisateurCourant, bulPaquet.getIdVote());
                                                 client.ecrireConfirmation();
                                             } catch (FeedbackException e) {
                                                 client.ecrireException(e);
@@ -256,8 +257,6 @@ public class Serveur {
                         }
                     } catch (IOException | ClassNotFoundException | NullPointerException e) {
                         client.ecrireException(new ScrutateurDeconnecteException());
-                    } catch (SQLException e) {
-                        client.ecrireException(new ConnexionBDDException());
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {

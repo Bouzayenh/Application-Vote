@@ -2,7 +2,8 @@ package controller;
 
 import controller.communication.Connexion;
 import controller.communication.RecepteurConnexion;
-import controller.database.ScrutateurCBDD;
+import controller.database.IStockageScrutateur;
+import controller.database.StockageScrutateurOracle;
 import dataobject.Chiffre;
 import dataobject.ClePublique;
 import dataobject.exception.BulletinInvalideException;
@@ -23,20 +24,19 @@ public class Scrutateur {
     private int l;
 
     private RecepteurConnexion serveur;
-    private ScrutateurCBDD connexionBDD;
+    private IStockageScrutateur stockageScrutateur;
 
     public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
         this.l = l;
 
         serveur = new RecepteurConnexion(new Socket("localhost", 3615));
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
-        connexionBDD = new ScrutateurCBDD();
+        stockageScrutateur = new StockageScrutateurOracle();
     }
 
     public void run() {
         try {
             while (true) {
-                try {
                     // attend un paquet du serveur
                     Paquet paquet = serveur.lirePaquet();
                     ClePublique clePublique;
@@ -51,7 +51,7 @@ public class Scrutateur {
                             break;
 
                         case DEMANDER_CLE_PUBLIQUE:
-                            clePublique = connexionBDD.selectClePublique(((DemanderClePubliquePaquet) paquet).getIdVote());
+                            clePublique = stockageScrutateur.getClePublique(((DemanderClePubliquePaquet) paquet).getIdVote());
                             if (clePublique == null)
                                 serveur.ecrireException(new VoteInexistantException());
                             else
@@ -60,15 +60,15 @@ public class Scrutateur {
 
                         case CREER_VOTE:
                             BigInteger[] cles = Chiffrement.keygen(l);
-                            int idVote = connexionBDD.insertVote(cles[0], cles[1], cles[2], cles[3]);
+                            int idVote = stockageScrutateur.insererVote(cles[0], cles[1], cles[2], cles[3]);
                             Chiffre urneZero = Chiffrement.encrypt(0, new ClePublique(cles[0], cles[1], cles[2]));
                             serveur.ecrirePaquet(new CreerVoteFeedbackPaquet(idVote, urneZero));
                             break;
 
                         case DECHIFFRER:
                             DechiffrerPaquet dechiffrerPaquet = (DechiffrerPaquet) paquet;
-                            clePublique = connexionBDD.selectClePublique(dechiffrerPaquet.getIdVote());
-                            clePrivee = connexionBDD.selectClePrivee(dechiffrerPaquet.getIdVote());
+                            clePublique = stockageScrutateur.getClePublique(dechiffrerPaquet.getIdVote());
+                            clePrivee = stockageScrutateur.getClePrivee(dechiffrerPaquet.getIdVote());
                             if (clePublique == null)
                                 serveur.ecrireException(new VoteInexistantException());
                             else
@@ -81,8 +81,8 @@ public class Scrutateur {
 
                         case BULLETIN:
                             BulletinPaquet bulPaquet = (BulletinPaquet) paquet;
-                            clePublique = connexionBDD.selectClePublique(bulPaquet.getIdVote());
-                            clePrivee = connexionBDD.selectClePrivee(bulPaquet.getIdVote());
+                            clePublique = stockageScrutateur.getClePublique(bulPaquet.getIdVote());
+                            clePrivee = stockageScrutateur.getClePrivee(bulPaquet.getIdVote());
                             if (clePublique == null)
                                 serveur.ecrireException(new VoteInexistantException());
                             else {
@@ -94,9 +94,6 @@ public class Scrutateur {
                             }
                             break;
                     }
-                } catch (SQLException e) {
-                    serveur.ecrireException(new ConnexionBDDException());
-                }
             }
         } catch (IOException | ClassNotFoundException ignored) {}
     }
