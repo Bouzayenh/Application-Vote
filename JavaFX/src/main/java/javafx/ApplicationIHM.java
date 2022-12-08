@@ -20,6 +20,7 @@ public class ApplicationIHM extends Application {
         this.primaryStage = primaryStage;
         vueAuthentification = new AuthentificationView(this);
         vueListeVote = new ListeVoteView(this);
+        vueListeVote.setMaximized(true);
         vueAuthentification.show();
     }
 

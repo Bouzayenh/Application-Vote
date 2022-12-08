@@ -6,10 +6,12 @@ import dataobject.exception.FeedbackException;
 import javafx.ApplicationIHM;
 import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -45,10 +47,14 @@ public class ListeVoteView extends Stage {
                     for ( Node vbox : ((AnchorPane)element).getChildren()) {
                         if (vbox.getId().equals("VoteContaining")){
                             for (Vote v : votes) {
+
+                                Label label = new Label("en cours");
                                 Button BVote = new Button();
                                 BVote.setText(v.getIntitule());
-                                BVote.setMinWidth(((VBox)vbox).getPrefWidth());
-                                ((VBox)vbox).getChildren().add(BVote);
+                                BVote.setMinWidth(((VBox)vbox).getPrefWidth()-60);
+                                HBox hbox = new HBox();
+                                hbox.getChildren().addAll(BVote,label);
+                                ((VBox)vbox).getChildren().add(hbox);
                             }
                         }
                     }

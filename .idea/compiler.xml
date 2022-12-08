@@ -14,7 +14,7 @@
     <bytecodeTargetLevel target="17">
       <module name="AppFinale" target="14" />
       <module name="Communication" target="9" />
-      <module name="JavaFX" target="19" />
+      <module name="JavaFX" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>
