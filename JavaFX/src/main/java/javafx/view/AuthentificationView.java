@@ -31,14 +31,7 @@ public class AuthentificationView extends Stage{
         this.setScene(scene);
         authentificationController = fxmlLoader.getController();
         authentificationController.setMyApp(mainApp);
-        /*ColorAdjust adj = new ColorAdjust(0, -0.9, -0.5, 0);
-        GaussianBlur blur = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
-        adj.setInput(blur);
-        for ( Node element : ((VBox)scene.getRoot()).getChildren()){
-            if(element instanceof AnchorPane) {
-                ((AnchorPane) element).setEffect(adj);
-            }
-        }*/
+
 
     }
 }

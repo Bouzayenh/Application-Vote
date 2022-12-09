@@ -7,7 +7,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.view.AuthentificationView;
 
 import java.io.IOException;
 
@@ -40,6 +39,9 @@ public class AuthentificationController {
 
     }
 
+    public void voteChoisi(ActionEvent event) {
+
+    }
     public AuthentificationController()  {
 
         try {

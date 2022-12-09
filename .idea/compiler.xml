@@ -11,10 +11,10 @@
         <module name="Communication" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="17">
+    <bytecodeTargetLevel target="19">
       <module name="AppFinale" target="14" />
       <module name="Communication" target="9" />
-      <module name="JavaFX" target="17" />
+      <module name="JavaFX" target="19" />
     </bytecodeTargetLevel>
   </component>
 </project>
