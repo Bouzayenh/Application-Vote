@@ -29,7 +29,7 @@ public class StockageServeurOracle implements IStockageServeur{
 
         try {
             ResultSet result = getConnexion().createStatement().executeQuery(
-                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT FROM SAEVOTES"
+                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT FROM SAEVOTES ORDER BY IDVOTE"
             );
 
             Set<Vote> votes = new HashSet<>();

@@ -30,49 +30,64 @@ public class ListeVoteView extends Stage {
     private Scene scene;
     private ListeVoteController listeVoteController;
     private AnchorPane anchorPane;
+    private VoteView vueVote;
+    private ChoixVue vueChoix;
+    private ApplicationIHM myAppli;
+    private VBox vboxListeVote;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
+
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueListeVote.fxml"));
         scene = new Scene(fxmlLoader.load(), 620, 540);
         this.setTitle("Liste de votes");
         this.setScene(scene);
+
+        myAppli = mainApp;
+
         listeVoteController = fxmlLoader.getController();
+        vueVote = new VoteView(listeVoteController, this);
+        vueChoix = new ChoixVue(listeVoteController);
+
         listeVoteController.setMyApp(mainApp);
         VBox root = (VBox) this.scene.getRoot();
         for ( Node element : root.getChildren()){
             if(element instanceof AnchorPane) {
-                anchorPane = (AnchorPane) element;
+                anchorPane = ((AnchorPane) element);
+                for ( Node vbox : anchorPane.getChildren()) {
+                    if (vbox.getId().equals("VoteContaining")){
+                        vboxListeVote = ((VBox)vbox);
+                    }
+                }
             }
         }
 
     }
 
-    public void montrer() {
+    public void setterForController(){
+        listeVoteController.setMyView(this);
+    }
+    public void afficher() {
         Client c = listeVoteController.getClient();
         VBox root = (VBox) this.scene.getRoot();
 
         try {
 
             Set<Vote> votes = c.consulterVotes();
-            for ( Node vbox : anchorPane.getChildren()) {
-                if (vbox.getId().equals("VoteContaining")){
-                    for (Vote v : votes) {
+            for (Vote v : votes) {
+                Label label = new Label("en cours");
+                Button BVote = new Button();
 
-                        Label label = new Label("en cours");
-                        Button BVote = new Button();
+                BVote.setText(v.getIntitule());
+                BVote.setPrefWidth(vboxListeVote.getPrefWidth()-60);
+                BVote.setOnAction(actionEvent -> {
+                    setFlou();
+                    afficherVueVote(v);
+                });
 
-                        BVote.setText(v.getIntitule());
-                        BVote.setPrefWidth(((VBox)vbox).getPrefWidth()-60);
-                        BVote.setOnAction(actionEvent -> {
-                            setFlou();
-                        });
-
-                        HBox hbox = new HBox();
-                        hbox.getChildren().addAll(BVote,label);
-                        hbox.setPadding(new Insets(0.0,0.0,5.0,0.0));
-                        ((VBox)vbox).getChildren().add(hbox);
-                    }
-                }
+                HBox hbox = new HBox();
+                hbox.getChildren().addAll(BVote,label);
+                hbox.setPadding(new Insets(0.0,0.0,5.0,0.0));
+                vboxListeVote.getChildren().add(hbox);
             }
             this.show();
         } catch (FeedbackException e) {
@@ -90,7 +105,44 @@ public class ListeVoteView extends Stage {
         GaussianBlur blur = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
         adj.setInput(blur);
         anchorPane.setEffect(adj);
-
     }
+
+    public void setDefloutage(){
+
+        ColorAdjust adj = new ColorAdjust(0, 0, 0, 0);
+        GaussianBlur blur = new GaussianBlur(0);
+        adj.setInput(blur);
+        anchorPane.setEffect(adj);
+    }
+
+    public void afficherVueChoix(Vote v, int choix){
+        vueChoix.afficherChoix(v,choix);
+    }
+
+    public void cacherVueChoix(){
+        vueChoix.hide();
+    }
+
+    public void afficherVueVote(Vote v){
+        vueVote.afficherVote(v);
+    }
+
+    public void afficherVueVote(){
+        vueVote.show();
+    }
+
+    public void cacherVueVote(){
+        vueVote.hide();
+    }
+
+    public void voter() {
+        myAppli.voter(vueChoix.getChoix(), vueChoix.getIdVote());
+    }
+
+    public void rafraichir(){
+        vboxListeVote.getChildren().clear();
+        afficher();
+    }
+
 }
 
