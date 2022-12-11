@@ -3,6 +3,7 @@ package controller;
 import controller.communication.Connexion;
 import controller.communication.RecepteurConnexion;
 import controller.database.IStockageScrutateur;
+import controller.database.StockageScrutateurJSON;
 import controller.database.StockageScrutateurOracle;
 import dataobject.Chiffre;
 import dataobject.ClePublique;
@@ -31,7 +32,7 @@ public class Scrutateur {
 
         serveur = new RecepteurConnexion(new Socket("localhost", 3615));
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
-        stockageScrutateur = new StockageScrutateurOracle();
+        stockageScrutateur = new StockageScrutateurJSON("./cle.json");
     }
 
     public void run() {
