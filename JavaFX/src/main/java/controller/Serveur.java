@@ -4,6 +4,7 @@ import controller.communication.Connexion;
 import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
 import controller.database.IStockageServeur;
+import controller.database.StockageServeurMySQL;
 import controller.database.StockageServeurOracle;
 import dataobject.Chiffre;
 import dataobject.Utilisateur;
@@ -30,7 +31,7 @@ public class Serveur {
     public Serveur() throws IOException, SQLException {
         utilisateursAuthentifies = new HashSet<>();
         serverSocket = new ServerSocket(3615);
-        stockageServeur = new StockageServeurOracle();
+        stockageServeur = new StockageServeurMySQL();
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, SQLException {
