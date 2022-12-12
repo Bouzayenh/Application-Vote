@@ -24,6 +24,12 @@ public class ListeVoteController {
     private Button btnConfirmer;
     @FXML
     private Label labelChoix;
+    @FXML
+    private Button btnAcceuil;
+    @FXML
+    private Button btnDeconnexion;
+    @FXML
+    private Button btnProfil;
 
 
     private ApplicationIHM myApp;
@@ -63,5 +69,20 @@ public class ListeVoteController {
     @FXML
     void btnRafraichirClicked(ActionEvent event) {
         vueListeVote.rafraichir();
+    }
+
+    @FXML
+    void btnAccueilClicked(ActionEvent event) {
+        vueListeVote.afficher();
+    }
+
+    @FXML
+    void btnDeconnexionClicked(ActionEvent event) {
+        myApp.clientDeconnexion();
+    }
+
+    @FXML
+    void btnProfilClicked(ActionEvent event) {
+
     }
 }

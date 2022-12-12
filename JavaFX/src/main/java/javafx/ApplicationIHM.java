@@ -23,14 +23,35 @@ public class ApplicationIHM extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         vueAuthentification = new AuthentificationView(this);
+        vueAuthentification.show();
+
         vueListeVote = new ListeVoteView(this);
         vueListeVote.setMaximized(true);
         vueListeVote.setterForController();
-        vueAuthentification.show();
+    }
+
+    public void clientDeconnexion() {
+        try {
+            client.deconnexion();
+            vueListeVote.close();
+
+            vueAuthentification = new AuthentificationView(this);
+            vueAuthentification.show();
+
+            vueListeVote = new ListeVoteView(this);
+            vueListeVote.setMaximized(true);
+            vueListeVote.setterForController();
+        } catch (FeedbackException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void authentificationToMainView(){
-        vueAuthentification.hide();
+        vueAuthentification.close();
         vueListeVote.afficher();
     }
     public void setClient(Client c){
