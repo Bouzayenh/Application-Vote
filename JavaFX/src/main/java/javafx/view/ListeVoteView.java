@@ -13,11 +13,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -34,12 +35,13 @@ public class ListeVoteView extends Stage {
     private ChoixVue vueChoix;
     private ApplicationIHM myAppli;
     private VBox vboxListeVote;
+    private ScrollPane scrollPanelisteVote;
     private ResultatView vueResusltat;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueListeVote.fxml"));
-        scene = new Scene(fxmlLoader.load(), 620, 540);
+        scene = new Scene(fxmlLoader.load());
         this.setTitle("Liste de votes");
         this.setScene(scene);
 
@@ -55,14 +57,17 @@ public class ListeVoteView extends Stage {
         for ( Node element : root.getChildren()){
             if(element instanceof AnchorPane) {
                 anchorPane = ((AnchorPane) element);
-                for ( Node vbox : anchorPane.getChildren()) {
-                    if (vbox.getId().equals("VoteContaining")){
-                        vboxListeVote = ((VBox)vbox);
+                for ( Node scrollpane : anchorPane.getChildren()) {
+                    if (scrollpane.getId().equals("scrollPane")){
+                        scrollPanelisteVote = (ScrollPane) scrollpane;
                     }
                 }
             }
         }
-
+        vboxListeVote = new VBox();
+        vboxListeVote.setPrefWidth(700);
+        vboxListeVote.setPrefHeight(425);
+        scrollPanelisteVote.setContent(vboxListeVote);
     }
 
     public void setterForController(){
@@ -80,12 +85,14 @@ public class ListeVoteView extends Stage {
                 if(!v.estFini()){
                     label = new Label("en cours");
                 }else{
-                    label = new Label("terminé");
+                    label = new Label(" terminé");
                 }
-                Button BVote = new Button();
+                label.setFont(new Font(20));
 
+                Button BVote = new Button();
                 BVote.setText(v.getIntitule());
-                BVote.setPrefWidth(vboxListeVote.getPrefWidth()-60);
+                BVote.setFont(new Font(20));
+                BVote.setPrefWidth(vboxListeVote.getPrefWidth()-110);
                 BVote.setOnAction(actionEvent -> {
                     setFlou();
                     afficherVueVote(v);
@@ -95,6 +102,7 @@ public class ListeVoteView extends Stage {
                 hbox.getChildren().addAll(BVote,label);
                 hbox.setPadding(new Insets(0.0,0.0,5.0,0.0));
                 vboxListeVote.getChildren().add(hbox);
+
             }
             this.show();
         } catch (FeedbackException e) {

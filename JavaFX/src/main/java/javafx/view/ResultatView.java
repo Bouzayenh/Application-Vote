@@ -36,7 +36,7 @@ public class ResultatView extends Stage {
                 anchorPane = (AnchorPane) element;
             }
         }
-
+        root.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
         this.initStyle(StageStyle.UNDECORATED);
     }
 
