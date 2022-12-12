@@ -5,6 +5,7 @@ import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
 import controller.database.ServeurCBDD;
 import dataobject.Chiffre;
+import dataobject.Mail;
 import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.*;
@@ -12,8 +13,10 @@ import dataobject.paquet.*;
 import dataobject.paquet.feedback.*;
 import datastatic.Chiffrement;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Objects;
@@ -65,6 +68,11 @@ public class Serveur {
         scrutateur.ecrirePaquet(new DechiffrerPaquet(idVote, vote.getUrne(), nbBulletins));
         DechiffrerFeedbackPaquet paquet = (DechiffrerFeedbackPaquet) scrutateur.lireFeedback();
         connexionBDD.terminerVote(idVote, paquet.getResultat());
+
+        // envoie un mail aux utilisateurs qui ont voté pour ce vote
+
+
+
     }
 
     public Set<Utilisateur> consulterUtilisateurs() throws FeedbackException, SQLException {
@@ -73,6 +81,9 @@ public class Serveur {
             throw new AucunUtilisateurException();
         return utilisateurs;
     }
+
+
+
 
     public void creerUtilisateur(String login, String motDePasse, String email) throws SQLException {
         connexionBDD.insertUtilisateur(new Utilisateur(login, motDePasse, email).hasherMotdePasse());
@@ -115,6 +126,7 @@ public class Serveur {
             }
         }).start();
     }
+
 
     private class ThreadGestionConnexion extends Thread {
         Connexion connexion;
@@ -246,8 +258,14 @@ public class Serveur {
                                                 );
                                                 connexionBDD.insertVoter(idUtilisateurCourant, bulPaquet.getIdVote());
                                                 client.ecrireConfirmation();
+                                                Mail mail= new Mail();
+                                                mail.envoyerMail("Vote",connexionBDD.getUtilisateur(idUtilisateurCourant).getEmail(),connexionBDD.selectVote(bulPaquet.getIdVote()));
                                             } catch (FeedbackException e) {
                                                 client.ecrireException(e);
+                                            } catch (GeneralSecurityException e) {
+                                                throw new RuntimeException(e);
+                                            } catch (MessagingException e) {
+                                                throw new RuntimeException(e);
                                             }
                                         }
                                     }
@@ -277,5 +295,6 @@ public class Serveur {
         private synchronized boolean estAuthentifie(String login) {
             return login != null && utilisateursAuthentifies.contains(login);
         }
+
     }
 }

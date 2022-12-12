@@ -3,6 +3,8 @@ package controller.database;
 import dataobject.Chiffre;
 import dataobject.Utilisateur;
 import dataobject.Vote;
+import dataobject.exception.AucunUtilisateurException;
+import dataobject.exception.FeedbackException;
 
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
@@ -173,5 +175,16 @@ public class ServeurCBDD extends AbstractCBDD {
         statement.setString(1, utilisateur.getEmail());
         statement.setString(2, utilisateur.getLogin());
         statement.executeUpdate();
+    }
+
+    public Utilisateur getUtilisateur(String idUtilisateur) throws FeedbackException, SQLException {
+        Set<Utilisateur> utilisateurs = this.selectUtilisateurs();
+        if (utilisateurs.isEmpty())
+            throw new AucunUtilisateurException();
+        for (Utilisateur utilisateur : utilisateurs) {
+            if (utilisateur.getLogin().equals(idUtilisateur))
+                return utilisateur;
+        }
+        return null;
     }
 }
