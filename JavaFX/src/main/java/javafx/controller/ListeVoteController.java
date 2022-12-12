@@ -44,6 +44,7 @@ public class ListeVoteController {
     void btnRetourClicked(ActionEvent event) {
         vueListeVote.setDefloutage();
         vueListeVote.cacherVueVote();
+        vueListeVote.cacherVueResultat();
     }
 
     @FXML

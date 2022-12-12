@@ -31,7 +31,7 @@ public class Serveur {
     public Serveur() throws IOException, SQLException {
         utilisateursAuthentifies = new HashSet<>();
         serverSocket = new ServerSocket(3615);
-        stockageServeur = new StockageServeurMySQL();
+        stockageServeur = new StockageServeurOracle();
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, SQLException {

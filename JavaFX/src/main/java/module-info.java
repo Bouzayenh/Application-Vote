@@ -5,6 +5,7 @@ module com.example.javafx {
     requires jbcrypt;
     requires org.json;
     requires mysql.connector.j;
+    requires javafx.graphics;
 
     exports javafx;
     opens javafx to javafx.fxml;

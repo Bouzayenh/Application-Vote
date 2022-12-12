@@ -34,6 +34,7 @@ public class ListeVoteView extends Stage {
     private ChoixVue vueChoix;
     private ApplicationIHM myAppli;
     private VBox vboxListeVote;
+    private ResultatView vueResusltat;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
 
@@ -47,6 +48,7 @@ public class ListeVoteView extends Stage {
         listeVoteController = fxmlLoader.getController();
         vueVote = new VoteView(listeVoteController, this);
         vueChoix = new ChoixVue(listeVoteController);
+        vueResusltat = new ResultatView(listeVoteController, this);
 
         listeVoteController.setMyApp(mainApp);
         VBox root = (VBox) this.scene.getRoot();
@@ -74,7 +76,12 @@ public class ListeVoteView extends Stage {
 
             Set<Vote> votes = c.consulterVotes();
             for (Vote v : votes) {
-                Label label = new Label("en cours");
+                Label label;
+                if(!v.estFini()){
+                    label = new Label("en cours");
+                }else{
+                    label = new Label("terminé");
+                }
                 Button BVote = new Button();
 
                 BVote.setText(v.getIntitule());
@@ -124,7 +131,12 @@ public class ListeVoteView extends Stage {
     }
 
     public void afficherVueVote(Vote v){
-        vueVote.afficherVote(v);
+
+        if(v.estFini()){
+            vueResusltat.afficherResultat(v);
+        }else{
+            vueVote.afficherVote(v);
+        }
     }
 
     public void afficherVueVote(){
@@ -144,5 +156,8 @@ public class ListeVoteView extends Stage {
         afficher();
     }
 
+    public void cacherVueResultat() {
+        vueResusltat.hide();
+    }
 }
 

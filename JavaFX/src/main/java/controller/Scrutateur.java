@@ -32,7 +32,7 @@ public class Scrutateur {
 
         serveur = new RecepteurConnexion(new Socket("localhost", 3615));
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
-        stockageScrutateur = new StockageScrutateurJSON("./cle.json");
+        stockageScrutateur = new StockageScrutateurOracle();
     }
 
     public void run() {

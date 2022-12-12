@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
@@ -32,6 +33,7 @@ public class ChoixVue extends Stage {
                 anchorPane = (AnchorPane) element;
             }
         }
+        this.initStyle(StageStyle.UNDECORATED);
     }
 
     public void afficherChoix(Vote v, int choix){
