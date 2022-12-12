@@ -96,4 +96,18 @@ public interface IStockageServeur {
      * @param utilisateur
      */
     void mettreAJourUtilisateurEmail(Utilisateur utilisateur);
+
+    /**
+     *
+     * @param login L'identifiant de l'utilisateur.
+     * @return L'adresse e-mail de l'utilisateur.
+     */
+    String getUtilisateurEmail(String login);
+
+    /**
+     *
+     * @param idVote L'identifiant du vote.
+     * @return Le nombre d'utilisateurs ayant participé au vote.
+     */
+    int getNbVotants(int idVote);
 }

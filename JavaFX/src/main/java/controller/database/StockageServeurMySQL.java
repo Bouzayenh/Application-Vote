@@ -289,4 +289,42 @@ public class StockageServeurMySQL implements IStockageServeur{
 
         }
     }
+
+    @Override
+    public String getUtilisateurEmail(String login) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT EMAIL FROM SAE_UTILISATEURS WHERE LOGIN = ?"
+            );
+
+            statement.setString(1, login);
+
+            ResultSet result = statement.executeQuery();
+            result.next();
+
+            return result.getString(1);
+
+        }catch (SQLException e){
+            return "";
+        }
+    }
+
+    @Override
+    public int getNbVotants(int idVote) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT COUNT(*) FROM SAE_VOTER WHERE IDVOTE = ?"
+            );
+
+            statement.setInt(1, idVote);
+
+            ResultSet result = statement.executeQuery();
+            result.next();
+
+            return result.getInt(1);
+
+        }catch (SQLException e){
+            return 0;
+        }
+    }
 }

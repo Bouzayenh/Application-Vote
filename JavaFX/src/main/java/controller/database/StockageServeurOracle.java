@@ -277,4 +277,41 @@ public class StockageServeurOracle implements IStockageServeur{
 
         }
     }
+
+    public String getUtilisateurEmail(String login){
+        try {
+            PreparedStatement statement = getConnexion().prepareStatement(
+                    "SELECT EMAIL FROM SAEUTILISATEURS WHERE LOGIN = ?"
+            );
+
+            statement.setString(1, login);
+
+            ResultSet result = statement.executeQuery();
+            result.next();
+
+            return result.getString(1);
+
+        }catch (SQLException e){
+            return "";
+        }
+    }
+
+    @Override
+    public int getNbVotants(int idVote) {
+        try {
+            PreparedStatement statement = getConnexion().prepareStatement(
+                    "SELECT NBBULLETINS FROM SAEVOTES WHERE IDVOTE = ?"
+            );
+
+            statement.setInt(1, idVote);
+
+            ResultSet result = statement.executeQuery();
+            result.next();
+
+            return result.getInt(1);
+
+        }catch (SQLException e){
+            return 0;
+        }
+    }
 }
