@@ -23,10 +23,18 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding></ScrollPane>
             <Button fx:id="btnRafraichir" layoutX="758.0" layoutY="62.0" mnemonicParsing="false" onAction="#btnRafraichirClicked" text="🗘" />
-            <HBox fx:id="menu" layoutX="49.0" layoutY="506.0" prefHeight="70.0" prefWidth="706.0">
+            <HBox fx:id="menu" alignment="CENTER" layoutX="49.0" layoutY="506.0" prefHeight="70.0" prefWidth="706.0" spacing="150.0">
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
+               <children>
+                  <Button fx:id="btnProfil" mnemonicParsing="false" onAction="#btnProfilClicked" prefHeight="85.0" prefWidth="148.0" text="Profil" />
+                  <Button fx:id="btnAcceuil" mnemonicParsing="false" onAction="#btnAccueilClicked" prefHeight="85.0" prefWidth="148.0" text="Accueil" />
+                  <Button fx:id="btnDeconnexion" mnemonicParsing="false" onAction="#btnDeconnexionClicked" prefHeight="85.0" prefWidth="148.0" text="Deconnexion" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
             </HBox>
       </children>
     </AnchorPane>

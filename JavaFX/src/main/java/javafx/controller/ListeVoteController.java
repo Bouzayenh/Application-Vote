@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.view.ListeVoteView;
+import javafx.view.ModifUtilisateur;
 
 public class ListeVoteController {
 
@@ -34,6 +35,8 @@ public class ListeVoteController {
 
     private ApplicationIHM myApp;
     private ListeVoteView vueListeVote;
+
+    private ModifUtilisateur vuemodifUtilisateur;
 
     public void setMyApp(ApplicationIHM app) {
         myApp= app;
@@ -83,6 +86,7 @@ public class ListeVoteController {
 
     @FXML
     void btnProfilClicked(ActionEvent event) {
+        vuemodifUtilisateur.afficher();
 
     }
 }

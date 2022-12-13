@@ -3,6 +3,8 @@ package controller.database;
 import dataobject.Chiffre;
 import dataobject.Utilisateur;
 import dataobject.Vote;
+import dataobject.exception.AucunUtilisateurException;
+import dataobject.exception.FeedbackException;
 
 import java.math.BigInteger;
 import java.sql.*;
@@ -313,5 +315,14 @@ public class StockageServeurOracle implements IStockageServeur{
         }catch (SQLException e){
             return 0;
         }
+    }
+
+    public Utilisateur getUtilisateur(String idUtilisateur) {
+        Set<Utilisateur> utilisateurs = this.getUtilisateurs();
+        for (Utilisateur utilisateur : utilisateurs) {
+            if (utilisateur.getLogin().equals(idUtilisateur))
+                return utilisateur;
+        }
+        return null;
     }
 }

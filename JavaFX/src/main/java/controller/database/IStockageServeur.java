@@ -110,4 +110,11 @@ public interface IStockageServeur {
      * @return Le nombre d'utilisateurs ayant participé au vote.
      */
     int getNbVotants(int idVote);
+
+    /**
+     *
+     * @param login identifiant utilisateur.
+     * @return Objet utilisateur avec le login passé en paramètre null sinon.
+     */
+    Utilisateur getUtilisateur(String login);
 }

@@ -7,6 +7,7 @@ import controller.database.IStockageServeur;
 import controller.database.StockageServeurMySQL;
 import controller.database.StockageServeurOracle;
 import dataobject.Chiffre;
+import dataobject.Mail;
 import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.*;
@@ -14,8 +15,10 @@ import dataobject.paquet.*;
 import dataobject.paquet.feedback.*;
 import datastatic.Chiffrement;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Objects;
@@ -67,6 +70,20 @@ public class Serveur {
         scrutateur.ecrirePaquet(new DechiffrerPaquet(idVote, vote.getUrne(), nbBulletins));
         DechiffrerFeedbackPaquet paquet = (DechiffrerFeedbackPaquet) scrutateur.lireFeedback();
         stockageServeur.terminerVote(idVote, paquet.getResultat());
+
+        // envoie un mail aux utilisateurs
+        for (Utilisateur utilisateur : stockageServeur.getUtilisateurs()) {
+            if (stockageServeur.aVote(utilisateur.getLogin(), idVote)) {
+                try {
+                    Mail mail = new Mail();
+                    mail.envoyerMail("FinVote",utilisateur.getEmail(), stockageServeur.getVote(idVote));
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                } catch (GeneralSecurityException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
     public Set<Utilisateur> consulterUtilisateurs() throws FeedbackException, SQLException {
@@ -248,8 +265,14 @@ public class Serveur {
                                                 );
                                                 stockageServeur.voter(idUtilisateurCourant, bulPaquet.getIdVote());
                                                 client.ecrireConfirmation();
+                                                Mail mail = new Mail();
+                                                mail.envoyerMail("Vote",stockageServeur.getUtilisateur(idUtilisateurCourant).getEmail(),stockageServeur.getVote(bulPaquet.getIdVote()));
                                             } catch (FeedbackException e) {
                                                 client.ecrireException(e);
+                                            } catch (MessagingException e) {
+                                                throw new RuntimeException(e);
+                                            } catch (GeneralSecurityException e) {
+                                                throw new RuntimeException(e);
                                             }
                                         }
                                     }
