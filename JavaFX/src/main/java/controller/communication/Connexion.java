@@ -2,13 +2,13 @@ package controller.communication;
 
 import dataobject.paquet.Paquet;
 
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 public class Connexion {
-    protected Socket socket;
+    protected SSLSocket sslSocket;
     protected ObjectOutputStream output;
     protected ObjectInputStream input;
 
@@ -17,14 +17,14 @@ public class Connexion {
         SCRUTATEUR
     }
 
-    public Connexion(Socket socket) throws IOException {
-        this.socket = socket;
-        output = new ObjectOutputStream(this.socket.getOutputStream());
-        input = new ObjectInputStream(this.socket.getInputStream());
+    public Connexion(SSLSocket sslSocket) throws IOException {
+        this.sslSocket = sslSocket;
+        output = new ObjectOutputStream(this.sslSocket.getOutputStream());
+        input = new ObjectInputStream(this.sslSocket.getInputStream());
     }
 
     public Connexion(Connexion connexion) {
-        this.socket = connexion.socket;
+        this.sslSocket = connexion.sslSocket;
         this.output = connexion.output;
         this.input = connexion.input;
     }
@@ -35,13 +35,5 @@ public class Connexion {
 
     public Paquet lirePaquet() throws IOException, ClassNotFoundException {
         return (Paquet) input.readObject();
-    }
-
-    public int getTimeout() throws IOException {
-        return socket.getSoTimeout();
-    }
-
-    public void setTimeout(int delai) throws IOException {
-        socket.setSoTimeout(delai);
     }
 }

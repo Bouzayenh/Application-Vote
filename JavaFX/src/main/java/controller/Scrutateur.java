@@ -1,6 +1,7 @@
 package controller;
 
 import controller.communication.Connexion;
+import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
 import controller.database.IStockageScrutateur;
 import controller.database.StockageScrutateurJSON;
@@ -8,31 +9,36 @@ import controller.database.StockageScrutateurOracle;
 import dataobject.Chiffre;
 import dataobject.ClePublique;
 import dataobject.exception.BulletinInvalideException;
-import dataobject.exception.ConnexionBDDException;
 import dataobject.exception.VoteInexistantException;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
 import dataobject.paquet.feedback.CreerVoteFeedbackPaquet;
 import dataobject.paquet.feedback.DechiffrerFeedbackPaquet;
-import datastatic.Chiffrement;
+import dataobject.Chiffrement;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.sql.SQLException;
 
 public class Scrutateur {
-    private int l;
-
-    private RecepteurConnexion serveur;
     private IStockageScrutateur stockageScrutateur;
+    private int l;
+    private RecepteurConnexion serveur;
 
     public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
+        stockageScrutateur = new StockageScrutateurJSON("C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\scrutateur\\cle.json");
         this.l = l;
 
-        serveur = new RecepteurConnexion(new Socket("localhost", 3615));
+        System.setProperty("javax.net.ssl.trustStore", "C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\ssl\\saeTrustStore.jts");
+        System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        serveur = new RecepteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));
+
+        // identification
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
-        stockageScrutateur = new StockageScrutateurOracle();
     }
 
     public void run() {

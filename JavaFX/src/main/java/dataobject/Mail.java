@@ -9,13 +9,10 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
-import com.google.api.services.gmail.model.Label;
-import com.google.api.services.gmail.model.ListLabelsResponse;
 import com.google.api.services.gmail.model.Message;
 import org.apache.commons.codec.binary.Base64;
 
@@ -26,8 +23,6 @@ import javax.mail.internet.MimeMessage;
 import java.io.*;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -49,7 +44,7 @@ public class Mail {
             throws IOException {
         // Load client secrets.
         GoogleClientSecrets clientSecrets =
-                GoogleClientSecrets.load(jsonFactory, new InputStreamReader(Mail.class.getResourceAsStream("/code_secret_client_762233691442-ka8uci3j2nusuqf2del3pejap8i64ea4.apps.googleusercontent.com.json")));
+                GoogleClientSecrets.load(jsonFactory, new InputStreamReader(Mail.class.getResourceAsStream("/mail/code_secret_client_762233691442-ka8uci3j2nusuqf2del3pejap8i64ea4.apps.googleusercontent.com.json")));
 
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(

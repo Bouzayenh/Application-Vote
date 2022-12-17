@@ -3,12 +3,12 @@ package controller.communication;
 import dataobject.exception.FeedbackException;
 import dataobject.paquet.feedback.FeedbackPaquet;
 
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
-import java.net.Socket;
 
 public class RecepteurConnexion extends Connexion {
 
-    public RecepteurConnexion(Socket socket) throws IOException {
+    public RecepteurConnexion(SSLSocket socket) throws IOException {
         super(socket);
     }
 

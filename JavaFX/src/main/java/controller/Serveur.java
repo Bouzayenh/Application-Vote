@@ -4,20 +4,17 @@ import controller.communication.Connexion;
 import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
 import controller.database.IStockageServeur;
-import controller.database.StockageServeurMySQL;
 import controller.database.StockageServeurOracle;
-import dataobject.Chiffre;
-import dataobject.Mail;
-import dataobject.Utilisateur;
-import dataobject.Vote;
+import dataobject.*;
 import dataobject.exception.*;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.*;
-import datastatic.Chiffrement;
 
 import javax.mail.MessagingException;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -25,16 +22,20 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Serveur {
-    private Set<String> utilisateursAuthentifies;
-
-    private ServerSocket serverSocket;
-    private EmetteurConnexion scrutateur;
     private IStockageServeur stockageServeur;
+    private Set<String> utilisateursAuthentifies;
+    private SSLServerSocket sslServerSocket;
+    private EmetteurConnexion scrutateur;
 
     public Serveur() throws IOException, SQLException {
-        utilisateursAuthentifies = new HashSet<>();
-        serverSocket = new ServerSocket(3615);
         stockageServeur = new StockageServeurOracle();
+        utilisateursAuthentifies = new HashSet<>();
+
+        System.setProperty("javax.net.ssl.keyStore", "C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\ssl\\saeKeyStore.jks");
+        System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
+        SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);
+
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, SQLException {
@@ -129,7 +130,7 @@ public class Serveur {
             while (true) {
                 try {
                     // attend une connexion et la traite séparément afin d'écouter de nouveau
-                    new ThreadGestionConnexion(new Connexion(serverSocket.accept())).start();
+                    new ThreadGestionConnexion(new Connexion((SSLSocket) sslServerSocket.accept())).start();
                 } catch (IOException ignored) {}
             }
         }).start();

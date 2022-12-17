@@ -10,8 +10,10 @@ import dataobject.paquet.*;
 import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
 import dataobject.paquet.feedback.ResultatFeedbackPaquet;
 import dataobject.paquet.feedback.VotesPaquet;
-import datastatic.Chiffrement;
+import dataobject.Chiffrement;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Set;
@@ -20,7 +22,12 @@ public class Client {
     private EmetteurConnexion serveur;
 
     public Client() throws IOException {
-        serveur = new EmetteurConnexion(new Socket("localhost", 3615));
+        System.setProperty("javax.net.ssl.trustStore", "C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\ssl\\saeTrustStore.jts");
+        System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));
+
+        // identification
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.CLIENT));
     }
 
