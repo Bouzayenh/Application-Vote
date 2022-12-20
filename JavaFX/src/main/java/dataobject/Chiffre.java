@@ -3,6 +3,9 @@ package dataobject;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+/**
+ * Un couple d'entiers représentant un message chiffré selon le crypto-système de ElGamal.
+ */
 public class Chiffre implements Serializable {
     private BigInteger u;
     private BigInteger v;

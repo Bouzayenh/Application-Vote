@@ -6,6 +6,10 @@ import dataobject.ClePublique;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+/**
+ * Contient toutes les méthodes de chiffrement.
+ * Elles suivent le protocole <a href="https://fr.wikipedia.org/wiki/Cryptosyst%C3%A8me_de_ElGamal">ElGamal</a>.
+ */
 public class Chiffrement {
     private static SecureRandom random;
 
@@ -13,6 +17,11 @@ public class Chiffrement {
         random = new SecureRandom();
     }
 
+    /**
+     * Génère une paire de clé de chiffrement.
+     * @param l La longueur, en nombre de bits, des clés générées.
+     * @return Les 3 entiers (p, g, h) composant la clé publique, puis celui (x) composant la clé privée.
+     */
     public static BigInteger[] keygen(int l) {
         BigInteger p, g, h, x, pPrime;
         SecureRandom random = new SecureRandom();
@@ -40,6 +49,14 @@ public class Chiffrement {
         return new BigInteger[]{p, g, h, x};
     }
 
+    /**
+     * Déchiffre par tâtonnement. Si aucune valeur n'est trouvée, renvoie -1.
+     * @param chiffre Le {@link Chiffre} (u, v) à déchiffrer.
+     * @param max La valeur maximale que peut représenter le chiffré.
+     * @param clePublique La {@link ClePublique} qui a permis le chiffrement.
+     * @param clePrivee La clé privée (x) permettant le déchiffrement.
+     * @return La valeur une fois déchiffrée si trouvée, -1 sinon.
+     */
     public static int decrypt(Chiffre chiffre, int max, ClePublique clePublique, BigInteger clePrivee) {
         BigInteger p, g, M;
         p = clePublique.getP();
@@ -56,6 +73,12 @@ public class Chiffrement {
         return m;
     }
 
+    /**
+     * Effectue le chiffrement selon le crypto-système de ElGamal.
+     * @param m L'entier à chiffrer.
+     * @param clePublique La clé publique permettant le chiffrement.
+     * @return Un {@link Chiffre} représentant m chiffré selon le crypto-système de ElGamal.
+     */
     public static Chiffre encrypt(int m, ClePublique clePublique) {
         BigInteger p, g, h, pPrime, r;
 
@@ -74,6 +97,13 @@ public class Chiffrement {
         return new Chiffre(g.modPow(r, p), g.modPow(BigInteger.valueOf(m), p).multiply(h.modPow(r, p)).mod(p));
     }
 
+    /**
+     * Agrège deux chiffrés issus de la même clé plublique.
+     * @param c1 {@link Chiffre} à agréger.
+     * @param c2 {@link Chiffre} à agréger.
+     * @param clePublique La {@link ClePublique} ayant permis le chiffrement de c1 et c2.
+     * @return Un nouveau {@link Chiffre} représentant la somme de c1 et c2.
+     */
     public static synchronized Chiffre agreger(Chiffre c1, Chiffre c2, ClePublique clePublique) {
         BigInteger p = clePublique.getP();
 

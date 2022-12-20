@@ -3,6 +3,9 @@ package dataobject;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+/**
+ * Un triplet d'entier représentant une clé publique selon le crypto-système de ElGamal.
+ */
 public class ClePublique implements Serializable {
     private BigInteger p;
     private BigInteger g;
