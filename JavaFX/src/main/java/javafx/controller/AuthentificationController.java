@@ -26,9 +26,14 @@ public class AuthentificationController {
     void btnOKClicked(ActionEvent event) {
 
         try {
-            client.authentification(TFidentifiant.getText(), TFmdp.getText());
-            myApp.setClient(client);
-            myApp.authentificationToMainView();
+            String id = TFidentifiant.getText();
+            String mdp = TFmdp.getText();
+            if ( !id.equals("") && !mdp.equals("")) {
+                client.authentification( id,mdp );
+                myApp.setClient(client);
+                myApp.authentificationToMainView();
+            }
+
 
         } catch (FeedbackException e) {
             e.printStackTrace();

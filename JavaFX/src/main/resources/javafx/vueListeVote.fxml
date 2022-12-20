@@ -9,34 +9,35 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafx.controller.ListeVoteController">
+<VBox fx:id="background" alignment="TOP_CENTER" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafx.controller.ListeVoteController">
   <children>
-    <AnchorPane maxHeight="616.0" maxWidth="802.0" minHeight="186.0" minWidth="471.0" prefHeight="616.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+    <AnchorPane fx:id="anchorpane" maxHeight="1080.0" maxWidth="1920.0" minHeight="186.0" minWidth="471.0" prefHeight="616.0" prefWidth="1200.0" VBox.vgrow="ALWAYS">
       <children>
-            <Label fx:id="label" alignment="CENTER" layoutX="-1.0" layoutY="14.0" prefHeight="35.0" prefWidth="793.0" text=" Liste de vote" textAlignment="CENTER">
+            <Label fx:id="label" alignment="CENTER" contentDisplay="CENTER" layoutX="275.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" text=" Liste de vote" textAlignment="CENTER">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <ScrollPane fx:id="scrollPane" layoutX="49.0" layoutY="62.0" prefHeight="425.0" prefWidth="706.0">
+            <ScrollPane fx:id="scrollPane" layoutX="49.0" layoutY="62.0" maxHeight="1080.0" maxWidth="1920.0" prefHeight="425.0" prefWidth="706.0">
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding></ScrollPane>
-            <Button fx:id="btnRafraichir" layoutX="758.0" layoutY="62.0" mnemonicParsing="false" onAction="#btnRafraichirClicked" text="🗘" />
-            <HBox fx:id="menu" alignment="CENTER" layoutX="49.0" layoutY="506.0" prefHeight="70.0" prefWidth="706.0" spacing="150.0">
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-               <children>
-                  <Button fx:id="btnProfil" mnemonicParsing="false" onAction="#btnProfilClicked" prefHeight="85.0" prefWidth="148.0" text="Profil" />
-                  <Button fx:id="btnAcceuil" mnemonicParsing="false" onAction="#btnAccueilClicked" prefHeight="85.0" prefWidth="148.0" text="Accueil" />
-                  <Button fx:id="btnDeconnexion" mnemonicParsing="false" onAction="#btnDeconnexionClicked" prefHeight="85.0" prefWidth="148.0" text="Deconnexion" />
-               </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-            </HBox>
+            <Button fx:id="btnRafraichir" layoutX="764.0" layoutY="19.0" mnemonicParsing="false" onAction="#btnRafraichirClicked" text="🗘" />
       </children>
     </AnchorPane>
+      <HBox fx:id="menu" alignment="CENTER" prefHeight="70.0" prefWidth="706.0" spacing="20.0">
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+         <children>
+            <Button fx:id="btnProfil" mnemonicParsing="false" onAction="#btnProfilClicked" prefHeight="85.0" prefWidth="148.0" text="Profil" />
+            <Button fx:id="btnAcceuil" mnemonicParsing="false" onAction="#btnAccueilClicked" prefHeight="85.0" prefWidth="148.0" text="Vote" />
+            <Button fx:id="btnAcceuil1" mnemonicParsing="false" onAction="#btnAccueilClicked" prefHeight="85.0" prefWidth="148.0" text="Resultat" />
+            <Button fx:id="btnDeconnexion" mnemonicParsing="false" onAction="#btnDeconnexionClicked" prefHeight="85.0" prefWidth="148.0" text="Deconnexion" />
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </HBox>
   </children>
 </VBox>

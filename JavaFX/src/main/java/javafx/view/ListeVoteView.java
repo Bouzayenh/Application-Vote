@@ -8,6 +8,7 @@ import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -37,11 +38,13 @@ public class ListeVoteView extends Stage {
     private VBox vboxListeVote;
     private ScrollPane scrollPanelisteVote;
     private ResultatView vueResusltat;
+    private Label titre;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueListeVote.fxml"));
         scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
         this.setTitle("Liste de votes");
         this.setScene(scene);
 
@@ -65,46 +68,41 @@ public class ListeVoteView extends Stage {
             }
         }
         vboxListeVote = new VBox();
-        vboxListeVote.setPrefWidth(700);
-        vboxListeVote.setPrefHeight(425);
         scrollPanelisteVote.setContent(vboxListeVote);
     }
 
     public void setterForController(){
         listeVoteController.setMyView(this);
     }
+
     public void afficher() {
         Client c = listeVoteController.getClient();
         VBox root = (VBox) this.scene.getRoot();
+        this.show();
+        double width = scene.getWidth();
+        double height = scene.getHeight();
+        scrollPanelisteVote.setPrefSize(width-60, height-150 );
+        vboxListeVote.setPrefSize(width-60, height-250 );
 
         try {
 
             Set<Vote> votes = c.consulterVotes();
             for (Vote v : votes) {
-                Label label;
-                if(!v.estFini()){
-                    label = new Label("en cours");
-                }else{
-                    label = new Label(" terminé");
-                }
-                label.setFont(new Font(20));
 
                 Button BVote = new Button();
                 BVote.setText(v.getIntitule());
-                BVote.setFont(new Font(20));
-                BVote.setPrefWidth(vboxListeVote.getPrefWidth()-110);
+                BVote.setFont(new Font(30));
+                BVote.setPrefWidth(vboxListeVote.getPrefWidth()-10);
                 BVote.setOnAction(actionEvent -> {
                     setFlou();
                     afficherVueVote(v);
                 });
-
-                HBox hbox = new HBox();
-                hbox.getChildren().addAll(BVote,label);
-                hbox.setPadding(new Insets(0.0,0.0,5.0,0.0));
-                vboxListeVote.getChildren().add(hbox);
-
+                vboxListeVote.getChildren().add(BVote);
             }
-            this.show();
+            HBox deco = new HBox();
+            deco.setPrefSize(width-60,100);
+            deco.setBackground(new Background(new BackgroundFill(Color.BLUEVIOLET, CornerRadii.EMPTY, Insets.EMPTY)));
+            //anchorPane.getChildren().add(deco);
         } catch (FeedbackException e) {
             e.printStackTrace();
         } catch (IOException e) {
