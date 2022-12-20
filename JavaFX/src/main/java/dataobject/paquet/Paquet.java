@@ -16,7 +16,8 @@ public abstract class Paquet implements Serializable {
         DECONNEXION,
         DEMANDER_VOTES,
         DEMANDER_RESULTAT,
-        BULLETIN
+        BULLETIN,
+        CHANGER_MOT_DE_PASSE
     }
 
     public Paquet(Type type) {

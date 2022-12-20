@@ -4,13 +4,14 @@ import controller.communication.Connexion;
 import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
 import controller.database.IStockageServeur;
+import controller.database.StockageServeurMySQL;
 import controller.database.StockageServeurOracle;
 import dataobject.*;
 import dataobject.exception.*;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.*;
+import org.mindrot.jbcrypt.BCrypt;
 
-import javax.mail.MessagingException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -19,6 +20,7 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 
 public class Serveur {
@@ -31,7 +33,7 @@ public class Serveur {
         stockageServeur = new StockageServeurOracle();
         utilisateursAuthentifies = new HashSet<>();
 
-        System.setProperty("javax.net.ssl.keyStore", "C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\ssl\\saeKeyStore.jks");
+        System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
         System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
         SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);
@@ -77,9 +79,7 @@ public class Serveur {
             if (stockageServeur.aVote(utilisateur.getLogin(), idVote)) {
                 try {
                     Mail mail = new Mail();
-                    mail.envoyerMail("FinVote",utilisateur.getEmail(), stockageServeur.getVote(idVote));
-                } catch (MessagingException e) {
-                    e.printStackTrace();
+                    //mail.envoyerMail("FinVote",utilisateur.getEmail(), stockageServeur.getVote(idVote));
                 } catch (GeneralSecurityException e) {
                     throw new RuntimeException(e);
                 }
@@ -94,8 +94,19 @@ public class Serveur {
         return utilisateurs;
     }
 
-    public void creerUtilisateur(String login, String motDePasse, String email) throws SQLException {
-        stockageServeur.creerUtilisateur(new Utilisateur(login, motDePasse, email).hasherMotdePasse());
+    public void creerUtilisateur(String login, String email, int tailleMotDePasse){
+        String characteresValides = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890&é(-è_çà)=$*ù!;,?./§%£µ+°@^\\|[{#";
+        Random random = new Random();
+
+        String motDePasse = "";
+
+        for (int i = 0; i < tailleMotDePasse; i++){
+            motDePasse += characteresValides.charAt(random.nextInt(characteresValides.length()));
+        }
+
+        stockageServeur.creerUtilisateur(new Utilisateur(login, BCrypt.hashpw(motDePasse, BCrypt.gensalt()), email));
+
+        //TODO : envoyer mail à l'utilisateur
     }
 
     public void supprimerUtilisateur(String login) throws SQLException {
@@ -103,12 +114,8 @@ public class Serveur {
         deconnecter(login);
     }
 
-    public void modifierUtilisateur(String login, String motDePasse, String email) throws SQLException {
-        Utilisateur utilisateur = new Utilisateur(login, motDePasse, email).hasherMotdePasse();
-        if (!Objects.equals(motDePasse, ""))
-            stockageServeur.mettreAJourUtilisateurMotDePasse(utilisateur);
-        if (!Objects.equals(email, ""))
-            stockageServeur.mettreAJourUtilisateurEmail(utilisateur);
+    public void modifierUtilisateurEmail(String login, String email) throws SQLException {
+        stockageServeur.mettreAJourUtilisateurEmail(new Utilisateur(login, "", email));
     }
 
     private synchronized void deconnecter(String login) {
@@ -191,8 +198,10 @@ public class Serveur {
                                 else if (estAuthentifie(authPaquet.getUtilisateur().getLogin()))
                                     client.ecrireException(new UtilisateurDejaAuthentifieException());
                                 else {
-                                    if (!stockageServeur.verifierMotDePasse(authPaquet.getUtilisateur().hasherMotdePasse()))
+
+                                    if (!BCrypt.checkpw(authPaquet.getUtilisateur().getMotDePasse(), stockageServeur.getUtilisateur(authPaquet.getUtilisateur().getLogin()).getMotDePasse())){
                                         client.ecrireException(new AuthentificationException());
+                                    }
                                     else {
                                         idUtilisateurCourant = authPaquet.getUtilisateur().getLogin();
                                         authentifier();
@@ -267,16 +276,34 @@ public class Serveur {
                                                 stockageServeur.voter(idUtilisateurCourant, bulPaquet.getIdVote());
                                                 client.ecrireConfirmation();
                                                 Mail mail = new Mail();
-                                                mail.envoyerMail("Vote",stockageServeur.getUtilisateur(idUtilisateurCourant).getEmail(),stockageServeur.getVote(bulPaquet.getIdVote()));
+                                                //mail.envoyerMail("Vote",stockageServeur.getUtilisateur(idUtilisateurCourant).getEmail(),stockageServeur.getVote(bulPaquet.getIdVote()));
                                             } catch (FeedbackException e) {
                                                 client.ecrireException(e);
-                                            } catch (MessagingException e) {
-                                                throw new RuntimeException(e);
                                             } catch (GeneralSecurityException e) {
                                                 throw new RuntimeException(e);
                                             }
                                         }
                                     }
+                                }
+                                break;
+
+                            case CHANGER_MOT_DE_PASSE:
+                                if (!estAuthentifie(idUtilisateurCourant))
+                                    client.ecrireException(new UtilisateurDeconnecteException());
+
+                                ChangerMotDePassePaquet changerMotDePassePaquet = (ChangerMotDePassePaquet) paquet;
+
+                                //vérifie que le mot de passe corresponde
+
+                                if (!BCrypt.checkpw(changerMotDePassePaquet.getAncienMotDePasse(), stockageServeur.getUtilisateur(changerMotDePassePaquet.getLogin()).getMotDePasse())){
+                                    client.ecrireException(new AuthentificationException());
+                                }
+                                else {
+                                    stockageServeur.mettreAJourUtilisateurMotDePasse(new Utilisateur(
+                                            changerMotDePassePaquet.getLogin(),
+                                            BCrypt.hashpw(changerMotDePassePaquet.getNouveauMotDePasse(), BCrypt.gensalt())
+                                    ));
+                                    client.ecrireConfirmation();
                                 }
                                 break;
                         }

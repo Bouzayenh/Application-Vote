@@ -28,6 +28,7 @@ public class AppClient {
                         + " [3] Consulter les votes\n"
                         + " [4] Voter\n"
                         + " [5] Consulter les résultats d'un vote\n"
+                        + " [6] Changer de mot de passe\n"
                         + " [x] Arrêter le client\n"
                         + "> ");
                 String input = sc.nextLine().toLowerCase();
@@ -112,6 +113,30 @@ public class AppClient {
                                     System.out.println("Les options « " + vote.getOption1() +
                                             " » et « " + vote.getOption2() + " » sont à égalité");
                             }
+                            break;
+
+                        case "6" :
+                            System.out.print("Entrez [q] à tout moment pour annuler l'authentification :\n"
+                                    + "Login :\n"
+                                    + "> ");
+                            login = sc.nextLine();
+                            if (login.equals("q"))
+                                break;
+
+                            System.out.print("Ancien mot de passe :\n"
+                                    + "> ");
+                            String ancienMotDePasse = sc.nextLine();
+                            if (ancienMotDePasse.equals("q"))
+                                break;
+
+                            System.out.print("Nouveau mot de passe :\n"
+                                    + "> ");
+                            String nouveauMotDePasse = sc.nextLine();
+                            if (nouveauMotDePasse.equals("q"))
+                                break;
+
+                            client.changerMotDePasse(login, ancienMotDePasse, nouveauMotDePasse);
+                            System.out.println("Mot de Passe modifié");
                             break;
 
                         case "x":

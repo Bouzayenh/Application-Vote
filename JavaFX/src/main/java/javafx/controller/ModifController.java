@@ -1,6 +1,5 @@
 package javafx.controller;
 
-import controller.Client;
 import controller.Serveur;
 import javafx.ApplicationIHM;
 import javafx.event.ActionEvent;
@@ -28,7 +27,7 @@ public class ModifController {
 
     public void btnMOKClicked(ActionEvent actionEvent) {
         try {
-            serveur.modifierUtilisateur(TFidentifiant.getText(), TFmdp.getText(), TFmail.getText());
+            serveur.modifierUtilisateurEmail(TFidentifiant.getText(), TFmail.getText());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

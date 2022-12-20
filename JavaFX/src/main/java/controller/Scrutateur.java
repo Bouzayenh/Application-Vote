@@ -29,10 +29,10 @@ public class Scrutateur {
     private RecepteurConnexion serveur;
 
     public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
-        stockageScrutateur = new StockageScrutateurJSON("C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\scrutateur\\cle.json");
+        stockageScrutateur = new StockageScrutateurJSON("JavaFX/src/main/resources/scrutateur/cle.json");
         this.l = l;
 
-        System.setProperty("javax.net.ssl.trustStore", "C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\ssl\\saeTrustStore.jts");
+        System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
         System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
         SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         serveur = new RecepteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));

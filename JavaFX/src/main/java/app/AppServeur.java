@@ -130,19 +130,13 @@ public class AppServeur {
                             if (login.equals("q"))
                                 break;
 
-                            System.out.print("Mot de passe :\n"
-                                    + "> ");
-                            motDePasse = sc.nextLine();
-                            if (motDePasse.equals("q"))
-                                break;
-
                             System.out.print("Adresse email :\n"
                                     + "> ");
                             email = sc.nextLine();
                             if (email.equals("q"))
                                 break;
 
-                            serveur.creerUtilisateur(login, motDePasse, email);
+                            serveur.creerUtilisateur(login, email, 10);
                             System.out.println("Utilisateur créé");
                             break;
 
@@ -166,19 +160,13 @@ public class AppServeur {
                             if (login.equals("q"))
                                 break;
 
-                            System.out.print("Nouveau mot de passe (rien pour ne pas changer)\n" +
-                                    "> ");
-                            motDePasse = sc.nextLine();
-                            if (motDePasse.equals("q"))
-                                break;
-
                             System.out.print("Nouvelle adresse email (rien pour ne pas changer)\n" +
                                     "> ");
                             email = sc.nextLine();
                             if (email.equals("q"))
                                 break;
 
-                            serveur.modifierUtilisateur(login, motDePasse, email);
+                            serveur.modifierUtilisateurEmail(login, email);
                             System.out.println("Utilisateur modifié");
                             break;
 

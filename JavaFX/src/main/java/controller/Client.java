@@ -22,7 +22,7 @@ public class Client {
     private EmetteurConnexion serveur;
 
     public Client() throws IOException {
-        System.setProperty("javax.net.ssl.trustStore", "C:\\Users\\Joan\\Documents\\Java\\sae-3.01\\JavaFX\\src\\main\\resources\\ssl\\saeTrustStore.jts");
+        System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
         System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
         SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));
@@ -59,5 +59,14 @@ public class Client {
     public Vote consulterResultats(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
         serveur.ecrirePaquet(new DemanderResultatPaquet(idVote));
         return ((ResultatFeedbackPaquet) serveur.lireFeedback()).getVote();
+    }
+
+    public void changerMotDePasse(String login, String ancienMotDePasse, String nouveauMotDePasse) throws IOException, FeedbackException, ClassNotFoundException {
+        serveur.ecrirePaquet(new ChangerMotDePassePaquet(
+                new Utilisateur(login, ancienMotDePasse, ""),
+                nouveauMotDePasse
+        ));
+
+        serveur.lireFeedback();
     }
 }
