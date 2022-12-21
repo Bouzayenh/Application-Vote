@@ -2,6 +2,9 @@ package dataobject.paquet;
 
 import controller.communication.Connexion;
 
+/**
+ * Paquet servant à {@link controller.Client} ou à un {@link controller.Scrutateur} à annoncer son identité auprès du {@link controller.Serveur}.
+ */
 public class IdentificationPaquet extends Paquet {
         private Connexion.Source source;
 

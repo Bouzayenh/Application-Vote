@@ -3,8 +3,13 @@ package dataobject.paquet;
 import dataobject.Utilisateur;
 
 /**
- * Paquet pour demander le changement de mot de passe au serveur,
- * il contient l'utilisateur, ainsi qu'une chaîne de charactères correspondant au nouveau mot de passe.
+ * Paquet servant à demander le changement de mot de passe au serveur.<br>
+ * Il contient l'utilisateur, ainsi qu'une chaîne de charactères correspondant au nouveau mot de passe.
+ * Il contient :
+ * <ul>
+ *    <li>l'{@link Utilisateur} à modifier;</li>
+ *    <li>le nouveau mot de passe.</li>
+ * </ul>
  */
 public class ChangerMotDePassePaquet extends Paquet{
 

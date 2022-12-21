@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 /**
- * Contient toutes les méthodes de chiffrement.
+ * Contient toutes les méthodes de chiffrement.<br>
  * Elles suivent le protocole <a href="https://fr.wikipedia.org/wiki/Cryptosyst%C3%A8me_de_ElGamal">ElGamal</a>.
  */
 public class Chiffrement {

@@ -30,7 +30,7 @@ public class Serveur {
     private EmetteurConnexion scrutateur;
 
     public Serveur() throws IOException, SQLException {
-        stockageServeur = new StockageServeurOracle();
+        stockageServeur = new StockageServeurMySQL();
         utilisateursAuthentifies = new HashSet<>();
 
         System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");

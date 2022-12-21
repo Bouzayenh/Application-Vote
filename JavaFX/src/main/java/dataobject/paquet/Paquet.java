@@ -39,27 +39,27 @@ public abstract class Paquet implements Serializable {
         DECHIFFRER,
 
         /**
-         * Indique que le paquet courant est un {@link DechiffrerPaquet}
+         * Indique que le paquet courant est un {@link CreerVotePaquet}
          */
         CREER_VOTE,
 
         /**
-         * Indique que le paquet courant est un {@link CreerVotePaquet}
+         * Indique que le paquet courant est un {@link AuthentificationPaquet}
          */
         AUTHENTIFICATION,
 
         /**
-         * Indique que le paquet courant est un {@link AuthentificationPaquet}
+         * Indique que le paquet courant est un {@link DeconnexionPaquet}
          */
         DECONNEXION,
 
         /**
-         * Indique que le paquet courant est un {@link DeconnexionPaquet}
+         * Indique que le paquet courant est un {@link DemanderVotesPaquet}
          */
         DEMANDER_VOTES,
 
         /**
-         * Indique que le paquet courant est un {@link DemanderVotesPaquet}
+         * Indique que le paquet courant est un {@link DemanderResultatPaquet}
          */
         DEMANDER_RESULTAT,
 
