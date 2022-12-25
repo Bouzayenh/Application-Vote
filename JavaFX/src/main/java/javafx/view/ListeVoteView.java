@@ -31,13 +31,14 @@ public class ListeVoteView extends Stage {
 
     private Scene scene;
     private ListeVoteController listeVoteController;
-    private AnchorPane anchorPane;
+    private VBox vboxMain;
     private VoteView vueVote;
     private ChoixVue vueChoix;
     private ApplicationIHM myAppli;
     private VBox vboxListeVote;
     private ScrollPane scrollPanelisteVote;
     private ResultatView vueResusltat;
+    private VBox backgrounVBOX;
     private Label titre;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
@@ -56,19 +57,22 @@ public class ListeVoteView extends Stage {
         vueResusltat = new ResultatView(listeVoteController, this);
 
         listeVoteController.setMyApp(mainApp);
-        VBox root = (VBox) this.scene.getRoot();
-        for ( Node element : root.getChildren()){
-            if(element instanceof AnchorPane) {
-                anchorPane = ((AnchorPane) element);
-                for ( Node scrollpane : anchorPane.getChildren()) {
+        backgrounVBOX = (VBox) this.scene.getRoot();
+        for ( Node element : backgrounVBOX.getChildren()){
+            if(element.getId().equals("vboxMain")) {
+                vboxMain = ((VBox) element);
+                for ( Node scrollpane : vboxMain.getChildren()) {
                     if (scrollpane.getId().equals("scrollPane")){
                         scrollPanelisteVote = (ScrollPane) scrollpane;
+                        break;
                     }
                 }
             }
         }
         vboxListeVote = new VBox();
+        vboxListeVote.setStyle("-fx-background-color: rgba(0, 0, 0, 0.0)");
         scrollPanelisteVote.setContent(vboxListeVote);
+        scrollPanelisteVote.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     }
 
     public void setterForController(){
@@ -82,10 +86,11 @@ public class ListeVoteView extends Stage {
         double width = scene.getWidth();
         double height = scene.getHeight();
         scrollPanelisteVote.setPrefSize(width-60, height-150 );
-        vboxListeVote.setPrefSize(width-60, height-250 );
+        vboxListeVote.setPrefSize(width-60, height-150 );
+        vboxMain.setPrefSize(width-60, height-120 );
 
         try {
-
+            int pair=0;
             Set<Vote> votes = c.consulterVotes();
             for (Vote v : votes) {
 
@@ -97,12 +102,16 @@ public class ListeVoteView extends Stage {
                     setFlou();
                     afficherVueVote(v);
                 });
+                BVote.maxWidthProperty().bind(scrollPanelisteVote.widthProperty());
+                BVote.maxHeightProperty().bind(scrollPanelisteVote.heightProperty().divide(10));
+                if(pair%2==0){
+                    BVote.setStyle("-fx-background-color: rgba(68,76,168,0.5); -fx-text-fill: white");
+                }else {
+                    BVote.setStyle("-fx-background-color: rgba(36,42,119,0.5); -fx-text-fill: white");
+                }
+                pair++;
                 vboxListeVote.getChildren().add(BVote);
             }
-            HBox deco = new HBox();
-            deco.setPrefSize(width-60,100);
-            deco.setBackground(new Background(new BackgroundFill(Color.BLUEVIOLET, CornerRadii.EMPTY, Insets.EMPTY)));
-            //anchorPane.getChildren().add(deco);
         } catch (FeedbackException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -117,7 +126,7 @@ public class ListeVoteView extends Stage {
         ColorAdjust adj = new ColorAdjust(0, -0.9, -0.5, 0);
         GaussianBlur blur = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
         adj.setInput(blur);
-        anchorPane.setEffect(adj);
+        backgrounVBOX.setEffect(adj);
     }
 
     public void setDefloutage(){
@@ -125,7 +134,7 @@ public class ListeVoteView extends Stage {
         ColorAdjust adj = new ColorAdjust(0, 0, 0, 0);
         GaussianBlur blur = new GaussianBlur(0);
         adj.setInput(blur);
-        anchorPane.setEffect(adj);
+        backgrounVBOX.setEffect(adj);
     }
 
     public void afficherVueChoix(Vote v, int choix){

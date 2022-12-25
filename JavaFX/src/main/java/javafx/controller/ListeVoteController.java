@@ -5,9 +5,14 @@ import dataobject.Utilisateur;
 import javafx.ApplicationIHM;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.view.ListeVoteView;
 import javafx.view.ModifUtilisateur;
 
@@ -24,13 +29,13 @@ public class ListeVoteController {
     @FXML
     private Button btnConfirmer;
     @FXML
-    private Label labelChoix;
-    @FXML
-    private Button btnAcceuil;
-    @FXML
     private Button btnDeconnexion;
     @FXML
     private Button btnProfil;
+    @FXML
+    private Button btnResultats;
+    @FXML
+    private Button btnVotes;
 
 
     private ApplicationIHM myApp;
@@ -70,23 +75,28 @@ public class ListeVoteController {
     }
 
     @FXML
-    void btnRafraichirClicked(ActionEvent event) {
-        vueListeVote.rafraichir();
-    }
-
-    @FXML
-    void btnAccueilClicked(ActionEvent event) {
-        vueListeVote.afficher();
-    }
-
-    @FXML
     void btnDeconnexionClicked(ActionEvent event) {
         myApp.clientDeconnexion();
     }
 
     @FXML
     void btnProfilClicked(ActionEvent event) {
-        vuemodifUtilisateur.afficher();
 
+        btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
+        btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
+        btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
+        vuemodifUtilisateur.afficher();
+    }
+    @FXML
+    void btnResultatClicked(ActionEvent event) {
+        btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
+        btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
+        btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
+    }
+    @FXML
+    void btnVotesClicked(ActionEvent event) {
+        btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
+        btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
+        btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
     }
 }
