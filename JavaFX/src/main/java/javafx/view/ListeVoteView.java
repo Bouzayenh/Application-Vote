@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLOutput;
+import java.util.List;
 import java.util.Set;
 
 
@@ -40,6 +41,7 @@ public class ListeVoteView extends Stage {
     private ResultatView vueResusltat;
     private VBox backgrounVBOX;
     private Label titre;
+    private Client myClient;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
 
@@ -50,13 +52,13 @@ public class ListeVoteView extends Stage {
         this.setScene(scene);
 
         myAppli = mainApp;
+        myClient = myAppli.getClient();
 
         listeVoteController = fxmlLoader.getController();
         vueVote = new VoteView(listeVoteController, this);
         vueChoix = new ChoixVue(listeVoteController);
         vueResusltat = new ResultatView(listeVoteController, this);
 
-        listeVoteController.setMyApp(mainApp);
         backgrounVBOX = (VBox) this.scene.getRoot();
         for ( Node element : backgrounVBOX.getChildren()){
             if(element.getId().equals("vboxMain")) {
@@ -69,6 +71,8 @@ public class ListeVoteView extends Stage {
                 }
             }
         }
+        scrollPanelisteVote = listeVoteController.getScrollPane();
+        vboxMain = listeVoteController.getVboxMain();
         vboxListeVote = new VBox();
         vboxListeVote.setStyle("-fx-background-color: rgba(0, 0, 0, 0.0)");
         scrollPanelisteVote.setContent(vboxListeVote);
@@ -79,19 +83,29 @@ public class ListeVoteView extends Stage {
         listeVoteController.setMyView(this);
     }
 
-    public void afficher() {
-        Client c = listeVoteController.getClient();
-        VBox root = (VBox) this.scene.getRoot();
+    public  void afficher() {
         this.show();
         double width = scene.getWidth();
         double height = scene.getHeight();
         scrollPanelisteVote.setPrefSize(width-60, height-150 );
         vboxListeVote.setPrefSize(width-60, height-150 );
         vboxMain.setPrefSize(width-60, height-120 );
-
+        afficher(0);
+        
+    }
+    public void afficher(int m) {
+        //m == 0 -> voteEnCours | m != 0 -> voteFinis
         try {
+            vboxListeVote.getChildren().clear();
             int pair=0;
-            Set<Vote> votes = c.consulterVotes();
+            List<Vote> votes;
+
+            if (m == 0) {
+                 votes = myClient.consulterVotesEnCours();
+            }else{
+                 votes = myClient.consulterVotesFinis();
+            }
+
             for (Vote v : votes) {
 
                 Button BVote = new Button();
@@ -166,13 +180,20 @@ public class ListeVoteView extends Stage {
         myAppli.voter(vueChoix.getChoix(), vueChoix.getIdVote());
     }
 
-    public void rafraichir(){
-        vboxListeVote.getChildren().clear();
-        afficher();
-    }
-
     public void cacherVueResultat() {
         vueResusltat.hide();
+    }
+
+    public void clientDeconnexion() {
+        myAppli.clientDeconnexion();
+    }
+
+    public void setClient(Client client) {
+        myClient = client;
+    }
+
+    public Vote consulterResulat(int identifiant) throws FeedbackException, IOException, ClassNotFoundException {
+        return myClient.consulterResultats(identifiant);
     }
 }
 

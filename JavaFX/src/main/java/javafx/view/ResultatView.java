@@ -1,6 +1,8 @@
 package javafx.view;
 
+import controller.Serveur;
 import dataobject.Vote;
+import dataobject.exception.FeedbackException;
 import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -41,8 +43,22 @@ public class ResultatView extends Stage {
     }
 
     public void afficherResultat(Vote v) {
+        double pourcentageG = 0.0;
+        double pourcentageD = 0.0;
+        try {
+            Vote vote = vueListeVote.consulterResulat(v.getIdentifiant());
+            if(vote.getNbBulletins() != 0) {
+                pourcentageD = ((double) (int) (vote.getResultat() * 10000)) / 100;
+                pourcentageG = ((double) (int) ((1 - vote.getResultat()) * 10000)) / 100;
+            }
 
-        int resultat = 0;
+        }catch (FeedbackException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         for (Node element : anchorPane.getChildren()) {
 
             if (element.getId().equals("IntituleVote")) {
@@ -54,19 +70,19 @@ public class ResultatView extends Stage {
 
                     for (Node fils : ((VBox) vbox).getChildren()) {
                         if (fils.getId().equals("pourcentageG")) {
-                            ((Label) fils).setText(((double) (int) ((1 - v.getResultat()) * 10000)) / 100 + "%");
+                            ((Label) fils).setText( pourcentageG + "%");
 
                         } else if (fils.getId().equals("resultatG")) {
                             ((Label) fils).setText("" + v.getOption1());
-                            ((Label) fils).setPrefHeight(((double) (int) ((1 - v.getResultat()) * 10000)) / 100);
+                            ((Label) fils).setPrefHeight(pourcentageG);
                             ((Label) fils).setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 80, 0.7), new CornerRadii(5.0), new Insets(-5.0))));
 
                         } else if (fils.getId().equals("pourcentageD")) {
-                            ((Label) fils).setText(((double) (int) (v.getResultat() * 10000)) / 100 + "%");
+                            ((Label) fils).setText(pourcentageD + "%");
 
                         } else if (fils.getId().equals("resultatD")) {
                             ((Label) fils).setText("" + v.getOption2());
-                            ((Label) fils).setPrefHeight(((double) (int) (v.getResultat() * 10000)) / 100);
+                            ((Label) fils).setPrefHeight(pourcentageD);
                             ((Label) fils).setBackground(new Background(new BackgroundFill(Color.rgb(80, 0, 0, 0.7), new CornerRadii(5.0), new Insets(-5.0))));
                         }
                     }
@@ -75,4 +91,5 @@ public class ResultatView extends Stage {
             }
         }
     }
+
 }

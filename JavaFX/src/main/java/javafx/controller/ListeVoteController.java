@@ -8,10 +8,8 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.view.ListeVoteView;
 import javafx.view.ModifUtilisateur;
@@ -36,22 +34,18 @@ public class ListeVoteController {
     private Button btnResultats;
     @FXML
     private Button btnVotes;
+    @FXML
+    private ScrollPane scrollPane;
+    @FXML
+    private VBox vboxMain;
 
 
-    private ApplicationIHM myApp;
     private ListeVoteView vueListeVote;
 
     private ModifUtilisateur vuemodifUtilisateur;
 
-    public void setMyApp(ApplicationIHM app) {
-        myApp= app;
-    }
     public void setMyView(ListeVoteView vue){
         vueListeVote = vue;
-    }
-
-    public Client getClient() {
-        return myApp.getClient();
     }
 
     @FXML
@@ -76,7 +70,7 @@ public class ListeVoteController {
 
     @FXML
     void btnDeconnexionClicked(ActionEvent event) {
-        myApp.clientDeconnexion();
+        vueListeVote.clientDeconnexion();
     }
 
     @FXML
@@ -92,11 +86,21 @@ public class ListeVoteController {
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
+        vueListeVote.afficher(1);
     }
     @FXML
     void btnVotesClicked(ActionEvent event) {
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
+        vueListeVote.afficher(0);
+    }
+
+    public ScrollPane getScrollPane() {
+        return scrollPane;
+    }
+
+    public VBox getVboxMain() {
+        return vboxMain;
     }
 }

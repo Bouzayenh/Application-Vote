@@ -52,6 +52,7 @@ public class ApplicationIHM extends Application {
 
     public void authentificationToMainView(){
         vueAuthentification.close();
+        vueListeVote.setClient(client);
         vueListeVote.afficher();
     }
     public void setClient(Client c){
@@ -72,6 +73,10 @@ public class ApplicationIHM extends Application {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public Vote consulterResultat(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
+        return client.consulterResultats(idVote);
     }
 
     public static void main(String[] args) {

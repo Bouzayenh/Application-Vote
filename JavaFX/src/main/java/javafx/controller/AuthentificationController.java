@@ -34,7 +34,6 @@ public class AuthentificationController {
                 myApp.authentificationToMainView();
             }
 
-
         } catch (FeedbackException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -49,7 +48,6 @@ public class AuthentificationController {
 
     }
     public AuthentificationController()  {
-
         try {
             // initialisation
             System.out.println("Connexion au serveur...");
