@@ -16,7 +16,10 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class Client {
     private EmetteurConnexion serveur;
@@ -54,6 +57,20 @@ public class Client {
     public Set<Vote> consulterVotes() throws FeedbackException, IOException, ClassNotFoundException {
         serveur.ecrirePaquet(new DemanderVotesPaquet());
         return ((VotesPaquet) serveur.lireFeedback()).getVotes();
+    }
+
+    public List<Vote> consulterVotesEnCours() throws FeedbackException, IOException, ClassNotFoundException {
+        List<Vote> votes = consulterVotes().stream().toList();
+        votes.removeIf(Vote::estFini);
+        votes.sort(Comparator.comparingInt(Vote::getIdentifiant));
+        return votes;
+    }
+
+    public List<Vote> consulterVotesFinis() throws FeedbackException, IOException, ClassNotFoundException {
+        List<Vote> votes = consulterVotes().stream().toList();
+        votes.removeIf(Predicate.not(Vote::estFini));
+        votes.sort(Comparator.comparingInt(Vote::getIdentifiant));
+        return votes;
     }
 
     public Vote consulterResultats(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
