@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.sql.Time;
 
 public class VoteView extends Stage {
 
@@ -67,5 +68,7 @@ public class VoteView extends Stage {
             }
         }
         this.show();
+        vueListeVote.setFlou();
+
     }
 }

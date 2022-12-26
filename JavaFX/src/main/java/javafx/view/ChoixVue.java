@@ -57,6 +57,7 @@ public class ChoixVue extends Stage {
                 }
             }
         }
+
         this.show();
     }
 

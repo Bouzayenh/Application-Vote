@@ -42,6 +42,8 @@ public class ListeVoteView extends Stage {
     private VBox backgrounVBOX;
     private Label titre;
     private Client myClient;
+    ColorAdjust flou;
+    ColorAdjust net;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
 
@@ -50,6 +52,13 @@ public class ListeVoteView extends Stage {
         scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
         this.setTitle("Liste de votes");
         this.setScene(scene);
+
+        flou = new ColorAdjust(0, -0.9, -0.5, 0);
+        GaussianBlur blur1 = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
+        flou.setInput(blur1);
+        net = new ColorAdjust(0, 0, 0, 0);
+        GaussianBlur blur = new GaussianBlur(0);
+        net.setInput(blur);
 
         myAppli = mainApp;
         myClient = myAppli.getClient();
@@ -60,17 +69,7 @@ public class ListeVoteView extends Stage {
         vueResusltat = new ResultatView(listeVoteController, this);
 
         backgrounVBOX = (VBox) this.scene.getRoot();
-        for ( Node element : backgrounVBOX.getChildren()){
-            if(element.getId().equals("vboxMain")) {
-                vboxMain = ((VBox) element);
-                for ( Node scrollpane : vboxMain.getChildren()) {
-                    if (scrollpane.getId().equals("scrollPane")){
-                        scrollPanelisteVote = (ScrollPane) scrollpane;
-                        break;
-                    }
-                }
-            }
-        }
+
         scrollPanelisteVote = listeVoteController.getScrollPane();
         vboxMain = listeVoteController.getVboxMain();
         vboxListeVote = new VBox();
@@ -113,7 +112,6 @@ public class ListeVoteView extends Stage {
                 BVote.setFont(new Font(30));
                 BVote.setPrefWidth(vboxListeVote.getPrefWidth()-10);
                 BVote.setOnAction(actionEvent -> {
-                    setFlou();
                     afficherVueVote(v);
                 });
                 BVote.maxWidthProperty().bind(scrollPanelisteVote.widthProperty());
@@ -137,18 +135,12 @@ public class ListeVoteView extends Stage {
 
     public void setFlou(){
 
-        ColorAdjust adj = new ColorAdjust(0, -0.9, -0.5, 0);
-        GaussianBlur blur = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
-        adj.setInput(blur);
-        backgrounVBOX.setEffect(adj);
+        backgrounVBOX.setEffect(flou);
     }
 
     public void setDefloutage(){
 
-        ColorAdjust adj = new ColorAdjust(0, 0, 0, 0);
-        GaussianBlur blur = new GaussianBlur(0);
-        adj.setInput(blur);
-        backgrounVBOX.setEffect(adj);
+        backgrounVBOX.setEffect(net);
     }
 
     public void afficherVueChoix(Vote v, int choix){

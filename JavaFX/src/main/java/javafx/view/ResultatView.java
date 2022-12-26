@@ -87,6 +87,8 @@ public class ResultatView extends Stage {
                         }
                     }
                 }
+
+                vueListeVote.setFlou();
                 this.show();
             }
         }
