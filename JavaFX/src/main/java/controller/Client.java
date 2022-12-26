@@ -16,19 +16,38 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class Client {
     private EmetteurConnexion serveur;
 
     public Client() throws IOException {
-        System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
-        System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
-        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));
+        //System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
+        //System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
+        /*SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));*/
 
+        serveur = new EmetteurConnexion(new Socket("localhost", 3615));
         // identification
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.CLIENT));
+    }
+
+    public List<Vote> consulterVotesEnCours() throws FeedbackException, IOException, ClassNotFoundException {
+        List<Vote> votes = new ArrayList<>(consulterVotes());
+        votes.removeIf(Vote::estFini);
+        votes.sort(Comparator.comparingInt(Vote::getIdentifiant));
+        return votes;
+    }
+
+    public List<Vote> consulterVotesFinis() throws FeedbackException, IOException, ClassNotFoundException {
+        List<Vote> votes = new ArrayList<>(consulterVotes());
+        votes.removeIf(Predicate.not(Vote::estFini));
+        votes.sort(Comparator.comparingInt(Vote::getIdentifiant));
+        return votes;
     }
 
     public void authentification(String identifiant, String motDePasse) throws FeedbackException, IOException, ClassNotFoundException {

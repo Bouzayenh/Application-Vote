@@ -5,10 +5,11 @@ import dataobject.paquet.feedback.FeedbackPaquet;
 
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
+import java.net.Socket;
 
 public class EmetteurConnexion extends Connexion {
 
-    public EmetteurConnexion(SSLSocket socket) throws IOException {
+    public EmetteurConnexion(Socket socket) throws IOException {
         super(socket);
     }
 

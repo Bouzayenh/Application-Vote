@@ -16,6 +16,8 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -27,17 +29,18 @@ public class Serveur {
     private IStockageServeur stockageServeur;
     private Set<String> utilisateursAuthentifies;
     private SSLServerSocket sslServerSocket;
+    private ServerSocket serverSocket;
     private EmetteurConnexion scrutateur;
 
     public Serveur() throws IOException, SQLException {
-        stockageServeur = new StockageServeurMySQL();
+        stockageServeur = new StockageServeurOracle();
         utilisateursAuthentifies = new HashSet<>();
 
-        System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
+        /*System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
         System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
         SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);
-
+        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);*/
+        serverSocket = new ServerSocket(3615);
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, SQLException {
@@ -137,7 +140,7 @@ public class Serveur {
             while (true) {
                 try {
                     // attend une connexion et la traite séparément afin d'écouter de nouveau
-                    new ThreadGestionConnexion(new Connexion((SSLSocket) sslServerSocket.accept())).start();
+                    new ThreadGestionConnexion(new Connexion((Socket) serverSocket.accept())).start();
                 } catch (IOException ignored) {}
             }
         }).start();

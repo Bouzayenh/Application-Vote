@@ -10,7 +10,7 @@
 
 <VBox fx:id="background" alignment="TOP_CENTER" prefHeight="600.0" style="-fx-background-color: #1E1E1E;" stylesheets="@vueListeVote.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafx.controller.ListeVoteController">
   <children>
-      <VBox id="vboxMain" alignment="CENTER" prefHeight="478.0" prefWidth="828.0" style="-fx-background-radius: 20;" stylesheets="@vueListeVote.css">
+      <VBox id="vboxMain" fx:id="vboxMain" alignment="CENTER" prefHeight="478.0" prefWidth="828.0" style="-fx-background-radius: 20;" stylesheets="@vueListeVote.css">
          <children>
             <Label fx:id="label" alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" text=" Liste des votes" textAlignment="CENTER" textFill="#fff6f6">
                <font>

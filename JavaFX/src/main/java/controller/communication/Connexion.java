@@ -6,9 +6,10 @@ import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 public class Connexion {
-    protected SSLSocket sslSocket;
+    protected Socket sslSocket;
     protected ObjectOutputStream output;
     protected ObjectInputStream input;
 
@@ -17,7 +18,7 @@ public class Connexion {
         SCRUTATEUR
     }
 
-    public Connexion(SSLSocket sslSocket) throws IOException {
+    public Connexion(Socket sslSocket) throws IOException {
         this.sslSocket = sslSocket;
         output = new ObjectOutputStream(this.sslSocket.getOutputStream());
         input = new ObjectInputStream(this.sslSocket.getInputStream());
