@@ -7,6 +7,9 @@ import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -16,7 +19,7 @@ public class AppServeur {
         try {
             // initialisation
             System.out.println("Ouverture du serveur...");
-            Serveur serveur = new Serveur();
+            Serveur serveur = Serveur.getInstance();
             System.out.println("Serveur ouvert. Lancement...");
             serveur.run();
             System.out.println("Serveur lancé. Connexions possibles");
@@ -75,7 +78,37 @@ public class AppServeur {
                             if (option2.equals("q"))
                                 break;
 
-                            serveur.creerVote(intitule, option1, option2);
+                            int jourDeFin, moisDeFin, anneeDeFin, heureDeFin;
+                            System.out.print("Jour de fin :\n"
+                                    + "> ");
+                            try {
+                                jourDeFin = Integer.parseInt(sc.nextLine());
+                            }catch (NumberFormatException e) {break;}
+
+                            System.out.print("Mois de fin :\n"
+                                    + "> ");
+                            try {
+                                moisDeFin = Integer.parseInt(sc.nextLine());
+                            }catch (NumberFormatException e) {break;}
+
+                            System.out.print("Annee de fin :\n"
+                                    + "> ");
+                            try {
+                                anneeDeFin = Integer.parseInt(sc.nextLine());
+                            }catch (NumberFormatException e) {break;}
+
+                            System.out.print("Heure de fin :\n"
+                                    + "> ");
+                            try {
+                                heureDeFin = Integer.parseInt(sc.nextLine());
+                            }catch (NumberFormatException e) {break;}
+
+                            LocalDateTime dateFin = LocalDateTime.of(LocalDate.of(
+                                    anneeDeFin, moisDeFin, jourDeFin),
+                                    LocalTime.of(heureDeFin, 0)
+                            );
+
+                            serveur.creerVote(intitule, option1, option2, dateFin);
                             System.out.println("Vote créé");
                             break;
 

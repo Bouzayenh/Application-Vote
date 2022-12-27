@@ -20,6 +20,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
@@ -35,15 +36,14 @@ public class Serveur {
     private ServerSocket serverSocket;
     private EmetteurConnexion scrutateur;
 
-    public Serveur() throws IOException, SQLException {
+    private Serveur() throws IOException, SQLException {
         stockageServeur = new StockageServeurOracle();
         utilisateursAuthentifies = new HashSet<>();
 
-        /*System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
+        System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
         System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
         SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);*/
-        serverSocket = new ServerSocket(3615);
+        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);
     }
 
     public static Serveur getInstance() throws SQLException, IOException {
@@ -68,10 +68,10 @@ public class Serveur {
         return vote;
     }
 
-    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException {
+    public void creerVote(String intitule, String option1, String option2, LocalDateTime dateFin) throws FeedbackException, IOException, ClassNotFoundException {
         scrutateur.ecrirePaquet(new CreerVotePaquet());
         CreerVoteFeedbackPaquet paquet = (CreerVoteFeedbackPaquet) scrutateur.lireFeedback();
-        stockageServeur.creerVote(new Vote(paquet.getIdVote(), intitule, option1, option2).setUrne(paquet.getChiffre()));
+        stockageServeur.creerVote(new Vote(paquet.getIdVote(), intitule, option1, option2, dateFin).setUrne(paquet.getChiffre()));
     }
 
     public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
@@ -152,7 +152,7 @@ public class Serveur {
             while (true) {
                 try {
                     // attend une connexion et la traite séparément afin d'écouter de nouveau
-                    new ThreadGestionConnexion(new Connexion((Socket) serverSocket.accept())).start();
+                    new ThreadGestionConnexion(new Connexion(sslServerSocket.accept())).start();
                 } catch (IOException ignored) {}
             }
         }).start();
