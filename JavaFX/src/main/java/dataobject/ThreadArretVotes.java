@@ -14,7 +14,6 @@ public class ThreadArretVotes extends Thread{
     private Serveur serveur = Serveur.getInstance();
 
     public ThreadArretVotes() throws SQLException, IOException {
-        verifierVotes();
     }
 
     /**
@@ -23,7 +22,7 @@ public class ThreadArretVotes extends Thread{
     public void verifierVotes(){
         try {
             for (Vote vote : serveur.consulterVotes()) {
-                if (vote.getResultat() == -1 && vote.getDateFin().isBefore(LocalDateTime.now()))
+                if (serveur.estConnecteScrutateur() && vote.getResultat() == -1 && vote.getDateFin().isBefore(LocalDateTime.now()))
                     serveur.terminerVote(vote.getIdentifiant());
             }
         }
