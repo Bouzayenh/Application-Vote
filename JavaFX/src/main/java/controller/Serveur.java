@@ -143,7 +143,11 @@ public class Serveur {
         }
     }
 
-    public void run() {
+    public void run() throws SQLException, IOException {
+
+        //lance le thread d'arrêt des votes, il s'occupe de vérifier chaque heure si les votes sont terminés ou non, et de demander leur terminaison s'il le faut.
+        new ThreadArretVotes().start();
+
         new Thread(() -> {
             while (true) {
                 try {

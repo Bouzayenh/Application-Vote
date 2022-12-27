@@ -23,7 +23,7 @@ public class ThreadArretVotes extends Thread{
     public void verifierVotes(){
         try {
             for (Vote vote : serveur.consulterVotes()) {
-                if (vote.getDateFin().isBefore(LocalDateTime.now()))
+                if (vote.getResultat() == -1 && vote.getDateFin().isBefore(LocalDateTime.now()))
                     serveur.terminerVote(vote.getIdentifiant());
             }
         }
@@ -37,7 +37,6 @@ public class ThreadArretVotes extends Thread{
 
             verifierVotes();
 
-            //attends jusqu'à la prochaine heure.
             try {
                 //attends jusqu'à la prochaine heure.
                 Thread.sleep(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusHours(1).truncatedTo(ChronoUnit.HOURS)).toMillis());
