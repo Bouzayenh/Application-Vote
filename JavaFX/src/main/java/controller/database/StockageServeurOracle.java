@@ -8,6 +8,8 @@ import dataobject.exception.FeedbackException;
 
 import java.math.BigInteger;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,7 +33,7 @@ public class StockageServeurOracle implements IStockageServeur{
 
         try {
             ResultSet result = getConnexion().createStatement().executeQuery(
-                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT FROM SAEVOTES ORDER BY IDVOTE"
+                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT, dateFin, heureFin FROM SAEVOTES ORDER BY IDVOTE"
             );
 
             Set<Vote> votes = new HashSet<>();
@@ -40,7 +42,11 @@ public class StockageServeurOracle implements IStockageServeur{
                         result.getInt(1),
                         result.getString(2),
                         result.getString(3),
-                        result.getString(4)
+                        result.getString(4),
+                        LocalDateTime.of(
+                                result.getDate(6).toLocalDate(),
+                                LocalTime.of(result.getInt(7), 0)
+                        )
                 ).setResultat(result.getInt(5));
                 votes.add(vote);
             }
@@ -54,7 +60,7 @@ public class StockageServeurOracle implements IStockageServeur{
 
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
-                    "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT FROM SAEVOTES" +
+                    "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT, dateFin, heureFin FROM SAEVOTES" +
                             " WHERE IDVOTE = ?"
             );
             statement.setInt(1, idVote);
@@ -70,10 +76,15 @@ public class StockageServeurOracle implements IStockageServeur{
                                 new BigInteger(result.getString(5))
                         ),
                         result.getInt(6),
-                        result.getDouble(7)
+                        result.getDouble(7),
+                        LocalDateTime.of(
+                                result.getDate(8).toLocalDate(),
+                                LocalTime.of(result.getInt(9), 0)
+                        )
                 );
             return null;
         }catch (SQLException e){
+            e.printStackTrace();
             return null;
         }
     }
@@ -112,8 +123,8 @@ public class StockageServeurOracle implements IStockageServeur{
         try {
 
             PreparedStatement statement = getConnexion().prepareStatement(
-                    "INSERT INTO SAEVOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT)" +
-                            " VALUES (?, ?, ?, ?, ?, ?, 0, -1)"
+                    "INSERT INTO SAEVOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT, dateFin, heureFin)" +
+                            " VALUES (?, ?, ?, ?, ?, ?, 0, -1, ?, ?)"
             );
             statement.setInt(1, vote.getIdentifiant());
             statement.setString(2, vote.getIntitule());
@@ -121,10 +132,12 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(4, vote.getOption2());
             statement.setString(5, vote.getUrne().getU().toString());
             statement.setString(6, vote.getUrne().getV().toString());
+            statement.setDate(7, Date.valueOf(vote.getDateFin().toLocalDate()));
+            statement.setInt(8, vote.getDateFin().getHour());
+
             statement.executeUpdate();
 
         }catch (SQLException ignored){
-
         }
     }
 

@@ -3,11 +3,11 @@ package controller.database;
 import dataobject.Chiffre;
 import dataobject.Utilisateur;
 import dataobject.Vote;
-import dataobject.exception.AucunUtilisateurException;
-import dataobject.exception.FeedbackException;
 
 import java.math.BigInteger;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,8 +29,8 @@ public class StockageServeurMySQL implements IStockageServeur{
         try {
 
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO SAE_VOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT)" +
-                            " VALUES (?, ?, ?, ?, ?, ?, -1)"
+                    "INSERT INTO SAE_VOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT, DATEFIN, HEUREFIN)" +
+                            " VALUES (?, ?, ?, ?, ?, ?, -1, ?, ?)"
             );
 
             statement.setInt(1, vote.getIdentifiant());
@@ -39,6 +39,8 @@ public class StockageServeurMySQL implements IStockageServeur{
             statement.setString(4, vote.getOption2());
             statement.setString(5, vote.getUrne().getU().toString());
             statement.setString(6, vote.getUrne().getV().toString());
+            statement.setDate(7, Date.valueOf(vote.getDateFin().toLocalDate()));
+            statement.setInt(8, vote.getDateFin().getHour());
 
             statement.executeUpdate();
 
@@ -51,7 +53,7 @@ public class StockageServeurMySQL implements IStockageServeur{
     public Set<Vote> getVotes() {
         try {
             ResultSet result = connection.createStatement().executeQuery(
-                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT FROM SAE_VOTES ORDER BY IDVOTE"
+                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT, DATEFIN, HEUREFIN FROM SAE_VOTES ORDER BY IDVOTE"
             );
 
             Set<Vote> votes = new HashSet<>();
@@ -60,7 +62,11 @@ public class StockageServeurMySQL implements IStockageServeur{
                         result.getInt(1),
                         result.getString(2),
                         result.getString(3),
-                        result.getString(4)
+                        result.getString(4),
+                        LocalDateTime.of(
+                                result.getDate(6).toLocalDate(),
+                                LocalTime.of(result.getInt(7), 0)
+                        )
                 ).setResultat(result.getInt(5));
                 votes.add(vote);
             }
@@ -92,7 +98,12 @@ public class StockageServeurMySQL implements IStockageServeur{
                                 new BigInteger(result.getString(5))
                         ),
                         this.getNbVotants(idVote),
-                        result.getDouble(6));
+                        result.getDouble(6),
+                        LocalDateTime.of(
+                                result.getDate(7).toLocalDate(),
+                                LocalTime.of(result.getInt(8), 0)
+                        )
+                );
             }
 
             return null;

@@ -26,6 +26,9 @@ import java.util.Random;
 import java.util.Set;
 
 public class Serveur {
+
+    private static Serveur instance;
+
     private IStockageServeur stockageServeur;
     private Set<String> utilisateursAuthentifies;
     private SSLServerSocket sslServerSocket;
@@ -43,14 +46,19 @@ public class Serveur {
         serverSocket = new ServerSocket(3615);
     }
 
-    public Set<Vote> consulterVotes() throws FeedbackException, SQLException {
+    public static Serveur getInstance() throws SQLException, IOException {
+        if (instance == null) instance = new Serveur();
+        return instance;
+    }
+
+    public Set<Vote> consulterVotes() throws FeedbackException {
         Set<Vote> votes = stockageServeur.getVotes();
         if (votes.size() == 0)
             throw new AucunVoteException();
         return votes;
     }
 
-    public Vote consulterResultats(int idVote) throws FeedbackException, SQLException {
+    public Vote consulterResultats(int idVote) throws FeedbackException {
         Vote vote = stockageServeur.getVote(idVote);
 
         if (vote == null)
@@ -60,13 +68,13 @@ public class Serveur {
         return vote;
     }
 
-    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
+    public void creerVote(String intitule, String option1, String option2) throws FeedbackException, IOException, ClassNotFoundException {
         scrutateur.ecrirePaquet(new CreerVotePaquet());
         CreerVoteFeedbackPaquet paquet = (CreerVoteFeedbackPaquet) scrutateur.lireFeedback();
         stockageServeur.creerVote(new Vote(paquet.getIdVote(), intitule, option1, option2).setUrne(paquet.getChiffre()));
     }
 
-    public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException, SQLException {
+    public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
         Vote vote = stockageServeur.getVote(idVote);
         int nbBulletins = vote.getNbBulletins();
         if (nbBulletins == 0)
