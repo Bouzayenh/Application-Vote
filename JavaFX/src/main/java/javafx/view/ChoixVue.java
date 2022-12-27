@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -45,16 +46,20 @@ public class ChoixVue extends Stage {
         for ( Node element : anchorPane.getChildren()) {
 
             if (element.getId().equals("IntituleVote")) {
-
-                ((Label)element).setText(v.getIntitule());
+                String intitule = v.getIntitule();
+                ((Label)element).setText(intitule);
+                if(intitule.length()>24) ((Label)element).setFont(new Font(15));
             }
             if (element.getId().equals("labelChoix")) {
-
+                String voteChoisis;
                 if( choix == 1 ){
-                    ((Label)element).setText(v.getOption1());
+                    voteChoisis = v.getOption1();
                 }else {
-                    ((Label)element).setText(v.getOption2());
+                    voteChoisis = v.getOption2();
                 }
+                ((Label)element).setText(voteChoisis);
+                if(voteChoisis.length()>24) ((Label)element).setFont(new Font(15));
+
             }
         }
 
