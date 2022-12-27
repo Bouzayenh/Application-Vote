@@ -7,19 +7,34 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="300.0" maxWidth="490.0" minHeight="300.0" minWidth="490.0" prefHeight="300.0" prefWidth="490.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="300.0" maxWidth="490.0" minHeight="300.0" minWidth="490.0" prefHeight="300.0" prefWidth="490.0" style="-fx-background-color: #201C30;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="292.0" prefWidth="430.0" VBox.vgrow="ALWAYS">
          <children>
             <VBox fx:id="vbox" layoutX="1.0" layoutY="1.0" />
-            <Label fx:id="IntituleVote" alignment="CENTER" layoutX="1.0" prefHeight="66.0" prefWidth="490.0" text="Label">
+            <Label fx:id="IntituleVote" alignment="CENTER" layoutX="42.0" prefHeight="66.0" prefWidth="394.0" style="-fx-border-color: white;" text="Label" textFill="WHITE" AnchorPane.topAnchor="10.0">
                <font>
                   <Font size="41.0" />
                </font>
             </Label>
-            <Button fx:id="btnAnnuler" layoutX="43.0" layoutY="250.0" mnemonicParsing="false" onAction="#btnAnnulerClicked" prefHeight="26.0" prefWidth="174.0" text="ANNULER" />
-            <Button fx:id="btnConfirmer" layoutX="262.0" layoutY="250.0" mnemonicParsing="false" onAction="#btnConfirmerClicked" prefHeight="26.0" prefWidth="174.0" text="CONFIRMER" />
-            <Label fx:id="labelChoix" alignment="TOP_CENTER" layoutX="43.0" layoutY="94.0" prefHeight="130.0" prefWidth="394.0" text="Intitule" textAlignment="CENTER">
+            <Button fx:id="btnAnnuler" layoutX="43.0" layoutY="250.0" mnemonicParsing="false" onAction="#btnAnnulerClicked" prefHeight="26.0" prefWidth="174.0" style="-fx-background-color: #C14040;" text="ANNULER" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="19.0" />
+               </font>
+               <padding>
+                  <Insets bottom="-8.0" top="-8.0" />
+               </padding></Button>
+            <Button fx:id="btnConfirmer" layoutX="262.0" layoutY="250.0" mnemonicParsing="false" onAction="#btnConfirmerClicked" prefHeight="26.0" prefWidth="174.0" style="-fx-background-color: #3D774A;" text="CONFIRMER" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="19.0" />
+               </font>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets bottom="-8.0" top="-8.0" />
+               </padding></Button>
+            <Label fx:id="labelChoix" alignment="TOP_CENTER" layoutX="43.0" layoutY="158.0" prefHeight="66.0" prefWidth="394.0" style="-fx-background-color: #53479B;" text="Intitule" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
@@ -27,7 +42,12 @@
                   <Insets top="20.0" />
                </padding>
                <font>
-                  <Font size="16.0" />
+                  <Font name="System Bold" size="25.0" />
+               </font>
+            </Label>
+            <Label fx:id="labelInstruction" alignment="BOTTOM_CENTER" layoutX="43.0" layoutY="93.0" prefHeight="66.0" prefWidth="394.0" style="-fx-background-color: #53479B;" text="Vous avez selectionné le choix suivant :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="19.0" />
                </font>
             </Label>
          </children>
