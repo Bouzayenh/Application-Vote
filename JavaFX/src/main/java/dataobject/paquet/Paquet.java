@@ -71,7 +71,12 @@ public abstract class Paquet implements Serializable {
         /**
          * Indique que le paquet courant est un {@link ChangerMotDePassePaquet}
          */
-        CHANGER_MOT_DE_PASSE
+        CHANGER_MOT_DE_PASSE,
+
+        /**
+         * Indique que le paquet courant est un {@link DemanderUtilisateurPaquet}
+         */
+        DEMANDER_Utilisateur;
     }
 
     public Paquet(Type type) {

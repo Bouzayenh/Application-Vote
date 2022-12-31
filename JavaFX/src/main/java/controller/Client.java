@@ -8,6 +8,7 @@ import dataobject.exception.BulletinInvalideException;
 import dataobject.exception.FeedbackException;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.ClePubliqueFeedbackPaquet;
+import dataobject.paquet.feedback.UtilisateurFeedbackPaquet;
 import dataobject.paquet.feedback.ResultatFeedbackPaquet;
 import dataobject.paquet.feedback.VotesPaquet;
 import dataobject.Chiffrement;
@@ -15,7 +16,6 @@ import dataobject.Chiffrement;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 
 import java.util.Comparator;
@@ -88,5 +88,11 @@ public class Client {
         ));
 
         serveur.lireFeedback();
+    }
+
+
+    public Utilisateur demandeUtilisateur() throws IOException, FeedbackException, ClassNotFoundException {
+        serveur.ecrirePaquet(new DemanderUtilisateurPaquet());
+        return ((UtilisateurFeedbackPaquet) serveur.lireFeedback()).getUtilisateur();
     }
 }

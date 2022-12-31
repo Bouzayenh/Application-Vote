@@ -265,6 +265,15 @@ public class Serveur {
                                 }
                                 break;
 
+                            case DEMANDER_Utilisateur:
+                                if (!estAuthentifie(idUtilisateurCourant))
+                                    client.ecrireException(new UtilisateurDeconnecteException());
+                                else {
+                                    Utilisateur utilisateur = stockageServeur.getUtilisateur(idUtilisateurCourant);
+                                    client.ecrirePaquet(new UtilisateurFeedbackPaquet(utilisateur));
+                                }
+                                break;
+
                             case BULLETIN:
                                 if (!estAuthentifie(idUtilisateurCourant))
                                     client.ecrireException(new UtilisateurDeconnecteException());

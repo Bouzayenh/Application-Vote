@@ -78,8 +78,12 @@ public class ListeVoteView extends Stage {
         scrollPanelisteVote.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     }
 
+
+
+
+
     public void setterForController(){
-        listeVoteController.setMyView(this);
+        listeVoteController.setMyViewVote(this);
     }
 
     public  void afficher() {
@@ -89,10 +93,10 @@ public class ListeVoteView extends Stage {
         scrollPanelisteVote.setPrefSize(width-60, height-150 );
         vboxListeVote.setPrefSize(width-60, height-150 );
         vboxMain.setPrefSize(width-60, height-120 );
-        afficher(0);
         
     }
     public void afficher(int m) {
+        afficher();
         //m == 0 -> voteEnCours | m != 0 -> voteFinis
         try {
             vboxListeVote.getChildren().clear();
@@ -186,6 +190,10 @@ public class ListeVoteView extends Stage {
 
     public Vote consulterResulat(int identifiant) throws FeedbackException, IOException, ClassNotFoundException {
         return myClient.consulterResultats(identifiant);
+    }
+
+    public ApplicationIHM getMyApp() {
+        return myAppli;
     }
 }
 

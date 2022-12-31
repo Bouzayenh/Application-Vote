@@ -13,6 +13,10 @@
     -fx-background-color: rgba(255, 255, 255, 0.1);
 }
 
+#vboxSecondaire {
+    -fx-background-color: #414150;
+}
+
 #btnProfil, #btnDeconnexion, #btnVotes, #btnResultats {
     -fx-background-color: transparent;
     -fx-background-size: 20% 40%;

@@ -53,7 +53,7 @@ public class ApplicationIHM extends Application {
     public void authentificationToMainView(){
         vueAuthentification.close();
         vueListeVote.setClient(client);
-        vueListeVote.afficher();
+        vueListeVote.afficher(0);
     }
     public void setClient(Client c){
         client = c;

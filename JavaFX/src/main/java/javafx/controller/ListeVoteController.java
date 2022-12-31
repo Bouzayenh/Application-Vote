@@ -1,18 +1,13 @@
 package javafx.controller;
 
-import controller.Client;
-import dataobject.Utilisateur;
-import javafx.ApplicationIHM;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.view.ListeVoteView;
-import javafx.view.ModifUtilisateur;
+import javafx.view.ProfilView;
 
 public class ListeVoteController {
 
@@ -42,11 +37,13 @@ public class ListeVoteController {
 
     private ListeVoteView vueListeVote;
 
-    private ModifUtilisateur vuemodifUtilisateur;
+    private ProfilView profilView;
 
-    public void setMyView(ListeVoteView vue){
+    public void setMyViewVote(ListeVoteView vue){
         vueListeVote = vue;
     }
+
+
 
     @FXML
     void btnRetourClicked(ActionEvent event) {
@@ -74,12 +71,16 @@ public class ListeVoteController {
     }
 
     @FXML
-    void btnProfilClicked(ActionEvent event) {
+    void btnProfilClicked(ActionEvent event) throws Exception {
 
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
-        vuemodifUtilisateur.afficher();
+        vueListeVote.hide();
+        profilView = new ProfilView(vueListeVote.getMyApp());
+        profilView.setMaximized(true);
+        profilView.setterForController();
+        profilView.afficher();
     }
     @FXML
     void btnResultatClicked(ActionEvent event) {
