@@ -3,6 +3,7 @@ package javafx.view;
 import controller.Client;
 import dataobject.exception.FeedbackException;
 import javafx.ApplicationIHM;
+import javafx.controller.ListeVoteController;
 import javafx.controller.ProfilController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -25,18 +26,17 @@ public class ModifUtilisateurView extends Stage {
     private Client myClient;
 
 
-    public ModifUtilisateurView(ApplicationIHM mainApp) throws IOException {
+    public ModifUtilisateurView(ListeVoteController c) throws IOException {
         FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueModifUtilisateur.fxml"));
+        fxml.setController(c);
         scene = new Scene(fxml.load());
 
         this.setTitle("Modifcation Utilisateur");
         this.setScene(scene);
 
-        modifController = fxml.getController();
-        modifController.setMyApp(mainApp);
+       // modifController = fxml.getController();
 
-        myAppli = mainApp;
-        myClient = myAppli.getClient();
+       // myClient = myAppli.getClient();
 
         VBox root = (VBox) this.scene.getRoot();
         root.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));

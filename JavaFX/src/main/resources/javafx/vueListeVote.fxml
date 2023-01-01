@@ -12,7 +12,7 @@
   <children>
       <VBox id="vboxMain" fx:id="vboxMain" alignment="CENTER" prefHeight="478.0" prefWidth="828.0" style="-fx-background-radius: 20;" stylesheets="@vueListeVote.css">
          <children>
-            <Label fx:id="label" alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" text=" Liste des votes" textAlignment="CENTER" textFill="#fff6f6">
+            <Label fx:id="ListeIntituleVote" alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" text=" Liste des votes" textAlignment="CENTER" textFill="#fff6f6">
                <font>
                   <Font size="24.0" />
                </font>

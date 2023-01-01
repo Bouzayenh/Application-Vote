@@ -83,14 +83,14 @@ public class ProfilView extends Node {
 
 
     public void afficheVueModif() throws Exception {
-        modifUtilisateur = new ModifUtilisateurView(myAppli);
+        //modifUtilisateur = new ModifUtilisateurView(myAppli);
         modifUtilisateur.setterForController();
         setFlou();
         modifUtilisateur.afficher();
     }
 
     public void hideVueModif() throws IOException {
-        modifUtilisateur = new ModifUtilisateurView(myAppli);
+        //modifUtilisateur = new ModifUtilisateurView(myAppli);
         modifUtilisateur.hide();
         setDefloutage();
     }

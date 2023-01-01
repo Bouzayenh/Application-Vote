@@ -12,16 +12,16 @@
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="292.0" prefWidth="430.0" VBox.vgrow="ALWAYS">
          <children>
             <VBox fx:id="vbox" layoutX="1.0" layoutY="1.0" />
-            <Label fx:id="IntituleVote" alignment="CENTER" layoutX="41.0" prefHeight="66.0" prefWidth="394.0" style="-fx-border-color: white;" text="Label" textFill="WHITE" AnchorPane.topAnchor="10.0">
+            <Label fx:id="VoteIntituleVote" alignment="CENTER" layoutX="41.0" prefHeight="66.0" prefWidth="394.0" style="-fx-border-color: white;" text="Label" textFill="WHITE" AnchorPane.topAnchor="10.0">
                <font>
                   <Font size="41.0" />
                </font>
             </Label>
-            <Button fx:id="btnChoix1" layoutX="43.0" layoutY="94.0" mnemonicParsing="false" prefHeight="130.0" prefWidth="174.0" style="-fx-background-color: #53479B;" text="Button" textFill="WHITE" wrapText="true">
+            <Button fx:id="VotebtnChoix1" layoutX="43.0" layoutY="94.0" mnemonicParsing="false" prefHeight="130.0" prefWidth="174.0" style="-fx-background-color: #53479B;" text="Button" textFill="WHITE" wrapText="true">
                <font>
                   <Font size="19.0" />
                </font></Button>
-            <Button fx:id="btnChoix2" layoutX="262.0" layoutY="94.0" mnemonicParsing="false" prefHeight="130.0" prefWidth="174.0" style="-fx-background-color: #53479B;" text="Button" textFill="WHITE" wrapText="true">
+            <Button fx:id="VotebtnChoix2" layoutX="262.0" layoutY="94.0" mnemonicParsing="false" prefHeight="130.0" prefWidth="174.0" style="-fx-background-color: #53479B;" text="Button" textFill="WHITE" wrapText="true">
                <font>
                   <Font size="19.0" />
                </font></Button>

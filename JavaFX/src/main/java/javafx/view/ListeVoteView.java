@@ -6,11 +6,6 @@ import dataobject.exception.FeedbackException;
 import javafx.ApplicationIHM;
 import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.NodeOrientation;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,31 +13,32 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.List;
-import java.util.Set;
 
 
 public class ListeVoteView extends Stage {
 
     private Scene scene;
     private ListeVoteController listeVoteController;
-    private VBox vboxMain;
-    private VoteView vueVote;
-    private ChoixVue vueChoix;
     private ApplicationIHM myAppli;
+    private Client myClient;
+
+    private VBox vboxMain;
     private VBox vboxListeVote;
     private ScrollPane scrollPanelisteVote;
-    private ResultatView vueResusltat;
     private VBox backgrounVBOX;
     private Label titre;
-    private Client myClient;
     private VBox profilView;
+
+    private VoteView vueVote;
+    private ChoixView vueChoix;
+    private ResultatView vueResusltat;
+    private ModifUtilisateurView vueModif;
+
     ColorAdjust flou;
     ColorAdjust net;
 
@@ -53,11 +49,6 @@ public class ListeVoteView extends Stage {
         scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
         this.setTitle("Liste de votes");
         this.setScene(scene);
-
-        FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
-        profilView = fxmlLoader1.load();
-        profilView.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
-
 
         flou = new ColorAdjust(0, -0.9, -0.5, 0);
         GaussianBlur blur1 = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
@@ -71,8 +62,13 @@ public class ListeVoteView extends Stage {
 
         listeVoteController = fxmlLoader.getController();
         vueVote = new VoteView(listeVoteController, this);
-        vueChoix = new ChoixVue(listeVoteController);
+        vueChoix = new ChoixView(listeVoteController);
         vueResusltat = new ResultatView(listeVoteController, this);
+        vueModif = new ModifUtilisateurView(listeVoteController);
+        FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
+        fxmlLoader1.setController(listeVoteController);
+        profilView = fxmlLoader1.load();
+        profilView.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
 
         backgrounVBOX = (VBox) this.scene.getRoot();
 
@@ -211,6 +207,16 @@ public class ListeVoteView extends Stage {
 
     public ApplicationIHM getMyApp() {
         return myAppli;
+    }
+
+    public void afficherVueModif() {
+        setFlou();
+        vueModif.show();
+    }
+
+    public void cacherVueModif() {
+        vueModif.hide();
+        setDefloutage();
     }
 }
 

@@ -5,7 +5,6 @@ import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -15,14 +14,16 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
-public class ChoixVue extends Stage {
+public class ChoixView extends Stage {
 
     private Scene scene;
     private AnchorPane anchorPane;
     private int choix;
     private int idVote;
+    private Label intitule;
+    private Label choixLabel;
 
-    public ChoixVue(ListeVoteController c) throws IOException {
+    public ChoixView(ListeVoteController c) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueChoix.fxml"));
         fxmlLoader.setController(c);
@@ -36,6 +37,8 @@ public class ChoixVue extends Stage {
         }
         root.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
         this.initStyle(StageStyle.UNDECORATED);
+        intitule = c.getChoixIntituleVote();
+        choixLabel = c.getChoixLabelChoix();
     }
 
     public void afficherChoix(Vote v, int choix){
@@ -43,25 +46,18 @@ public class ChoixVue extends Stage {
         this.choix = choix;
         this.idVote = v.getIdentifiant();
 
-        for ( Node element : anchorPane.getChildren()) {
+        String intitule = v.getIntitule();
+        this.intitule.setText(intitule);
+        if(intitule.length()>24) this.intitule.setFont(new Font(15));
 
-            if (element.getId().equals("IntituleVote")) {
-                String intitule = v.getIntitule();
-                ((Label)element).setText(intitule);
-                if(intitule.length()>24) ((Label)element).setFont(new Font(15));
-            }
-            if (element.getId().equals("labelChoix")) {
-                String voteChoisis;
-                if( choix == 1 ){
-                    voteChoisis = v.getOption1();
-                }else {
-                    voteChoisis = v.getOption2();
-                }
-                ((Label)element).setText(voteChoisis);
-                if(voteChoisis.length()>24) ((Label)element).setFont(new Font(15));
-
-            }
+        String voteChoisis;
+        if( choix == 1 ){
+            voteChoisis = v.getOption1();
+        }else {
+            voteChoisis = v.getOption2();
         }
+        choixLabel.setText(voteChoisis);
+        if(voteChoisis.length()>24) choixLabel.setFont(new Font(15));
 
         this.show();
     }

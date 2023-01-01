@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox id="vboxMain" fx:id="background" alignment="TOP_CENTER" prefHeight="447.0" prefWidth="706.0" style="-fx-background-color: #1E1E1E;" stylesheets="@../../../../../../sae-3.01-latest/JavaFX/src/main/resources/javafx/vueListeVote.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafx.controller.ProfilController">
+<VBox id="vboxMain" fx:id="background" alignment="TOP_CENTER" prefHeight="447.0" prefWidth="706.0" style="-fx-background-color: #1E1E1E; -fx-border-color: white;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox id="vboxMain" prefHeight="303.0" prefWidth="646.0" style="-fx-background-radius: 20;" stylesheets="@vueListeVote.css">
          <children>
@@ -67,29 +67,35 @@
             <Insets top="20.0" />
          </opaqueInsets>
          <VBox.margin>
-            <Insets bottom="20.0" left="30.0" right="30.0" top="10.0" />
+            <Insets bottom="20.0" left="30.0" right="30.0" top="25.0" />
          </VBox.margin>
       </VBox>
-      <HBox fx:id="menu" alignment="CENTER" prefHeight="70.0" prefWidth="706.0" spacing="20.0" style="-fx-background-radius: 30;" stylesheets="@../../../../../../sae-3.01-latest/JavaFX/src/main/resources/javafx/vueListeVote.css">
+      <HBox fx:id="menu" alignment="CENTER" prefHeight="70.0" prefWidth="706.0" spacing="20.0" style="-fx-background-radius: 30;" stylesheets="@vueListeVote.css">
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
          <children>
-            <Button fx:id="btnretour" mnemonicParsing="false" onAction="#btnROKClicked" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: C4C4C4;" text="Retour">
+            <Button fx:id="btnretour" mnemonicParsing="false" onAction="#btnRAnnulerClicked" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: ff5555;" stylesheets="@vueListeVote.css" text="Annuler" textFill="WHITE">
                <padding>
-                  <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
+                  <Insets bottom="-8.0" left="20.0" right="20.0" top="-8.0" />
                </padding>
                <HBox.margin>
                   <Insets right="30.0" />
                </HBox.margin>
+               <font>
+                  <Font name="System Bold" size="19.0" />
+               </font>
             </Button>
-            <Button fx:id="btnconfirmer" mnemonicParsing="false" onAction="#btnMOKClicked" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #3D774A;" text="Modifer">
+            <Button fx:id="btnconfirmer" mnemonicParsing="false" onAction="#btnValiderClicked" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #3D774A;" stylesheets="@vueListeVote.css" text="Valider" textFill="WHITE">
                <padding>
-                  <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
+                  <Insets bottom="-8.0" left="20.0" right="20.0" top="-8.0" />
                </padding>
                <HBox.margin>
                   <Insets left="30.0" />
                </HBox.margin>
+               <font>
+                  <Font name="System Bold" size="19.0" />
+               </font>
             </Button>
          </children>
          <opaqueInsets>

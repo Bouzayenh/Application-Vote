@@ -46,7 +46,7 @@
                   </Label>
                   <HBox alignment="TOP_RIGHT" prefHeight="43.0" prefWidth="708.0">
                      <children>
-                        <Button fx:id="btnmodifier" mnemonicParsing="false" prefHeight="37.0" prefWidth="152.0" style="-fx-background-color: #3D774A;" text="Modifier">
+                        <Button fx:id="btnmodifier" mnemonicParsing="false" onAction="#btnModifierClicked" prefHeight="37.0" prefWidth="152.0" style="-fx-background-color: #3D774A;" text="Modifier">
                            <font>
                               <Font size="18.0" />
                            </font>

@@ -12,7 +12,7 @@
   <children>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="292.0" prefWidth="430.0" VBox.vgrow="ALWAYS">
          <children>
-            <Label fx:id="ResIntituleVote" alignment="CENTER" layoutX="1.0" prefHeight="66.0" prefWidth="490.0" text="Label" textFill="WHITE">
+            <Label fx:id="ResIntituleVote" alignment="CENTER" layoutX="41.0" prefHeight="66.0" prefWidth="403.0" style="-fx-border-color: white;" text="Label" textFill="WHITE" AnchorPane.topAnchor="10.0">
                <font>
                   <Font size="41.0" />
                </font>
