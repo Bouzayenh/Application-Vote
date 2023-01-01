@@ -16,6 +16,7 @@ import dataobject.Chiffrement;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import java.util.Comparator;

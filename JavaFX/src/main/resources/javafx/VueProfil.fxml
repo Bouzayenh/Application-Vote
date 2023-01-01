@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox id="vboxSecondaire" fx:id="background" alignment="TOP_CENTER" style="-fx-background-color: #1E1E1E;" stylesheets="@vueListeVote.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafx.controller.ProfilController">
+<VBox id="vboxSecondaire" fx:id="background1" alignment="TOP_CENTER" style="-fx-background-color: #1E1E1E;" stylesheets="@vueListeVote.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox id="vboxMain" fx:id="vboxMain" alignment="CENTER" prefHeight="478.0" prefWidth="828.0" style="-fx-background-radius: 20;" stylesheets="@vueListeVote.css">
+      <VBox id="vboxMain" fx:id="vboxMain1" alignment="CENTER" prefHeight="478.0" prefWidth="828.0" style="-fx-background-radius: 20;" stylesheets="@vueListeVote.css">
          <children>
             <ImageView fitHeight="62.0" fitWidth="105.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -46,7 +46,7 @@
                   </Label>
                   <HBox alignment="TOP_RIGHT" prefHeight="43.0" prefWidth="708.0">
                      <children>
-                        <Button fx:id="btnmodifier" mnemonicParsing="false" onAction="#btnProfilmodifer" prefHeight="37.0" prefWidth="152.0" style="-fx-background-color: #3D774A;" text="Modifier">
+                        <Button fx:id="btnmodifier" mnemonicParsing="false" prefHeight="37.0" prefWidth="152.0" style="-fx-background-color: #3D774A;" text="Modifier">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -69,22 +69,5 @@
             <Insets bottom="20.0" left="30.0" right="30.0" top="10.0" />
          </VBox.margin>
       </VBox>
-      <HBox fx:id="menu" alignment="CENTER" prefHeight="70.0" prefWidth="706.0" spacing="20.0" style="-fx-background-radius: 30;" stylesheets="@vueListeVote.css">
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-         <children>
-            <Button fx:id="btnProfil" mnemonicParsing="false" onAction="#btnProfilClicked" prefHeight="85.0" prefWidth="148.0" style="-fx-background-radius: 30; -fx-background-color: #414185;" />
-            <Button fx:id="btnVotes" mnemonicParsing="false" onAction="#btnVotesClicked" prefHeight="85.0" prefWidth="148.0" />
-            <Button fx:id="btnResultats" mnemonicParsing="false" onAction="#btnResultatClicked" prefHeight="85.0" prefWidth="148.0" style="-fx-background-image: url(&quot;file:src/main/resources/javafx/images/resultat.png&quot;); -fx-background-radius: 30;" />
-            <Button fx:id="btnDeconnexion" mnemonicParsing="false" onAction="#btnDeconnexionClicked" prefHeight="85.0" prefWidth="148.0" />
-         </children>
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
-         <VBox.margin>
-            <Insets top="15.0" />
-         </VBox.margin>
-      </HBox>
    </children>
 </VBox>

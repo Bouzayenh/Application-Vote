@@ -5,6 +5,7 @@ import dataobject.exception.FeedbackException;
 import javafx.ApplicationIHM;
 import javafx.controller.ProfilController;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
@@ -14,7 +15,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 
-public class ProfilView extends Stage {
+public class ProfilView extends Node {
 
 
 
@@ -31,13 +32,13 @@ public class ProfilView extends Stage {
     ColorAdjust net;
 
     private ApplicationIHM myAppli;
-    public ProfilView(ApplicationIHM mainApp) throws Exception {
+    public ProfilView() throws Exception {
         FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
         scene = new Scene(fxml.load());
         scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
 
-        this.setTitle("Profil");
-        this.setScene(scene);
+        //this.setTitle("Profil");
+        //this.setScene(scene);
 
         flou = new ColorAdjust(0, -0.9, -0.5, 0);
         GaussianBlur blur1 = new GaussianBlur(55);
@@ -46,11 +47,9 @@ public class ProfilView extends Stage {
         GaussianBlur blur = new GaussianBlur(0);
         net.setInput(blur);
 
-        myAppli = mainApp;
-        myClient = myAppli.getClient();
 
         modifController = fxml.getController();
-        modifController.setMyApp(mainApp);
+        //modifController.setMyApp(mainApp);
 
 
         backgrounVBOX = (VBox) this.scene.getRoot();
@@ -63,9 +62,9 @@ public class ProfilView extends Stage {
         modifController.setMyViewProfil(this);
     }
 
-    public void afficher() {
+   /* public void afficher() {
         this.show();
-    }
+    }*/
 
 
     public ApplicationIHM getMyApp() {

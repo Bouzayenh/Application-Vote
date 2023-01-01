@@ -33,6 +33,8 @@ public class ListeVoteController {
     private ScrollPane scrollPane;
     @FXML
     private VBox vboxMain;
+    @FXML
+    private VBox vboxChangement;
 
 
     private ListeVoteView vueListeVote;
@@ -76,11 +78,11 @@ public class ListeVoteController {
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
-        vueListeVote.hide();
-        profilView = new ProfilView(vueListeVote.getMyApp());
+        vueListeVote.afficherVueProfil();
+        /*profilView = new ProfilView(vueListeVote.getMyApp());
         profilView.setMaximized(true);
         profilView.setterForController();
-        profilView.afficher();
+        profilView.afficher();*/
     }
     @FXML
     void btnResultatClicked(ActionEvent event) {
@@ -103,5 +105,9 @@ public class ListeVoteController {
 
     public VBox getVboxMain() {
         return vboxMain;
+    }
+
+    public Label getTitre() {
+        return IntituleVote;
     }
 }

@@ -33,7 +33,7 @@ public class ApplicationIHM extends Application {
     public void clientDeconnexion() {
         try {
             client.deconnexion();
-            vueListeVote.close();
+            vueListeVote.hide();
 
             vueAuthentification = new AuthentificationView(this);
             vueAuthentification.show();

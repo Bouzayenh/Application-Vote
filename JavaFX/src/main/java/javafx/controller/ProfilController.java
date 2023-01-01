@@ -94,14 +94,14 @@ public class ProfilController {
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
-        profilView.afficher();
+        vueListeVote.afficherVueProfil();
     }
     @FXML
     void btnResultatClicked(ActionEvent event) throws IOException {
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
-        profilView.hide();
+        //profilView.hide();
         this.vueVoteinit(1);
     }
     @FXML
@@ -109,7 +109,7 @@ public class ProfilController {
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
-        profilView.hide();
+        //profilView.hide();
         this.vueVoteinit(0);
     }
 

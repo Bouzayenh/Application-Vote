@@ -40,10 +40,11 @@ public class Serveur {
         stockageServeur = new StockageServeurOracle();
         utilisateursAuthentifies = new HashSet<>();
 
-        System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
+        /*System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
         System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
         SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);
+        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);*/
+        serverSocket = new ServerSocket(3615);
     }
 
     public static Serveur getInstance() throws SQLException, IOException {
@@ -152,7 +153,8 @@ public class Serveur {
             while (true) {
                 try {
                     // attend une connexion et la traite séparément afin d'écouter de nouveau
-                    new ThreadGestionConnexion(new Connexion(sslServerSocket.accept())).start();
+                    //new ThreadGestionConnexion(new Connexion(sslServerSocket.accept())).start();
+                    new ThreadGestionConnexion(new Connexion((Socket) serverSocket.accept())).start();
                 } catch (IOException ignored) {}
             }
         }).start();

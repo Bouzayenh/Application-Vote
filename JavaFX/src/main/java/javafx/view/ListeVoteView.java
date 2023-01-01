@@ -42,6 +42,7 @@ public class ListeVoteView extends Stage {
     private VBox backgrounVBOX;
     private Label titre;
     private Client myClient;
+    private VBox profilView;
     ColorAdjust flou;
     ColorAdjust net;
 
@@ -52,6 +53,11 @@ public class ListeVoteView extends Stage {
         scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
         this.setTitle("Liste de votes");
         this.setScene(scene);
+
+        FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
+        profilView = fxmlLoader1.load();
+        profilView.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
+
 
         flou = new ColorAdjust(0, -0.9, -0.5, 0);
         GaussianBlur blur1 = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
@@ -72,6 +78,8 @@ public class ListeVoteView extends Stage {
 
         scrollPanelisteVote = listeVoteController.getScrollPane();
         vboxMain = listeVoteController.getVboxMain();
+        titre = listeVoteController.getTitre();
+        titre.setStyle("-fx-text-fill: white");
         vboxListeVote = new VBox();
         vboxListeVote.setStyle("-fx-background-color: rgba(0, 0, 0, 0.0)");
         scrollPanelisteVote.setContent(vboxListeVote);
@@ -96,6 +104,7 @@ public class ListeVoteView extends Stage {
         
     }
     public void afficher(int m) {
+        vboxMain.getChildren().clear();
         afficher();
         //m == 0 -> voteEnCours | m != 0 -> voteFinis
         try {
@@ -105,8 +114,10 @@ public class ListeVoteView extends Stage {
 
             if (m == 0) {
                  votes = myClient.consulterVotesEnCours();
+                 titre.setText("Votes en cours");
             }else{
                  votes = myClient.consulterVotesFinis();
+                 titre.setText("Consulter les résultats");
             }
 
             for (Vote v : votes) {
@@ -135,6 +146,8 @@ public class ListeVoteView extends Stage {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        //scrollPanelisteVote.setContent(vboxListeVote);
+        vboxMain.getChildren().addAll(titre, scrollPanelisteVote);
     }
 
     public void setFlou(){
@@ -146,7 +159,11 @@ public class ListeVoteView extends Stage {
 
         backgrounVBOX.setEffect(net);
     }
-
+    public void afficherVueProfil() {
+        //scrollPanelisteVote.setContent(profilView);
+        vboxMain.getChildren().clear();
+        vboxMain.getChildren().add(profilView);
+    }
     public void afficherVueChoix(Vote v, int choix){
         vueChoix.afficherChoix(v,choix);
     }
