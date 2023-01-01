@@ -35,12 +35,19 @@ public class ListeVoteController {
     private VBox vboxMain;
     @FXML
     private VBox vboxChangement;
+    @FXML
+    private Label ResIntituleVote;
+    @FXML
+    private Label ResPourcentageD;
+    @FXML
+    private Label ResPourcentageG;
+    @FXML
+    private Label ResResultatD;
+    @FXML
+    private Label ResResultatG;
 
 
     private ListeVoteView vueListeVote;
-
-    private ProfilView profilView;
-
     public void setMyViewVote(ListeVoteView vue){
         vueListeVote = vue;
     }
@@ -109,5 +116,21 @@ public class ListeVoteController {
 
     public Label getTitre() {
         return IntituleVote;
+    }
+
+    public Label getResIntituleVote(){
+        return ResIntituleVote;
+    }
+    public Label getResPourcentageD(){
+        return ResPourcentageD;
+    }
+    public Label getResResultatD(){
+        return ResResultatD;
+    }
+    public Label getResPourcentageG(){
+        return ResPourcentageG;
+    }
+    public Label getResResultatG(){
+        return ResResultatG;
     }
 }

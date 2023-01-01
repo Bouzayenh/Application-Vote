@@ -21,9 +21,13 @@ public class ResultatView extends Stage {
 
     private Scene scene;
     private AnchorPane anchorPane;
-    private int choix;
-    private int idVote;
     private ListeVoteView vueListeVote;
+    private Label intitule;
+    private Label pourcentageD;
+    private Label resultatD;
+    private Label pourcentageG;
+    private Label resultatG;
+
 
     public ResultatView(ListeVoteController c, ListeVoteView v) throws IOException {
 
@@ -40,6 +44,11 @@ public class ResultatView extends Stage {
         }
         root.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
         this.initStyle(StageStyle.UNDECORATED);
+        intitule = c.getResIntituleVote();
+        pourcentageD = c.getResPourcentageD();
+        pourcentageG = c.getResPourcentageG();
+        resultatD = c.getResResultatD();
+        resultatG = c.getResResultatG();
     }
 
     public void afficherResultat(Vote v) {
@@ -59,39 +68,20 @@ public class ResultatView extends Stage {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        for (Node element : anchorPane.getChildren()) {
 
-            if (element.getId().equals("IntituleVote")) {
+        intitule.setText(v.getIntitule());
+        this.pourcentageG.setText( pourcentageG + "%");
+        this.resultatG.setText("" + v.getOption1());
+        this.resultatG.setPrefHeight(pourcentageG);
+        this.resultatG.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 80, 0.7), new CornerRadii(5.0), new Insets(-5.0))));
+        this.pourcentageD.setText(pourcentageD + "%");
+        this.resultatD.setText("" + v.getOption2());
+        this.resultatD.setPrefHeight(pourcentageD);
+        this.resultatD.setBackground(new Background(new BackgroundFill(Color.rgb(80, 0, 0, 0.7), new CornerRadii(5.0), new Insets(-5.0))));
 
-                ((Label) element).setText(v.getIntitule());
+        vueListeVote.setFlou();
+        this.show();
 
-            } else if (element.getId().equals("hbox")) {
-                for (Node vbox : ((HBox) element).getChildren()) {
-
-                    for (Node fils : ((VBox) vbox).getChildren()) {
-                        if (fils.getId().equals("pourcentageG")) {
-                            ((Label) fils).setText( pourcentageG + "%");
-
-                        } else if (fils.getId().equals("resultatG")) {
-                            ((Label) fils).setText("" + v.getOption1());
-                            ((Label) fils).setPrefHeight(pourcentageG);
-                            ((Label) fils).setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 80, 0.7), new CornerRadii(5.0), new Insets(-5.0))));
-
-                        } else if (fils.getId().equals("pourcentageD")) {
-                            ((Label) fils).setText(pourcentageD + "%");
-
-                        } else if (fils.getId().equals("resultatD")) {
-                            ((Label) fils).setText("" + v.getOption2());
-                            ((Label) fils).setPrefHeight(pourcentageD);
-                            ((Label) fils).setBackground(new Background(new BackgroundFill(Color.rgb(80, 0, 0, 0.7), new CornerRadii(5.0), new Insets(-5.0))));
-                        }
-                    }
-                }
-
-                vueListeVote.setFlou();
-                this.show();
-            }
-        }
     }
 
 }
