@@ -64,9 +64,10 @@ public class ApplicationIHM extends Application {
     }
 
     public void voter(int choix, int idVote) {
-        //TODO ici
        try {
             client.voter(choix, idVote);
+            vueListeVote.animation();
+            return;
         } catch (FeedbackException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -74,7 +75,9 @@ public class ApplicationIHM extends Application {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        vueListeVote.animation();
+        vueListeVote.afficherVueErreur();
+        vueListeVote.setDefloutage();
+        vueListeVote.cacherVueChoix();
     }
 
     public Vote consulterResultat(int idVote) throws FeedbackException, IOException, ClassNotFoundException {

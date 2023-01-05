@@ -38,6 +38,7 @@ public class ListeVoteView extends Stage {
     private ChoixView vueChoix;
     private ResultatView vueResusltat;
     private ModifUtilisateurView vueModif;
+    private ErreurView vueErreur;
 
     ColorAdjust flou;
     ColorAdjust net;
@@ -65,6 +66,7 @@ public class ListeVoteView extends Stage {
         vueChoix = new ChoixView(listeVoteController, this);
         vueResusltat = new ResultatView(listeVoteController, this);
         vueModif = new ModifUtilisateurView(listeVoteController);
+        vueErreur = new ErreurView();
         FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
         fxmlLoader1.setController(listeVoteController);
         profilView = fxmlLoader1.load();
@@ -224,7 +226,16 @@ public class ListeVoteView extends Stage {
     public void finAnimation() {
         cacherVueChoix();
         setDefloutage();
+    }
 
+    public void afficherVueErreur() {
+        vueErreur.show();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        vueErreur.hide();
     }
 }
 
