@@ -33,7 +33,7 @@ public class Client {
         /*SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));*/
 
-        serveur = new EmetteurConnexion(new Socket("localhost", 3615));
+        serveur = new EmetteurConnexion(new Socket("localhost", 3605));
         // identification
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.CLIENT));
     }

@@ -3,6 +3,7 @@ package javafx.view;
 import controller.Serveur;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
+import javafx.animation.TranslateTransition;
 import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -14,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 import java.io.IOException;
 

@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.view.ListeVoteView;
 import javafx.view.ProfilView;
 
@@ -65,6 +66,12 @@ public class ListeVoteController {
     private Label ChoixIntituleVote;
     @FXML
     private Label ChoixLabelChoix;
+    @FXML
+    private Rectangle recC;
+    @FXML
+    private Rectangle recD;
+    @FXML
+    private Rectangle recG;
 
     //*******VueModifier***********\\
     @FXML
@@ -98,8 +105,8 @@ public class ListeVoteController {
 
     @FXML
     void btnConfirmerClicked(ActionEvent event) {
-        vueListeVote.cacherVueChoix();
-        vueListeVote.setDefloutage();
+       /* vueListeVote.cacherVueChoix();
+        vueListeVote.setDefloutage();*/
         vueListeVote.voter();
     }
 
@@ -210,6 +217,15 @@ public class ListeVoteController {
     }
     public Label getChoixLabelChoix() {
         return ChoixLabelChoix;
+    }
+    public Rectangle getRecC() {
+        return recC;
+    }
+    public Rectangle getRecD() {
+        return recD;
+    }
+    public Rectangle getRecG() {
+        return recG;
     }
 
 }

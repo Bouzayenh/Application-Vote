@@ -62,7 +62,7 @@ public class ListeVoteView extends Stage {
 
         listeVoteController = fxmlLoader.getController();
         vueVote = new VoteView(listeVoteController, this);
-        vueChoix = new ChoixView(listeVoteController);
+        vueChoix = new ChoixView(listeVoteController, this);
         vueResusltat = new ResultatView(listeVoteController, this);
         vueModif = new ModifUtilisateurView(listeVoteController);
         FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
@@ -142,7 +142,6 @@ public class ListeVoteView extends Stage {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        //scrollPanelisteVote.setContent(vboxListeVote);
         vboxMain.getChildren().addAll(titre, scrollPanelisteVote);
     }
 
@@ -156,7 +155,6 @@ public class ListeVoteView extends Stage {
         backgrounVBOX.setEffect(net);
     }
     public void afficherVueProfil() {
-        //scrollPanelisteVote.setContent(profilView);
         vboxMain.getChildren().clear();
         vboxMain.getChildren().add(profilView);
     }
@@ -205,6 +203,10 @@ public class ListeVoteView extends Stage {
         return myClient.consulterResultats(identifiant);
     }
 
+    public void animation() {
+        vueChoix.animation();
+    }
+
     public ApplicationIHM getMyApp() {
         return myAppli;
     }
@@ -217,6 +219,12 @@ public class ListeVoteView extends Stage {
     public void cacherVueModif() {
         vueModif.hide();
         setDefloutage();
+    }
+
+    public void finAnimation() {
+        cacherVueChoix();
+        setDefloutage();
+
     }
 }
 

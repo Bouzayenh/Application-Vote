@@ -5,13 +5,14 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <VBox maxHeight="300.0" maxWidth="490.0" minHeight="300.0" minWidth="490.0" prefHeight="300.0" prefWidth="490.0" style="-fx-background-color: #201C30;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
   <children>
+      <VBox fx:id="vbox" />
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="292.0" prefWidth="430.0" VBox.vgrow="ALWAYS">
          <children>
-            <VBox fx:id="vbox" layoutX="1.0" layoutY="1.0" />
             <Label fx:id="ChoixIntituleVote" alignment="CENTER" layoutX="42.0" prefHeight="66.0" prefWidth="394.0" style="-fx-border-color: white;" text="Label" textFill="WHITE" AnchorPane.topAnchor="10.0">
                <font>
                   <Font size="41.0" />
@@ -52,5 +53,8 @@
             </Label>
          </children>
     </AnchorPane>
+      <Rectangle fx:id="recG" arcHeight="5.0" arcWidth="5.0" fill="#38ef00" height="85.0" opacity="0.0" rotate="140.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="32.0" />
+      <Rectangle fx:id="recD" arcHeight="5.0" arcWidth="5.0" fill="#38ef00" height="139.0" opacity="0.0" rotate="50.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="32.0" />
+      <Rectangle fx:id="recC" arcHeight="5.0" arcWidth="5.0" fill="#201c30" height="200.0" opacity="0.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="200.0" />
   </children>
 </VBox>
