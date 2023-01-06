@@ -3,6 +3,9 @@ package dataobject;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ *Représente un scrutin, ainsi que toute les informations le concernant.
+ */
 public class Vote implements Serializable {
 
     private int identifiant;
@@ -10,10 +13,24 @@ public class Vote implements Serializable {
     private String option1;
     private String option2;
 
+    /**
+     * Le résultat avant déchiffrement.
+     */
     private Chiffre urne;
+
+    /**
+     * Le nombre de personne ayant participé au scrutin.
+     */
     private int nbBulletins;
+
+    /**
+     * Le résultat clair. -1 si le vote n'est pas encore terminé.
+     */
     private double resultat;
 
+    /**
+     * La date date et heure de fin du vote.
+     */
     private LocalDateTime dateFin;
 
     public Vote(int identifiant, String intitule, String option1, String option2, Chiffre urne, int nbBulletins, double resultat) {

@@ -4,9 +4,25 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.Serializable;
 
+/**
+ * Représente un utilisateur.
+ */
 public class Utilisateur implements Serializable {
     private String login;
+
+    /**
+     * Le mot de passe, en clair.
+     */
     private String motDePasse;
+
+    /**
+     * L'adresse mail correspondant à l'utilisateur, utilisée pour le notifier :
+     * <ul>
+     *     <li>à la création de son compte</li>
+     *     <li>lorsqu'il vote</li>
+     *     <li>lorsqu'un vote se termine</li>
+     * </ul>
+     */
     private String email;
 
     public Utilisateur(String login, String motDePasse) {
