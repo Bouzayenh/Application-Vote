@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -26,10 +27,12 @@ public class ModifUtilisateurView extends Stage {
     private Client myClient;
 
 
-    public ModifUtilisateurView(ListeVoteController c) throws IOException {
+    public ModifUtilisateurView(ListeVoteController c, ListeVoteView v) throws IOException {
         FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueModifUtilisateur.fxml"));
         fxml.setController(c);
         scene = new Scene(fxml.load());
+        this.initModality(Modality.WINDOW_MODAL);
+        this.initOwner(v.getScene().getWindow());
 
         this.setTitle("Modifcation Utilisateur");
         this.setScene(scene);

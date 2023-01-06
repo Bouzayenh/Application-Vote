@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -33,6 +34,8 @@ public class VoteView extends Stage {
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueVote.fxml"));
         fxmlLoader.setController(c);
         vueListeVote = v;
+        this.initModality(Modality.WINDOW_MODAL);
+        this.initOwner(v.getScene().getWindow());
         scene = new Scene(fxmlLoader.load());
         this.setScene(scene);
         VBox root = (VBox) this.scene.getRoot();
@@ -65,7 +68,6 @@ public class VoteView extends Stage {
         });
 
         this.show();
-        vueListeVote.setFlou();
 
     }
 }

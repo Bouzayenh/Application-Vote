@@ -40,9 +40,6 @@ public class ListeVoteView extends Stage {
     private ModifUtilisateurView vueModif;
     private ErreurView vueErreur;
 
-    ColorAdjust flou;
-    ColorAdjust net;
-
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueListeVote.fxml"));
@@ -51,13 +48,6 @@ public class ListeVoteView extends Stage {
         this.setTitle("Liste de votes");
         this.setScene(scene);
 
-        flou = new ColorAdjust(0, -0.9, -0.5, 0);
-        GaussianBlur blur1 = new GaussianBlur(55); // 55 is just to show edge effect more clearly.
-        flou.setInput(blur1);
-        net = new ColorAdjust(0, 0, 0, 0);
-        GaussianBlur blur = new GaussianBlur(0);
-        net.setInput(blur);
-
         myAppli = mainApp;
         myClient = myAppli.getClient();
 
@@ -65,7 +55,7 @@ public class ListeVoteView extends Stage {
         vueVote = new VoteView(listeVoteController, this);
         vueChoix = new ChoixView(listeVoteController, this);
         vueResusltat = new ResultatView(listeVoteController, this);
-        vueModif = new ModifUtilisateurView(listeVoteController);
+        vueModif = new ModifUtilisateurView(listeVoteController, this);
         vueErreur = new ErreurView();
         FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
         fxmlLoader1.setController(listeVoteController);
@@ -146,15 +136,6 @@ public class ListeVoteView extends Stage {
         }
         vboxMain.getChildren().addAll(titre, scrollPanelisteVote);
     }
-
-    public void setFlou(){
-
-    }
-
-    public void setDefloutage(){
-
-        backgrounVBOX.setEffect(net);
-    }
     public void afficherVueProfil() {
         vboxMain.getChildren().clear();
         vboxMain.getChildren().add(profilView);
@@ -213,18 +194,15 @@ public class ListeVoteView extends Stage {
     }
 
     public void afficherVueModif() {
-        setFlou();
         vueModif.show();
     }
 
     public void cacherVueModif() {
         vueModif.hide();
-        setDefloutage();
     }
 
     public void finAnimation() {
         cacherVueChoix();
-        setDefloutage();
     }
 
     public void afficherVueErreur() {

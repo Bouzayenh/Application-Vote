@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
@@ -37,6 +38,8 @@ public class ChoixView extends Stage {
         listeVoteView = v;
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueChoix.fxml"));
         fxmlLoader.setController(c);
+        this.initModality(Modality.WINDOW_MODAL);
+        this.initOwner(v.getScene().getWindow());
         scene = new Scene(fxmlLoader.load());
         this.setScene(scene);
         VBox root = (VBox) this.scene.getRoot();
