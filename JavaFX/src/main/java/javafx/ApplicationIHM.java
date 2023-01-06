@@ -26,7 +26,8 @@ public class ApplicationIHM extends Application {
         vueAuthentification.show();
 
         vueListeVote = new ListeVoteView(this);
-        vueListeVote.setMaximized(true);
+        //vueListeVote.setMaximized(true);
+        vueListeVote.setResizable(false);
         vueListeVote.setterForController();
     }
 
@@ -65,16 +66,10 @@ public class ApplicationIHM extends Application {
 
     public void voter(int choix, int idVote) {
        try {
-            client.voter(choix, idVote);
-            vueListeVote.animation();
-            return;
-        } catch (FeedbackException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+           //client.voter(choix, idVote);
+           vueListeVote.animation();
+           return;
+       } catch (Exception ignored) {}
         vueListeVote.afficherVueErreur();
         vueListeVote.setDefloutage();
         vueListeVote.cacherVueChoix();

@@ -43,7 +43,7 @@
          <children>
             <Button fx:id="btnProfil" mnemonicParsing="false" onAction="#btnProfilClicked" prefHeight="85.0" prefWidth="148.0" />
             <Button fx:id="btnVotes" mnemonicParsing="false" onAction="#btnVotesClicked" prefHeight="85.0" prefWidth="148.0" style="-fx-background-radius: 30; -fx-background-color: #414185;" />
-            <Button fx:id="btnResultats" mnemonicParsing="false" onAction="#btnResultatClicked" prefHeight="85.0" prefWidth="148.0" style="-fx-background-image: url(&quot;file:src/main/resources/javafx/images/resultat.png&quot;); -fx-background-radius: 30;" />
+            <Button fx:id="btnResultats" mnemonicParsing="false" onAction="#btnResultatClicked" prefHeight="85.0" prefWidth="148.0" />
             <Button fx:id="btnDeconnexion" mnemonicParsing="false" onAction="#btnDeconnexionClicked" prefHeight="85.0" prefWidth="148.0" />
          </children>
          <opaqueInsets>

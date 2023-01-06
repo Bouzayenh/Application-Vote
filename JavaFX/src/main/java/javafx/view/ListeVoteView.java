@@ -149,7 +149,6 @@ public class ListeVoteView extends Stage {
 
     public void setFlou(){
 
-        backgrounVBOX.setEffect(flou);
     }
 
     public void setDefloutage(){
