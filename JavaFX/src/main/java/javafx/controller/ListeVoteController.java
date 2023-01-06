@@ -91,7 +91,6 @@ public class ListeVoteController {
     //------------------------Vue Vote et Vue Resultat-------------------------\\
     @FXML
     void btnRetourClicked(ActionEvent event) {
-        vueListeVote.setDefloutage();
         vueListeVote.cacherVueVote();
         vueListeVote.cacherVueResultat();
     }

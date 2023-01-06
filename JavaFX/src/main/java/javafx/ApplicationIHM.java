@@ -71,7 +71,6 @@ public class ApplicationIHM extends Application {
            return;
        } catch (Exception ignored) {}
         vueListeVote.afficherVueErreur();
-        vueListeVote.setDefloutage();
         vueListeVote.cacherVueChoix();
     }
 
