@@ -5,12 +5,10 @@ import dataobject.Utilisateur;
 import dataobject.exception.FeedbackException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
+import javafx.view.ErreurAlert;
 import javafx.view.ListeVoteView;
 import javafx.view.ProfilView;
 
@@ -18,6 +16,7 @@ import java.io.IOException;
 
 public class ListeVoteController {
 
+    // ListeVotes
     @FXML
     private HBox VotesContaining;
     @FXML
@@ -41,7 +40,7 @@ public class ListeVoteController {
     @FXML
     private VBox vboxMain;
 
-    //*******VueResultat***********\\
+    // Resultats
     @FXML
     private Label ResIntituleVote;
     @FXML
@@ -53,7 +52,7 @@ public class ListeVoteController {
     @FXML
     private Label ResResultatG;
 
-    //*******VueVote***********\\
+    // Vote
     @FXML
     private Label VoteIntituleVote;
     @FXML
@@ -61,7 +60,7 @@ public class ListeVoteController {
     @FXML
     private Button VotebtnChoix2;
 
-    //*******VueChoix***********\\
+    // Choix
     @FXML
     private Label ChoixIntituleVote;
     @FXML
@@ -73,116 +72,117 @@ public class ListeVoteController {
     @FXML
     private Rectangle recG;
 
-    //*******VueModifier***********\\
+    // Profil
+    @FXML
+    private Label login;
+    @FXML
+    private Label mail;
+
+    // ModifierUtilisateur
     @FXML
     private PasswordField Ancienmdp;
     @FXML
     private PasswordField Nouveaumdp;
     @FXML
     private Label identifiant;
-    //*******************************\\
-
 
     private ListeVoteView vueListeVote;
+
     public void setMyViewVote(ListeVoteView vue){
         vueListeVote = vue;
     }
 
-    //------------------------Vue Vote et Vue Resultat-------------------------\\
+    // Navigation
     @FXML
-    void btnRetourClicked(ActionEvent event) {
-        vueListeVote.cacherVueVote();
-        vueListeVote.cacherVueResultat();
-    }
-
-    //---------------------------Vue Choix-------------------------------\\
-    @FXML
-    void btnAnnulerClicked(ActionEvent event) {
-        vueListeVote.cacherVueChoix();
-        vueListeVote.afficherVueVote();
+    void btnDeconnexionClicked() {
+        vueListeVote.deconnexion();
     }
 
     @FXML
-    void btnConfirmerClicked(ActionEvent event) {
-       /* vueListeVote.cacherVueChoix();
-        vueListeVote.setDefloutage();*/
-        vueListeVote.voter();
-    }
-
-    //------------------------------Bar de navigation------------------------------\\
-    @FXML
-    void btnDeconnexionClicked(ActionEvent event) {
-        vueListeVote.clientDeconnexion();
-    }
-
-    @FXML
-    void btnProfilClicked(ActionEvent event) throws Exception {
-
+    void btnProfilClicked() {
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
         vueListeVote.afficherVueProfil();
     }
+
     @FXML
-    void btnResultatClicked(ActionEvent event) {
+    void btnResultatClicked() {
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
         vueListeVote.afficher(1);
     }
+
     @FXML
-    void btnVotesClicked(ActionEvent event) {
+    void btnVotesClicked() {
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
         vueListeVote.afficher(0);
     }
 
-
-    //------------------------------Vue Profil------------------------------\\
-    public void btnModifierClicked(ActionEvent actionEvent) throws Exception {
-        vueListeVote.afficherVueModif();
-        Utilisateur utilisateur = vueListeVote.getMyApp().getClient().demandeUtilisateur();
-        identifiant.setText(utilisateur.getLogin());
+    // Vote, Resultats
+    @FXML
+    void btnRetourClicked() {
+        vueListeVote.cacherVueVote();
+        vueListeVote.cacherVueResultat();
     }
 
-    //------------------------------Vue modifierUtilisateur------------------------------\\
+    // Choix
     @FXML
-    void btnRAnnulerClicked(ActionEvent actionEvent) throws Exception {
+    void btnAnnulerClicked() {
+        vueListeVote.cacherVueChoix();
+        vueListeVote.afficherVueVote();
+    }
+
+    @FXML
+    void btnConfirmerClicked() {
+       /* vueListeVote.cacherVueChoix();
+        vueListeVote.setDefloutage();*/
+        vueListeVote.voter();
+    }
+
+    // Profil
+    public void btnModifierClicked() {
+        try {
+            vueListeVote.afficherVueModif();
+            Utilisateur utilisateur = vueListeVote.getMyApp().getClient().demandeUtilisateur();
+            identifiant.setText(utilisateur.getLogin());
+        }catch(IOException | FeedbackException | ClassNotFoundException e){
+            new ErreurAlert(e).show();
+        }
+    }
+
+    // ModifierUtilisateur
+    @FXML
+    void btnRAnnulerClicked() {
         vueListeVote.cacherVueModif();
-
     }
+
     @FXML
-    void btnValiderClicked(ActionEvent actionEvent) {
+    void btnValiderClicked() {
         Client client= vueListeVote.getMyApp().getClient();
         try {
             client.changerMotDePasse(identifiant.getText(),Ancienmdp.getText(),Nouveaumdp.getText());
             vueListeVote.cacherVueModif();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FeedbackException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException | FeedbackException | ClassNotFoundException e) {
+            new ErreurAlert(e).show();
         }
     }
-    //-----------------------------------------------------------------------------\\
 
-
-    //méthodes pour la vue principale
+    // méthodes pour la vue principale
     public ScrollPane getScrollPane() {
         return scrollPane;
     }
-
     public VBox getVboxMain() {
         return vboxMain;
     }
-
     public Label getTitre() {
         return ListeIntituleVote;
     }
 
-    //méthodes pour vueResultat
+    // méthodes pour Resultats
     public Label getResIntituleVote(){
         return ResIntituleVote;
     }
@@ -199,7 +199,7 @@ public class ListeVoteController {
         return ResResultatG;
     }
 
-    //méthodes pour vueVote
+    //méthodes pour Vote
     public Label getVoteIntituleVote(){
         return VoteIntituleVote;
     }
@@ -210,7 +210,7 @@ public class ListeVoteController {
         return VotebtnChoix2;
     }
 
-    //méthodes pour vueChoix
+    //méthodes pour Choix
     public Label getChoixIntituleVote() {
         return ChoixIntituleVote;
     }

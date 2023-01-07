@@ -8,6 +8,7 @@ import javafx.ApplicationIHM;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.view.ErreurAlert;
 import javafx.view.ListeVoteView;
 import javafx.view.ModifUtilisateurView;
 import javafx.view.ProfilView;
@@ -72,24 +73,17 @@ public class ProfilController {
         vueListeVote.afficher(m);
     }
 
-    public void setModifView(ModifUtilisateurView view) throws Exception {
+    public void setModifView(ModifUtilisateurView view) {
         modifUtilisateurView = view;
     }
 
-    public  void setMyViewProfil(ProfilView vue) throws FeedbackException, IOException, ClassNotFoundException {
-        profilView = vue;
-        utilisateur = profilView.getClient().demandeUtilisateur();
-        login.setText("Login : "+utilisateur.getLogin());
-        mail.setText("Mail : "+utilisateur.getEmail());
+    @FXML
+    void btnDeconnexionClicked() {
+        vueListeVote.deconnexion();
     }
 
     @FXML
-    void btnDeconnexionClicked(ActionEvent event) {
-        vueListeVote.clientDeconnexion();
-    }
-
-    @FXML
-    void btnProfilClicked(ActionEvent event) throws Exception {
+    void btnProfilClicked() {
 
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
@@ -97,20 +91,28 @@ public class ProfilController {
         vueListeVote.afficherVueProfil();
     }
     @FXML
-    void btnResultatClicked(ActionEvent event) throws IOException {
+    void btnResultatClicked() {
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
         //profilView.hide();
-        this.vueVoteinit(1);
+        try {
+            this.vueVoteinit(1);
+        }catch(IOException e){
+            new ErreurAlert(e).show();
+        }
     }
     @FXML
-    void btnVotesClicked(ActionEvent event) throws IOException {
+    void btnVotesClicked() {
         btnVotes.setStyle("-fx-background-radius: 30; -fx-background-color: #414185 ");
         btnProfil.setStyle("-fx-background-radius: 30; -fx-background-color: transparent");
         btnResultats.setStyle("-fx-background-radius: 30; -fx-background-color: transparent ");
         //profilView.hide();
-        this.vueVoteinit(0);
+        try {
+            this.vueVoteinit(0);
+        }catch(IOException e){
+            new ErreurAlert(e).show();
+        }
     }
 
     public void setMyApp(ApplicationIHM app) {
@@ -118,21 +120,23 @@ public class ProfilController {
     }
 
 
-    public void btnProfilmodifer(ActionEvent actionEvent) throws Exception {
-        profilView.afficheVueModif();
-        utilisateur = profilView.getClient().demandeUtilisateur();
-        identifiant.setText(utilisateur.getLogin());
+    public void btnProfilmodifer() {
+        try {
+            profilView.afficheVueModif();
+            utilisateur = profilView.getClient().demandeUtilisateur();
+            identifiant.setText(" " + utilisateur.getLogin());
+        }catch(IOException | FeedbackException | ClassNotFoundException e){
+            new ErreurAlert(e).show();
+        }
     }
 
     @FXML
-    void btnROKClicked(ActionEvent actionEvent) throws Exception {
+    void btnROKClicked() {
        profilView.hideVueModif();
-
-
     }
 
     @FXML
-    void btnMOKClicked(ActionEvent actionEvent) {
+    void btnMOKClicked() {
         client= profilView.getClient();
     }
 }

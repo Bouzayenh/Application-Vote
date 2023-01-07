@@ -10,27 +10,25 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 
 public class ListeVoteView extends Stage {
 
     private Scene scene;
     private ListeVoteController listeVoteController;
-    private ApplicationIHM myAppli;
+    private ApplicationIHM myApp;
     private Client myClient;
 
     private VBox vboxMain;
     private VBox vboxListeVote;
     private ScrollPane scrollPanelisteVote;
-    private VBox backgrounVBOX;
     private Label titre;
     private VBox profilView;
 
@@ -38,31 +36,26 @@ public class ListeVoteView extends Stage {
     private ChoixView vueChoix;
     private ResultatView vueResusltat;
     private ModifUtilisateurView vueModif;
-    private ErreurView vueErreur;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
-
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueListeVote.fxml"));
         scene = new Scene(fxmlLoader.load());
-        scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
-        this.setTitle("Liste de votes");
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/javafx/vueListeVote.css")).toExternalForm());
+        this.setTitle("Liste des votes");
         this.setScene(scene);
 
-        myAppli = mainApp;
-        myClient = myAppli.getClient();
+        myApp = mainApp;
+        myClient = myApp.getClient();
 
         listeVoteController = fxmlLoader.getController();
         vueVote = new VoteView(listeVoteController, this);
         vueChoix = new ChoixView(listeVoteController, this);
         vueResusltat = new ResultatView(listeVoteController, this);
         vueModif = new ModifUtilisateurView(listeVoteController, this);
-        vueErreur = new ErreurView();
         FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
         fxmlLoader1.setController(listeVoteController);
         profilView = fxmlLoader1.load();
-        profilView.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
-
-        backgrounVBOX = (VBox) this.scene.getRoot();
+        profilView.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/javafx/vueListeVote.css")).toExternalForm());
 
         scrollPanelisteVote = listeVoteController.getScrollPane();
         vboxMain = listeVoteController.getVboxMain();
@@ -74,15 +67,11 @@ public class ListeVoteView extends Stage {
         scrollPanelisteVote.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     }
 
-
-
-
-
     public void setterForController(){
         listeVoteController.setMyViewVote(this);
     }
 
-    public  void afficher() {
+    public void afficher() {
         this.show();
         double width = scene.getWidth();
         double height = scene.getHeight();
@@ -127,12 +116,8 @@ public class ListeVoteView extends Stage {
                 pair++;
                 vboxListeVote.getChildren().add(BVote);
             }
-        } catch (FeedbackException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (FeedbackException | IOException | ClassNotFoundException e) {
+            new ErreurAlert(e).show();
         }
         vboxMain.getChildren().addAll(titre, scrollPanelisteVote);
     }
@@ -140,6 +125,7 @@ public class ListeVoteView extends Stage {
         vboxMain.getChildren().clear();
         vboxMain.getChildren().add(profilView);
     }
+
     public void afficherVueChoix(Vote v, int choix){
         vueChoix.afficherChoix(v,choix);
     }
@@ -166,15 +152,15 @@ public class ListeVoteView extends Stage {
     }
 
     public void voter() {
-        myAppli.voter(vueChoix.getChoix(), vueChoix.getIdVote());
+        myApp.voter(vueChoix.getChoix(), vueChoix.getIdVote());
     }
 
     public void cacherVueResultat() {
         vueResusltat.hide();
     }
 
-    public void clientDeconnexion() {
-        myAppli.clientDeconnexion();
+    public void deconnexion() {
+        myApp.deconnexion();
     }
 
     public void setClient(Client client) {
@@ -190,7 +176,7 @@ public class ListeVoteView extends Stage {
     }
 
     public ApplicationIHM getMyApp() {
-        return myAppli;
+        return myApp;
     }
 
     public void afficherVueModif() {
@@ -203,16 +189,6 @@ public class ListeVoteView extends Stage {
 
     public void finAnimation() {
         cacherVueChoix();
-    }
-
-    public void afficherVueErreur() {
-        vueErreur.show();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        vueErreur.hide();
     }
 }
 

@@ -30,7 +30,7 @@ public class AuthentificationView extends Stage{
         this.setTitle("Authentification!");
         this.setScene(scene);
         authentificationController = fxmlLoader.getController();
-        authentificationController.setMyApp(mainApp);
+        authentificationController.initialiser(mainApp);
 
     }
 }

@@ -32,7 +32,7 @@ public class ProfilView extends Node {
     ColorAdjust net;
 
     private ApplicationIHM myAppli;
-    public ProfilView() throws Exception {
+    public ProfilView() throws IOException {
         FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
         scene = new Scene(fxml.load());
         scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
@@ -58,10 +58,6 @@ public class ProfilView extends Node {
 
     }
 
-    public void setterForController() throws FeedbackException, IOException, ClassNotFoundException {
-        modifController.setMyViewProfil(this);
-    }
-
    /* public void afficher() {
         this.show();
     }*/
@@ -82,14 +78,14 @@ public class ProfilView extends Node {
     }
 
 
-    public void afficheVueModif() throws Exception {
+    public void afficheVueModif() {
         //modifUtilisateur = new ModifUtilisateurView(myAppli);
         modifUtilisateur.setterForController();
         setFlou();
         modifUtilisateur.afficher();
     }
 
-    public void hideVueModif() throws IOException {
+    public void hideVueModif() {
         //modifUtilisateur = new ModifUtilisateurView(myAppli);
         modifUtilisateur.hide();
         setDefloutage();

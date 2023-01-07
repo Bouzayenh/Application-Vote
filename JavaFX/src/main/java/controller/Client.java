@@ -98,7 +98,6 @@ public class Client {
         serveur.lireFeedback();
     }
 
-
     public Utilisateur demandeUtilisateur() throws IOException, FeedbackException, ClassNotFoundException {
         serveur.ecrirePaquet(new DemanderUtilisateurPaquet());
         return ((UtilisateurFeedbackPaquet) serveur.lireFeedback()).getUtilisateur();

@@ -48,7 +48,7 @@ public class ModifUtilisateurView extends Stage {
 
     }
 
-    public void setterForController() throws Exception {
+    public void setterForController() {
         modifController.setModifView(this);
     }
 

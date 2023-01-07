@@ -19,7 +19,7 @@
 
 #btnProfil, #btnDeconnexion, #btnVotes, #btnResultats {
     -fx-background-color: transparent;
-    -fx-background-size: 40% 40%;
+    -fx-background-size: 20% 40%;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;
 }

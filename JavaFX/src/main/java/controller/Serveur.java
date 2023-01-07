@@ -226,8 +226,8 @@ public class Serveur {
                                 else if (estAuthentifie(authPaquet.getUtilisateur().getLogin()))
                                     client.ecrireException(new UtilisateurDejaAuthentifieException());
                                 else {
-
-                                    if (!BCrypt.checkpw(authPaquet.getUtilisateur().getMotDePasse(), stockageServeur.getUtilisateur(authPaquet.getUtilisateur().getLogin()).getMotDePasse())){
+                                    Utilisateur utilisateur = stockageServeur.getUtilisateur(authPaquet.getUtilisateur().getLogin());
+                                    if (utilisateur == null || !BCrypt.checkpw(authPaquet.getUtilisateur().getMotDePasse(), utilisateur.getMotDePasse())){
                                         client.ecrireException(new AuthentificationException());
                                     }
                                     else {
@@ -346,6 +346,7 @@ public class Serveur {
                         }
                     } catch (IOException | ClassNotFoundException | NullPointerException e) {
                         client.ecrireException(new ScrutateurDeconnecteException());
+                        e.printStackTrace();
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {

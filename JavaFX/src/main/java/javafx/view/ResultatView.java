@@ -66,12 +66,8 @@ public class ResultatView extends Stage {
                 pourcentageG = ((double) (int) ((1 - vote.getResultat()) * 10000)) / 100;
             }
 
-        }catch (FeedbackException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        }catch (FeedbackException | IOException | ClassNotFoundException e) {
+            new ErreurAlert(e).show();
         }
 
         intitule.setText(v.getIntitule());
@@ -85,7 +81,6 @@ public class ResultatView extends Stage {
         this.resultatD.setBackground(new Background(new BackgroundFill(Color.rgb(80, 0, 0, 0.7), new CornerRadii(5.0), new Insets(-5.0))));
 
         this.show();
-
     }
 
 }

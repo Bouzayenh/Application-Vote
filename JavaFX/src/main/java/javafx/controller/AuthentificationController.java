@@ -1,16 +1,19 @@
 package javafx.controller;
 
 import controller.Client;
+import dataobject.exception.AuthentificationException;
 import dataobject.exception.FeedbackException;
 import javafx.ApplicationIHM;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.view.ErreurAlert;
 
 import java.io.IOException;
 
 public class AuthentificationController {
+    private Client client;
+    private ApplicationIHM myApp;
 
     @FXML
     private TextField TFidentifiant;
@@ -18,47 +21,28 @@ public class AuthentificationController {
     @FXML
     private PasswordField TFmdp;
 
-    private Client client;
-
-    private ApplicationIHM myApp;
-
     @FXML
-    void btnOKClicked(ActionEvent event) {
-
+    void btnOKClicked() {
         try {
-            String id = TFidentifiant.getText();
-            String mdp = TFmdp.getText();
-            if ( !id.equals("") && !mdp.equals("")) {
-                client.authentification( id,mdp );
-                myApp.setClient(client);
+            if (TFidentifiant.getText().equals("") || TFmdp.getText().equals(""))
+                new ErreurAlert(new AuthentificationException()).show();
+            else {
+                client.authentification(TFidentifiant.getText(), TFmdp.getText());
                 myApp.authentificationToMainView();
             }
-
-        } catch (FeedbackException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (FeedbackException | IOException | ClassNotFoundException e) {
+            new ErreurAlert(e).show();
         }
-
     }
 
-    public void voteChoisi(ActionEvent event) {
-
-    }
-    public AuthentificationController()  {
+    public void initialiser(ApplicationIHM app) {
         try {
+            myApp = app;
             // initialisation
-            System.out.println("Connexion au serveur...");
             client = new Client();
-            System.out.println("Connecté avec succès");
+            myApp.setClient(client);
         } catch (IOException e) {
-            e.printStackTrace();
+            new ErreurAlert(e).show();
         }
-    }
-
-    public void setMyApp(ApplicationIHM app) {
-        myApp= app;
     }
 }

@@ -7,56 +7,50 @@ import dataobject.exception.FeedbackException;
 import javafx.view.AuthentificationView;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.view.ErreurAlert;
 import javafx.view.ListeVoteView;
 
 import java.io.IOException;
 
 public class ApplicationIHM extends Application {
-
-    private Stage primaryStage;
-    private Serveur serveur;
     private AuthentificationView vueAuthentification;
     private ListeVoteView vueListeVote;
     private Client client;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        this.primaryStage = primaryStage;
-        vueAuthentification = new AuthentificationView(this);
-        vueAuthentification.show();
-
-        vueListeVote = new ListeVoteView(this);
-        //vueListeVote.setMaximized(true);
-        vueListeVote.setResizable(false);
-        vueListeVote.setterForController();
-    }
-
-    public void clientDeconnexion() {
+    public void start(Stage primaryStage) {
         try {
-            client.deconnexion();
-            vueListeVote.hide();
-
-            vueAuthentification = new AuthentificationView(this);
-            vueAuthentification.show();
-
-            vueListeVote = new ListeVoteView(this);
-            vueListeVote.setMaximized(true);
-            vueListeVote.setterForController();
-        } catch (FeedbackException e) {
-            e.printStackTrace();
+            showAuthentificationView();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            new ErreurAlert(e).show();
         }
     }
 
-    public void authentificationToMainView(){
+    public void showAuthentificationView() throws IOException {
+        vueAuthentification = new AuthentificationView(this);
+        vueAuthentification.show();
+    }
+
+    public void authentificationToMainView() throws IOException {
         vueAuthentification.close();
+        vueListeVote = new ListeVoteView(this);
+        vueListeVote.setMaximized(true);
+        vueListeVote.setterForController();
         vueListeVote.setClient(client);
         vueListeVote.afficher(0);
     }
-    public void setClient(Client c){
+
+    public void deconnexion() {
+        try {
+            client.deconnexion();
+            vueListeVote.hide();
+            showAuthentificationView();
+        } catch (FeedbackException | IOException | ClassNotFoundException e) {
+            new ErreurAlert(e).show();
+        }
+    }
+
+    public void setClient(Client c) {
         client = c;
     }
 
@@ -70,7 +64,6 @@ public class ApplicationIHM extends Application {
            vueListeVote.animation();
            return;
        } catch (Exception ignored) {}
-        vueListeVote.afficherVueErreur();
         vueListeVote.cacherVueChoix();
     }
 
