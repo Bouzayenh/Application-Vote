@@ -7,16 +7,15 @@ import controller.config.Conf;
 import controller.database.IStockageServeur;
 import controller.database.StockageServeurMySQL;
 import controller.database.StockageServeurOracle;
+import controller.thread.ThreadArretVotes;
 import dataobject.*;
 import dataobject.exception.*;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.*;
 import org.mindrot.jbcrypt.BCrypt;
-import org.w3c.dom.ls.LSOutput;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,7 +23,6 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -36,6 +34,11 @@ public class Serveur {
     private Set<String> utilisateursAuthentifies;
     private ServerSocket serverSocket;
     private EmetteurConnexion scrutateur;
+
+    /**
+     * Permet de limiter l'accès au serveur
+     */
+    private boolean estVerouille = true;
 
 
     private Serveur() throws IOException, SQLException {
@@ -63,6 +66,35 @@ public class Serveur {
     public static Serveur getInstance() throws SQLException, IOException {
         if (instance == null) instance = new Serveur();
         return instance;
+    }
+
+    public void verouiller(){
+        estVerouille = true;
+    }
+
+    public void deverouiller(String motDePasseServeur) throws MauvaisMotDePasseServeurException {
+        if (BCrypt.checkpw(motDePasseServeur, getMotDePasseServeur())){
+            estVerouille = false;
+        }
+        else {
+            throw new MauvaisMotDePasseServeurException();
+        }
+    }
+
+    public void changerMotDePasseServeur(String ancienMotDePasseServeur, String nouveauMotDePasseServeur) throws MauvaisMotDePasseServeurException {
+        if (BCrypt.checkpw(ancienMotDePasseServeur, getMotDePasseServeur())){
+            setMotDePasseServeur(nouveauMotDePasseServeur);
+        }
+        else{
+            throw new MauvaisMotDePasseServeurException();
+        }
+    }
+
+    private void setMotDePasseServeur(String motDePasseServeur){
+
+    }
+    private String getMotDePasseServeur(){
+        return "";
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException {
