@@ -38,9 +38,9 @@ public class ListeVoteView extends Stage {
     private ModifUtilisateurView vueModif;
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueListeVote.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/xml/vueListeVote.fxml"));
         scene = new Scene(fxmlLoader.load());
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/javafx/vueListeVote.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/vueListeVote.css")).toExternalForm());
         this.setTitle("Liste des votes");
         this.setScene(scene);
 
@@ -52,10 +52,10 @@ public class ListeVoteView extends Stage {
         vueChoix = new ChoixView(listeVoteController, this);
         vueResusltat = new ResultatView(listeVoteController, this);
         vueModif = new ModifUtilisateurView(listeVoteController, this);
-        FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
+        FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/xml/VueProfil.fxml"));
         fxmlLoader1.setController(listeVoteController);
         profilView = fxmlLoader1.load();
-        profilView.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/javafx/vueListeVote.css")).toExternalForm());
+        profilView.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/vueListeVote.css")).toExternalForm());
 
         scrollPanelisteVote = listeVoteController.getScrollPane();
         vboxMain = listeVoteController.getVboxMain();
