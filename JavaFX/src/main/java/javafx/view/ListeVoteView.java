@@ -3,7 +3,7 @@ package javafx.view;
 import controller.Client;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
-import app.ApplicationIHM;
+import app.AppClientGraphique;
 import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -23,7 +23,7 @@ public class ListeVoteView extends Stage {
 
     private Scene scene;
     private ListeVoteController listeVoteController;
-    private ApplicationIHM myApp;
+    private AppClientGraphique myApp;
     private Client myClient;
 
     private VBox vboxMain;
@@ -37,7 +37,7 @@ public class ListeVoteView extends Stage {
     private ResultatView vueResusltat;
     private ModifUtilisateurView vueModif;
 
-    public ListeVoteView(ApplicationIHM mainApp) throws IOException {
+    public ListeVoteView(AppClientGraphique mainApp) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/xml/vueListeVote.fxml"));
         scene = new Scene(fxmlLoader.load());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/vueListeVote.css")).toExternalForm());
@@ -175,7 +175,7 @@ public class ListeVoteView extends Stage {
         vueChoix.animation();
     }
 
-    public ApplicationIHM getMyApp() {
+    public AppClientGraphique getMyApp() {
         return myApp;
     }
 

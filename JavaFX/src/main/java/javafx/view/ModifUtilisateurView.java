@@ -1,7 +1,7 @@
 package javafx.view;
 
 import controller.Client;
-import app.ApplicationIHM;
+import app.AppClientGraphique;
 import javafx.controller.ListeVoteController;
 import javafx.controller.ProfilController;
 import javafx.fxml.FXMLLoader;
@@ -21,7 +21,7 @@ public class ModifUtilisateurView extends Stage {
 
     private ProfilController modifController;
 
-    private ApplicationIHM myAppli;
+    private AppClientGraphique myAppli;
 
     private Client myClient;
 
@@ -55,7 +55,7 @@ public class ModifUtilisateurView extends Stage {
         this.show();
     }
 
-    public ApplicationIHM getMyApp() {
+    public AppClientGraphique getMyApp() {
         return myAppli;
     }
 

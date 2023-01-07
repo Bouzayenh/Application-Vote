@@ -1,12 +1,10 @@
 package controller;
 
 import controller.communication.Connexion;
-import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
 import controller.config.Conf;
-import controller.database.IStockageScrutateur;
-import controller.database.StockageScrutateurJSON;
-import controller.database.StockageScrutateurOracle;
+import controller.stockage.IStockageScrutateur;
+import controller.stockage.StockageScrutateurJSON;
 import dataobject.Chiffre;
 import dataobject.ClePublique;
 import dataobject.exception.BulletinInvalideException;

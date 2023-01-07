@@ -4,7 +4,7 @@ import controller.Client;
 import controller.Serveur;
 import dataobject.Utilisateur;
 import dataobject.exception.FeedbackException;
-import app.ApplicationIHM;
+import app.AppClientGraphique;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.view.ErreurAlert;
@@ -52,7 +52,7 @@ public class ProfilController {
 
     private Serveur serveur;
 
-    private ApplicationIHM myApp;
+    private AppClientGraphique myApp;
 
     private ProfilView profilView ;
 
@@ -113,7 +113,7 @@ public class ProfilController {
         }
     }
 
-    public void setMyApp(ApplicationIHM app) {
+    public void setMyApp(AppClientGraphique app) {
         myApp= app;
     }
 

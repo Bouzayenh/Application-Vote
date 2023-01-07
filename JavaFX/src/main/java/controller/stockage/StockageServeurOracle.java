@@ -1,10 +1,8 @@
-package controller.database;
+package controller.stockage;
 
 import dataobject.Chiffre;
 import dataobject.Utilisateur;
 import dataobject.Vote;
-import dataobject.exception.AucunUtilisateurException;
-import dataobject.exception.FeedbackException;
 
 import java.math.BigInteger;
 import java.sql.*;
@@ -121,6 +119,7 @@ public class StockageServeurOracle implements IStockageServeur{
     public void creerVote(Vote vote) {
 
         try {
+
 
             PreparedStatement statement = getConnexion().prepareStatement(
                     "INSERT INTO SAEVOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT, dateFin, heureFin)" +

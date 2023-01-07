@@ -1,7 +1,6 @@
 package app;
 
 import controller.Client;
-import controller.Serveur;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 import javafx.view.AuthentificationView;
@@ -12,7 +11,7 @@ import javafx.view.ListeVoteView;
 
 import java.io.IOException;
 
-public class ApplicationIHM extends Application {
+public class AppClientGraphique extends Application {
     private AuthentificationView vueAuthentification;
     private ListeVoteView vueListeVote;
     private Client client;

@@ -1,6 +1,6 @@
 package javafx.view;
 
-import app.ApplicationIHM;
+import app.AppClientGraphique;
 import javafx.controller.AuthentificationController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,7 +13,7 @@ public class AuthentificationView extends Stage{
     private Scene scene;
     private AuthentificationController authentificationController;
 
-    public AuthentificationView(ApplicationIHM mainApp) throws IOException {
+    public AuthentificationView(AppClientGraphique mainApp) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/xml/vueAuthentification.fxml"));
         scene = new Scene(fxmlLoader.load(), 620, 540);
         this.setTitle("Authentification!");

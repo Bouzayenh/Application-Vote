@@ -1,7 +1,7 @@
 package javafx.view;
 
 import controller.Client;
-import app.ApplicationIHM;
+import app.AppClientGraphique;
 import javafx.controller.ProfilController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -29,7 +29,7 @@ public class ProfilView extends Node {
     ColorAdjust flou;
     ColorAdjust net;
 
-    private ApplicationIHM myAppli;
+    private AppClientGraphique myAppli;
     public ProfilView() throws IOException {
         FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
         scene = new Scene(fxml.load());
@@ -61,7 +61,7 @@ public class ProfilView extends Node {
     }*/
 
 
-    public ApplicationIHM getMyApp() {
+    public AppClientGraphique getMyApp() {
         return myAppli;
     }
 

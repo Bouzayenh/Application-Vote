@@ -3,7 +3,7 @@ package javafx.controller;
 import controller.Client;
 import dataobject.exception.AuthentificationException;
 import dataobject.exception.FeedbackException;
-import app.ApplicationIHM;
+import app.AppClientGraphique;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class AuthentificationController {
     private Client client;
-    private ApplicationIHM myApp;
+    private AppClientGraphique myApp;
 
     @FXML
     private TextField TFidentifiant;
@@ -35,7 +35,7 @@ public class AuthentificationController {
         }
     }
 
-    public void initialiser(ApplicationIHM app) {
+    public void initialiser(AppClientGraphique app) {
         try {
             myApp = app;
             // initialisation

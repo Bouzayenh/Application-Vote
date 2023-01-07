@@ -7,12 +7,12 @@ public class Conf {
 
     public enum BasesDeDonnees{
         /**
-         * {@link controller.database.StockageServeurOracle}
+         * {@link controller.stockage.StockageServeurOracle}
          */
         ORACLE,
 
         /**
-         * {@link controller.database.StockageServeurMySQL}
+         * {@link controller.stockage.StockageServeurMySQL}
          */
         MYSQL
     }
@@ -25,7 +25,7 @@ public class Conf {
     /**
      * true si les sockets utilisés doivent être SSL
      */
-    public final static boolean UTILISE_SSL = true;
+    public final static boolean UTILISE_SSL = false;
 
     /**
      * Défini le numéro de port à utiliser pour les sockets
