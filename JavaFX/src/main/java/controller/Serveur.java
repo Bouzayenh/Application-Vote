@@ -184,9 +184,9 @@ public class Serveur {
         for (Utilisateur utilisateur : stockageServeur.getUtilisateurs()) {
             if (stockageServeur.aVote(utilisateur.getLogin(), idVote)) {
                 try {
-                    Mail mail = new Mail();
-                    //mail.envoyerMail("FinVote",utilisateur.getEmail(), stockageServeur.getVote(idVote));
-                } catch (GeneralSecurityException e) {
+                    new Mail().envoyerMailFinVote(utilisateur.getEmail(),stockageServeur.getVote(idVote));
+                }
+                catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -212,7 +212,11 @@ public class Serveur {
 
         stockageServeur.creerUtilisateur(new Utilisateur(login, BCrypt.hashpw(motDePasse, BCrypt.gensalt()), email));
 
-        //TODO : envoyer mail à l'utilisateur
+        try {
+            new Mail().envoyerMailCreationCompte(email,stockageServeur.getUtilisateur(login),motDePasse);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void supprimerUtilisateur(String login) throws SQLException {
@@ -395,11 +399,12 @@ public class Serveur {
                                                 );
                                                 stockageServeur.voter(idUtilisateurCourant, bulPaquet.getIdVote());
                                                 client.ecrireConfirmation();
-                                                Mail mail = new Mail();
-                                                //mail.envoyerMail("Vote",stockageServeur.getUtilisateur(idUtilisateurCourant).getEmail(),stockageServeur.getVote(bulPaquet.getIdVote()));
+                                                new Mail().envoyerMailDepotBulletin(stockageServeur.getUtilisateur(idUtilisateurCourant).getEmail(),stockageServeur.getVote(bulPaquet.getIdVote()));
                                             } catch (FeedbackException e) {
                                                 client.ecrireException(e);
                                             } catch (GeneralSecurityException e) {
+                                                throw new RuntimeException(e);
+                                            } catch (Exception e) {
                                                 throw new RuntimeException(e);
                                             }
                                         }

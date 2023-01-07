@@ -6,15 +6,7 @@ module com.example.javafx {
     requires org.json;
     requires mysql.connector.j;
     requires javafx.graphics;
-    requires com.google.api.client.auth;
-    requires com.google.api.client.extensions.java6.auth;
-    requires com.google.api.client.extensions.jetty.auth;
-    requires google.api.client;
-    requires com.google.api.client;
-    requires com.google.api.client.json.gson;
-    requires com.google.api.services.gmail;
-    requires org.apache.commons.codec;
-    requires mail;
+    requires java.mail;
 
     exports javafx;
     opens javafx to javafx.fxml;
