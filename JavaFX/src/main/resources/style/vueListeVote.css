@@ -1,5 +1,5 @@
 #background {
-    -fx-background-image: url("images/background.png");
+    -fx-background-image: url("../image/background.png");
     -fx-background-size: 100% 100%;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;
@@ -25,19 +25,19 @@
 }
 
 #btnProfil {
-    -fx-background-image: url("images/profil.png");
+    -fx-background-image: url("../image/profil.png");
 }
 
 #btnDeconnexion {
-    -fx-background-image: url("images/deconnexion.png");
+    -fx-background-image: url("../image/deconnexion.png");
 }
 
 #btnVotes {
-    -fx-background-image: url("images/voter.png");
+    -fx-background-image: url("../image/voter.png");
 }
 
 #btnResultats {
-    -fx-background-image: url("images/resultat.png");
+    -fx-background-image: url("../image/resultat.png");
 }
 
 

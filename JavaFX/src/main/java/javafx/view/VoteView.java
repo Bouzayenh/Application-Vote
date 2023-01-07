@@ -1,12 +1,8 @@
 package javafx.view;
 
 import dataobject.Vote;
-import javafx.ApplicationIHM;
-import javafx.controller.AuthentificationController;
 import javafx.controller.ListeVoteController;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -18,7 +14,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
-import java.sql.Time;
 
 public class VoteView extends Stage {
 
@@ -31,7 +26,7 @@ public class VoteView extends Stage {
 
     public VoteView(ListeVoteController c, ListeVoteView v) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueVote.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/xml/vueVote.fxml"));
         fxmlLoader.setController(c);
         vueListeVote = v;
         this.initModality(Modality.WINDOW_MODAL);

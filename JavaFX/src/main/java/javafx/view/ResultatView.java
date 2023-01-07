@@ -1,22 +1,18 @@
 package javafx.view;
 
-import controller.Serveur;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
-import javafx.animation.TranslateTransition;
 import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
 
 import java.io.IOException;
 
@@ -34,7 +30,7 @@ public class ResultatView extends Stage {
 
     public ResultatView(ListeVoteController c, ListeVoteView v) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueResultat.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/xml/vueResultat.fxml"));
         fxmlLoader.setController(c);
         this.initModality(Modality.WINDOW_MODAL);
         this.initOwner(v.getScene().getWindow());

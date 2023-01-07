@@ -42,19 +42,21 @@ public class Serveur {
 
         utilisateursAuthentifies = new HashSet<>();
 
+        //SGBD
         switch (Conf.BASE_DE_DONNEES){
             case ORACLE -> stockageServeur = new StockageServeurOracle();
             case MYSQL -> stockageServeur = new StockageServeurMySQL();
         }
 
+        //SSL ou non-SSL
         if (Conf.UTILISE_SSL){
             System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
             System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
             SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-            serverSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);
+            serverSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(Conf.PORT);
         }
         else {
-            serverSocket = new ServerSocket(3615);
+            serverSocket = new ServerSocket(Conf.PORT);
         }
     }
 

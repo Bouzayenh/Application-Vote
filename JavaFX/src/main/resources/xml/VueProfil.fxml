@@ -9,16 +9,16 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox id="vboxSecondaire" fx:id="background1" alignment="TOP_CENTER" style="-fx-background-color: #1E1E1E;" stylesheets="@vueListeVote.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<VBox id="vboxSecondaire" fx:id="background1" alignment="TOP_CENTER" style="-fx-background-color: #1E1E1E;" stylesheets="@../style/vueListeVote.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox id="vboxMain" fx:id="vboxMain1" alignment="CENTER" prefHeight="478.0" prefWidth="828.0" style="-fx-background-radius: 20;" stylesheets="@vueListeVote.css">
+      <VBox id="vboxMain" fx:id="vboxMain1" alignment="CENTER" prefHeight="478.0" prefWidth="828.0" style="-fx-background-radius: 20;" stylesheets="@../style/vueListeVote.css">
          <children>
             <ImageView fitHeight="62.0" fitWidth="105.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@images/profil.png" />
+                  <Image url="@../image/profil.png" />
                </image>
             </ImageView>
-            <VBox id="vboxSecondaire" prefHeight="252.0" prefWidth="649.0" stylesheets="@vueListeVote.css">
+            <VBox id="vboxSecondaire" prefHeight="252.0" prefWidth="649.0" stylesheets="@../style/vueListeVote.css">
                <children>
                   <Label fx:id="login" text="Login: " textFill="WHITE">
                      <VBox.margin>
