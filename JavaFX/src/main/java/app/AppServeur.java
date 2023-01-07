@@ -7,6 +7,7 @@ import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -213,6 +214,8 @@ public class AppServeur {
                     System.out.println("Erreur : " + e.getMessage());
                 } catch (NumberFormatException e) {
                     System.out.println("Erreur : Pas un nombre");
+                }catch (DateTimeException e){
+                    System.out.println("Erreur : Date invalide");
                 } catch (IOException | ClassNotFoundException | NullPointerException e) {
                     if (!serveur.estConnecteScrutateur())
                         System.out.println("Erreur : Impossible de se connecter au scrutateur");
@@ -222,7 +225,7 @@ public class AppServeur {
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
             System.out.println("Erreur critique : Arrêt du serveur");
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 }
