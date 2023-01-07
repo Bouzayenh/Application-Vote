@@ -1,6 +1,7 @@
-package dataobject;
+package controller.thread;
 
 import controller.Serveur;
+import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 
 import java.io.IOException;
