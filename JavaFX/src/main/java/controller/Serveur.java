@@ -16,6 +16,9 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,6 +27,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Set;
 
 public class Serveur {
@@ -36,9 +40,9 @@ public class Serveur {
     private EmetteurConnexion scrutateur;
 
     /**
-     * Permet de limiter l'accès au serveur
+     * Permet de limiter l'accès, le serveur sera toujours en marche et pourra traiter les demandes des clients, mais l'administrateur ne pourra pas accéder à ses fonctions.
      */
-    private boolean estVerouille = true;
+    private boolean verouille = true;
 
 
     private Serveur() throws IOException, SQLException {
@@ -68,13 +72,17 @@ public class Serveur {
         return instance;
     }
 
+    public boolean estVerouille(){
+        return verouille;
+    }
+
     public void verouiller(){
-        estVerouille = true;
+        verouille = true;
     }
 
     public void deverouiller(String motDePasseServeur) throws MauvaisMotDePasseServeurException {
         if (BCrypt.checkpw(motDePasseServeur, getMotDePasseServeur())){
-            estVerouille = false;
+            verouille = false;
         }
         else {
             throw new MauvaisMotDePasseServeurException();
@@ -82,19 +90,58 @@ public class Serveur {
     }
 
     public void changerMotDePasseServeur(String ancienMotDePasseServeur, String nouveauMotDePasseServeur) throws MauvaisMotDePasseServeurException {
-        if (BCrypt.checkpw(ancienMotDePasseServeur, getMotDePasseServeur())){
-            setMotDePasseServeur(nouveauMotDePasseServeur);
-        }
-        else{
-            throw new MauvaisMotDePasseServeurException();
+
+        if(!verouille){
+
+            if (BCrypt.checkpw(ancienMotDePasseServeur, getMotDePasseServeur())){
+                setMotDePasseServeur(nouveauMotDePasseServeur);
+            }
+            else{
+                throw new MauvaisMotDePasseServeurException();
+            }
+
         }
     }
 
     private void setMotDePasseServeur(String motDePasseServeur){
 
+        File pwd = new File("JavaFX/src/main/resources/serveur/pwd");
+
+        try{
+            //si le fichier n'existe pas, le créé (ce cas de figure ne devrait pas arriver lors d'une utilisation normale)
+            pwd.createNewFile();
+
+            FileWriter fileWriter = new FileWriter(pwd);
+            fileWriter.write(BCrypt.hashpw(motDePasseServeur, BCrypt.gensalt()));
+            fileWriter.close();
+
+        } catch (IOException ignored) {}
+
     }
     private String getMotDePasseServeur(){
-        return "";
+
+        String motDePasseServeur = "";
+
+        File pwd = new File("JavaFX/src/main/resources/serveur/pwd");
+
+        try {
+            //si le fichier n'existe pas, le créé avec pour mot de passe "admin".
+            if (pwd.createNewFile()){
+
+                FileWriter fileWriter = new FileWriter(pwd);
+                fileWriter.write(BCrypt.hashpw("admin", BCrypt.gensalt()));
+                fileWriter.close();
+            }
+
+            Scanner scanner = new Scanner(pwd);
+            motDePasseServeur = scanner.nextLine();
+            scanner.close();
+
+        } catch (IOException ignored) {
+            ignored.printStackTrace();
+        }
+
+        return motDePasseServeur;
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException {
@@ -121,6 +168,8 @@ public class Serveur {
     }
 
     public void terminerVote(int idVote) throws FeedbackException, IOException, ClassNotFoundException {
+
+
         Vote vote = stockageServeur.getVote(idVote);
         int nbBulletins = vote.getNbBulletins();
         if (nbBulletins == 0)
