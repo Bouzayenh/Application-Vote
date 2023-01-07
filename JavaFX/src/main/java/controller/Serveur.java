@@ -3,6 +3,7 @@ package controller;
 import controller.communication.Connexion;
 import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
+import controller.config.Conf;
 import controller.database.IStockageServeur;
 import controller.database.StockageServeurMySQL;
 import controller.database.StockageServeurOracle;
@@ -11,6 +12,7 @@ import dataobject.exception.*;
 import dataobject.paquet.*;
 import dataobject.paquet.feedback.*;
 import org.mindrot.jbcrypt.BCrypt;
+import org.w3c.dom.ls.LSOutput;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -32,19 +34,28 @@ public class Serveur {
 
     private IStockageServeur stockageServeur;
     private Set<String> utilisateursAuthentifies;
-    private SSLServerSocket sslServerSocket;
     private ServerSocket serverSocket;
     private EmetteurConnexion scrutateur;
 
+
     private Serveur() throws IOException, SQLException {
-        stockageServeur = new StockageServeurOracle();
+
         utilisateursAuthentifies = new HashSet<>();
 
-        /*System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
-        System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
-        SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);*/
-        serverSocket = new ServerSocket(3605);
+        switch (Conf.BASE_DE_DONNEES){
+            case ORACLE -> stockageServeur = new StockageServeurOracle();
+            case MYSQL -> stockageServeur = new StockageServeurMySQL();
+        }
+
+        if (Conf.UTILISE_SSL){
+            System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
+            System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
+            SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            serverSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(3615);
+        }
+        else {
+            serverSocket = new ServerSocket(3615);
+        }
     }
 
     public static Serveur getInstance() throws SQLException, IOException {

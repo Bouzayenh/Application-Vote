@@ -2,6 +2,7 @@ package controller;
 
 import controller.communication.Connexion;
 import controller.communication.EmetteurConnexion;
+import controller.config.Conf;
 import dataobject.Utilisateur;
 import dataobject.Vote;
 import dataobject.exception.BulletinInvalideException;
@@ -28,12 +29,18 @@ public class Client {
     private EmetteurConnexion serveur;
 
     public Client() throws IOException {
-        //System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
-        //System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
-        /*SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));*/
 
-        serveur = new EmetteurConnexion(new Socket("localhost", 3605));
+        if (Conf.UTILISE_SSL){
+
+            System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
+            System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
+
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", Conf.PORT));
+        }else {
+            serveur = new EmetteurConnexion(new Socket("localhost", Conf.PORT));
+        }
+
         // identification
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.CLIENT));
     }

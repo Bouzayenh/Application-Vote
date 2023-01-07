@@ -3,6 +3,7 @@ package controller;
 import controller.communication.Connexion;
 import controller.communication.EmetteurConnexion;
 import controller.communication.RecepteurConnexion;
+import controller.config.Conf;
 import controller.database.IStockageScrutateur;
 import controller.database.StockageScrutateurJSON;
 import controller.database.StockageScrutateurOracle;
@@ -25,17 +26,29 @@ import java.sql.SQLException;
 
 public class Scrutateur {
     private IStockageScrutateur stockageScrutateur;
+
+    /**
+     * La longueur en nombre de bits des clés générées.
+     */
     private int l;
     private RecepteurConnexion serveur;
 
+    /**
+     * @param l La longueur en nombre de bits des clés générées.
+     */
     public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
+
         stockageScrutateur = new StockageScrutateurJSON("JavaFX/src/main/resources/scrutateur/cle.json");
         this.l = l;
 
-        System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
-        System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
-        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        serveur = new RecepteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", 3615));
+        if (Conf.UTILISE_SSL){
+            System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
+            System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            serveur = new RecepteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", Conf.PORT));
+        }else {
+            serveur = new RecepteurConnexion(new Socket("localhost", Conf.PORT));
+        }
 
         // identification
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
