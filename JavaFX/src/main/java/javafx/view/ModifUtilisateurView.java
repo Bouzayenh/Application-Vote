@@ -1,7 +1,7 @@
 package javafx.view;
 
 import controller.Client;
-import javafx.ApplicationIHM;
+import app.ApplicationIHM;
 import javafx.controller.ListeVoteController;
 import javafx.controller.ProfilController;
 import javafx.fxml.FXMLLoader;

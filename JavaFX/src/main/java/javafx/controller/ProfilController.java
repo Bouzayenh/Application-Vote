@@ -4,8 +4,7 @@ import controller.Client;
 import controller.Serveur;
 import dataobject.Utilisateur;
 import dataobject.exception.FeedbackException;
-import javafx.ApplicationIHM;
-import javafx.event.ActionEvent;
+import app.ApplicationIHM;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.view.ErreurAlert;
@@ -14,7 +13,6 @@ import javafx.view.ModifUtilisateurView;
 import javafx.view.ProfilView;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 public class ProfilController {
 

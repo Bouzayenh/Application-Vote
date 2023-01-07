@@ -1,6 +1,6 @@
 package javafx.view;
 
-import javafx.ApplicationIHM;
+import app.ApplicationIHM;
 import javafx.controller.AuthentificationController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

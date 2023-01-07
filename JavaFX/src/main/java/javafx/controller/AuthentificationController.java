@@ -3,7 +3,7 @@ package javafx.controller;
 import controller.Client;
 import dataobject.exception.AuthentificationException;
 import dataobject.exception.FeedbackException;
-import javafx.ApplicationIHM;
+import app.ApplicationIHM;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;

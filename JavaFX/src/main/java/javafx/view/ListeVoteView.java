@@ -3,7 +3,7 @@ package javafx.view;
 import controller.Client;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
-import javafx.ApplicationIHM;
+import app.ApplicationIHM;
 import javafx.controller.ListeVoteController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

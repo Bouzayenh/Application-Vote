@@ -1,4 +1,4 @@
-package javafx;
+package app;
 
 import controller.Client;
 import controller.Serveur;
@@ -60,10 +60,12 @@ public class ApplicationIHM extends Application {
 
     public void voter(int choix, int idVote) {
        try {
-           //client.voter(choix, idVote);
+           client.voter(choix, idVote);
            vueListeVote.animation();
            return;
-       } catch (Exception ignored) {}
+       } catch (FeedbackException e) {
+           new ErreurAlert(e).show();
+       } catch (IOException | ClassNotFoundException ignored){}
         vueListeVote.cacherVueChoix();
     }
 

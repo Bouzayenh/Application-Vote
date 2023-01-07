@@ -1,8 +1,7 @@
 package javafx.view;
 
 import controller.Client;
-import dataobject.exception.FeedbackException;
-import javafx.ApplicationIHM;
+import app.ApplicationIHM;
 import javafx.controller.ProfilController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -10,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 
