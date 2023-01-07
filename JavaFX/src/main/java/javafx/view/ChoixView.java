@@ -36,7 +36,7 @@ public class ChoixView extends Stage {
     public ChoixView(ListeVoteController c, ListeVoteView v) throws IOException {
 
         listeVoteView = v;
-        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueChoix.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/xml/vueChoix.fxml"));
         fxmlLoader.setController(c);
         this.initModality(Modality.WINDOW_MODAL);
         this.initOwner(v.getScene().getWindow());

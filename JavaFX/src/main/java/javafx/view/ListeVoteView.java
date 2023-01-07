@@ -10,8 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -42,9 +40,9 @@ public class ListeVoteView extends Stage {
 
     public ListeVoteView(ApplicationIHM mainApp) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/javafx/vueListeVote.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AuthentificationView.class.getResource("/xml/vueListeVote.fxml"));
         scene = new Scene(fxmlLoader.load());
-        scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/style/vueListeVote.css").toExternalForm());
         this.setTitle("Liste de votes");
         this.setScene(scene);
 
@@ -57,10 +55,10 @@ public class ListeVoteView extends Stage {
         vueResusltat = new ResultatView(listeVoteController, this);
         vueModif = new ModifUtilisateurView(listeVoteController, this);
         vueErreur = new ErreurView();
-        FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
+        FXMLLoader fxmlLoader1 = new FXMLLoader(ModifUtilisateurView.class.getResource("/xml/VueProfil.fxml"));
         fxmlLoader1.setController(listeVoteController);
         profilView = fxmlLoader1.load();
-        profilView.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
+        profilView.getStylesheets().add(getClass().getResource("/style/vueListeVote.css").toExternalForm());
 
         backgrounVBOX = (VBox) this.scene.getRoot();
 

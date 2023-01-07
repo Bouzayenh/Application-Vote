@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -33,9 +32,9 @@ public class ProfilView extends Node {
 
     private ApplicationIHM myAppli;
     public ProfilView() throws Exception {
-        FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueProfil.fxml"));
+        FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/xml/VueProfil.fxml"));
         scene = new Scene(fxml.load());
-        scene.getStylesheets().add(getClass().getResource("/javafx/vueListeVote.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/style/vueListeVote.css").toExternalForm());
 
         //this.setTitle("Profil");
         //this.setScene(scene);

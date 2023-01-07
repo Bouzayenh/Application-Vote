@@ -1,7 +1,6 @@
 package javafx.view;
 
 import controller.Client;
-import dataobject.exception.FeedbackException;
 import javafx.ApplicationIHM;
 import javafx.controller.ListeVoteController;
 import javafx.controller.ProfilController;
@@ -28,7 +27,7 @@ public class ModifUtilisateurView extends Stage {
 
 
     public ModifUtilisateurView(ListeVoteController c, ListeVoteView v) throws IOException {
-        FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/javafx/VueModifUtilisateur.fxml"));
+        FXMLLoader fxml= new FXMLLoader(ModifUtilisateurView.class.getResource("/xml/VueModifUtilisateur.fxml"));
         fxml.setController(c);
         scene = new Scene(fxml.load());
         this.initModality(Modality.WINDOW_MODAL);
