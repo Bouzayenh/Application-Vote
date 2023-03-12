@@ -55,50 +55,18 @@ public class AppServeur2 {
                                         + " [0] Arrêter le serveur"
                         );
 
-                        switch (choix){
-
-                            case 1:
-                                afficherVotes();
-                                break;
-
-                            case 2:
-                                creerVote();
-                                break;
-
-                            case 3:
-                                consulterResultat();
-                                break;
-
-                            case 4:
-                                consulterListeUtilisateur();
-                                break;
-
-                            case 5:
-                                creerUtilisateur();
-                                break;
-
-                            case 6:
-                                modifierUtilisateur();
-                                break;
-
-                            case 7:
-                                supprimerUtilisateur();
-                                break;
-
-                            case 8:
-                                changerMotDePasse();
-                                break;
-
-                            case 9:
-                                verrouillerServeur();
-                                break;
-
-                            case 0:
-                                arreterServeur();
-                                break;
-
-                            case -1:
-                                System.out.println("Commande non-reconnue.");
+                        switch (choix) {
+                            case 1 -> afficherVotes();
+                            case 2 -> creerVote();
+                            case 3 -> consulterResultat();
+                            case 4 -> consulterListeUtilisateur();
+                            case 5 -> creerUtilisateur();
+                            case 6 -> modifierUtilisateur();
+                            case 7 -> supprimerUtilisateur();
+                            case 8 -> changerMotDePasse();
+                            case 9 -> verrouillerServeur();
+                            case 0 -> arreterServeur();
+                            case -1 -> System.out.println("Commande non-reconnue.");
                         }
                     } catch (FeedbackException e) {
                         System.out.println("Erreur : " + e.getMessage());
@@ -111,6 +79,7 @@ public class AppServeur2 {
             }
 
         } catch (IOException | SQLException e) {
+            e.printStackTrace();
             System.out.println("Erreur critique : Arrêt du serveur");
         }
     }
