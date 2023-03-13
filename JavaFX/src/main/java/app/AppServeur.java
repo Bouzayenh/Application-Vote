@@ -26,7 +26,7 @@ public class AppServeur {
             System.out.println("Serveur lancé. Connexions possibles");
 
             Scanner sc = new Scanner(System.in);
-            String intitule, option1, option2, idVote, login, motDePasse, email;
+            String intitule, option1, option2, idVote, login, email;
 
             // interface de l'administrateur
             while (true) {
@@ -214,7 +214,7 @@ public class AppServeur {
                     System.out.println("Erreur : " + e.getMessage());
                 } catch (NumberFormatException e) {
                     System.out.println("Erreur : Pas un nombre");
-                }catch (DateTimeException e){
+                }catch (DateTimeException e) {
                     System.out.println("Erreur : Date invalide");
                 } catch (IOException | ClassNotFoundException | NullPointerException e) {
                     if (!serveur.estConnecteScrutateur())
@@ -225,7 +225,6 @@ public class AppServeur {
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
             System.out.println("Erreur critique : Arrêt du serveur");
-            //e.printStackTrace();
         }
     }
 }

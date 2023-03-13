@@ -36,7 +36,7 @@ public class Client {
             System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
 
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            serveur = new EmetteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", Conf.PORT));
+            serveur = new EmetteurConnexion(sslSocketFactory.createSocket("localhost", Conf.PORT));
         }else {
             serveur = new EmetteurConnexion(new Socket("localhost", Conf.PORT));
         }
@@ -70,13 +70,15 @@ public class Client {
     }
 
     public void voter(int bulletin, int idVote) throws FeedbackException, IOException, ClassNotFoundException {
-        if (bulletin != 1 && bulletin != 2) throw new BulletinInvalideException();
+        if (!Conf.CLIENT_MALVEILLANT && bulletin != 1 && bulletin != 2) throw new BulletinInvalideException();
 
         // chiffrement et envoi du bulletin
         serveur.ecrirePaquet(new DemanderClePubliquePaquet(idVote));
         ClePubliqueFeedbackPaquet paquet = (ClePubliqueFeedbackPaquet) serveur.lireFeedback();
         serveur.ecrirePaquet(new BulletinPaquet(Chiffrement.encrypt(bulletin-1, paquet.getClePublique()), idVote));
+        System.out.println("1");
         serveur.lireFeedback();
+        System.out.println("2");
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, IOException, ClassNotFoundException {

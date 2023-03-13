@@ -28,7 +28,6 @@ public class StockageServeurOracle implements IStockageServeur{
     }
 
     public Set<Vote> getVotes(){
-
         try {
             ResultSet result = getConnexion().createStatement().executeQuery(
                     "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT, dateFin, heureFin FROM SAEVOTES ORDER BY IDVOTE"
@@ -49,13 +48,12 @@ public class StockageServeurOracle implements IStockageServeur{
                 votes.add(vote);
             }
             return votes;
-        }catch (SQLException e){
+        } catch (SQLException e) {
             return new HashSet<>();
         }
     }
 
     public Vote getVote(int idVote){
-
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
                     "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT, dateFin, heureFin FROM SAEVOTES" +
@@ -81,14 +79,13 @@ public class StockageServeurOracle implements IStockageServeur{
                         )
                 );
             return null;
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
 
     public void updateUrne(int idVote, Chiffre urne) {
-
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
                     "UPDATE SAEVOTES SET URNE_U = ?, URNE_V = ?, NBBULLETINS = NBBULLETINS + 1 WHERE IDVOTE = ?"
@@ -97,13 +94,10 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(2, urne.getV().toString());
             statement.setInt(3, idVote);
             statement.executeUpdate();
-        }catch (SQLException ignored){
-
-        }
+        }catch (SQLException ignored) {}
     }
 
     public void voter(String login, int idVote){
-
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
                     "INSERT INTO SAEVOTER(LOGIN, IDVOTE) VALUES (?, ?)"
@@ -111,16 +105,11 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(1, login);
             statement.setInt(2, idVote);
             statement.executeUpdate();
-        }catch (SQLException ignored){
-
-        }
+        } catch (SQLException ignored) {}
     }
 
     public void creerVote(Vote vote) {
-
         try {
-
-
             PreparedStatement statement = getConnexion().prepareStatement(
                     "INSERT INTO SAEVOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, NBBULLETINS, RESULTAT, dateFin, heureFin)" +
                             " VALUES (?, ?, ?, ?, ?, ?, 0, -1, ?, ?)"
@@ -133,33 +122,23 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(6, vote.getUrne().getV().toString());
             statement.setDate(7, Date.valueOf(vote.getDateFin().toLocalDate()));
             statement.setInt(8, vote.getDateFin().getHour());
-
             statement.executeUpdate();
-
-        }catch (SQLException ignored){
-        }
+        } catch (SQLException ignored) {}
     }
 
     public void terminerVote(int idVote, double resultat) {
-
         try {
-
             PreparedStatement statement = getConnexion().prepareStatement(
                     "UPDATE SAEVOTES SET RESULTAT = ? WHERE IDVOTE = ?"
             );
             statement.setDouble(1, resultat);
             statement.setInt(2, idVote);
             statement.executeUpdate();
-
-        }catch (SQLException ignored){
-
-        }
+        } catch (SQLException ignored) {}
     }
 
     public boolean aVote(String login, int idVote){
-
         try {
-
             PreparedStatement statement = getConnexion().prepareStatement(
                     "SELECT COUNT(*) FROM SAEVOTER WHERE LOGIN = ? AND IDVOTE = ?"
             );
@@ -171,16 +150,13 @@ public class StockageServeurOracle implements IStockageServeur{
             result.next();
 
             return result.getInt(1) != 0;
-
-        }catch (SQLException e){
+        } catch (SQLException e) {
             return true;
         }
     }
 
     public boolean verifierMotDePasse(Utilisateur utilisateur) {
-
         try {
-
             PreparedStatement statement = getConnexion().prepareStatement(
                     "SELECT COUNT(LOGIN) FROM SAEUTILISATEURS WHERE LOGIN = ? AND MOTDEPASSE = ?"
             );
@@ -192,16 +168,13 @@ public class StockageServeurOracle implements IStockageServeur{
             result.next();
 
             return result.getInt(1) != 0;
-
-        }catch (SQLException e){
+        } catch (SQLException e) {
             return false;
         }
     }
 
     public Set<Utilisateur> getUtilisateurs() {
-
         try {
-
             ResultSet result = getConnexion().createStatement().executeQuery(
                     "SELECT LOGIN, MOTDEPASSE, EMAIL FROM SAEUTILISATEURS"
             );
@@ -217,16 +190,13 @@ public class StockageServeurOracle implements IStockageServeur{
             }
 
             return utilisateurs;
-
-        }catch (SQLException e){
+        } catch (SQLException e) {
             return new HashSet<>();
         }
     }
 
     public void creerUtilisateur(Utilisateur utilisateur) {
-
         try {
-
             PreparedStatement statement = getConnexion().prepareStatement(
                     "INSERT INTO SAEUTILISATEURS(LOGIN, MOTDEPASSE, EMAIL) VALUES (?, ?, ?)"
             );
@@ -236,14 +206,10 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(3, utilisateur.getEmail());
 
             statement.executeUpdate();
-
-        }catch (SQLException ignored){
-
-        }
+        } catch (SQLException ignored) {}
     }
 
     public void supprimerUtilisateur(String login) {
-
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
                     "DELETE FROM SAEUTILISATEURS WHERE LOGIN = ?"
@@ -252,14 +218,10 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(1, login);
 
             statement.executeUpdate();
-
-        }catch (SQLException ignored){
-
-        }
+        } catch (SQLException ignored) {}
     }
 
     public void mettreAJourUtilisateurMotDePasse(Utilisateur utilisateur) {
-
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
                     "UPDATE SAEUTILISATEURS SET MOTDEPASSE = ? WHERE LOGIN = ?"
@@ -269,14 +231,10 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(2, utilisateur.getLogin());
 
             statement.executeUpdate();
-
-        }catch (SQLException ignored){
-
-        }
+        } catch (SQLException ignored) {}
     }
 
     public void mettreAJourUtilisateurEmail(Utilisateur utilisateur) {
-
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
                     "UPDATE SAEUTILISATEURS SET EMAIL = ? WHERE LOGIN = ?"
@@ -286,13 +244,10 @@ public class StockageServeurOracle implements IStockageServeur{
             statement.setString(2, utilisateur.getLogin());
 
             statement.executeUpdate();
-
-        }catch (SQLException ignored){
-
-        }
+        } catch (SQLException ignored) {}
     }
 
-    public String getUtilisateurEmail(String login){
+    public String getUtilisateurEmail(String login) {
         try {
             PreparedStatement statement = getConnexion().prepareStatement(
                     "SELECT EMAIL FROM SAEUTILISATEURS WHERE LOGIN = ?"
@@ -305,7 +260,7 @@ public class StockageServeurOracle implements IStockageServeur{
 
             return result.getString(1);
 
-        }catch (SQLException e){
+        } catch (SQLException e) {
             return "";
         }
     }
@@ -323,8 +278,7 @@ public class StockageServeurOracle implements IStockageServeur{
             result.next();
 
             return result.getInt(1);
-
-        }catch (SQLException e){
+        } catch (SQLException e) {
             return 0;
         }
     }

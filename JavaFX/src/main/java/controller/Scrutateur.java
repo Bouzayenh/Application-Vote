@@ -89,15 +89,24 @@ public class Scrutateur {
                             clePrivee = stockageScrutateur.getClePrivee(dechiffrerPaquet.getIdVote());
                             if (clePublique == null)
                                 serveur.ecrireException(new VoteInexistantException());
-                            else
-                                serveur.ecrirePaquet(new DechiffrerFeedbackPaquet(Chiffrement.decrypt(
-                                        dechiffrerPaquet.getChiffre(),
-                                        dechiffrerPaquet.getNbBulletins(),
-                                        clePublique, clePrivee) / (double) dechiffrerPaquet.getNbBulletins()
+                            else {
+                                int total;
+                                if (Conf.DECHIFFREMENT_EXHAUSTIF)
+                                    total = Chiffrement.decrypt(
+                                            dechiffrerPaquet.getChiffre(),
+                                            Integer.MAX_VALUE,
+                                            clePublique, clePrivee);
+                                else
+                                    total = Chiffrement.decrypt(
+                                            dechiffrerPaquet.getChiffre(),
+                                            dechiffrerPaquet.getNbBulletins(),
+                                            clePublique, clePrivee);
+                                serveur.ecrirePaquet(new DechiffrerFeedbackPaquet(total / (double) dechiffrerPaquet.getNbBulletins()
                                 ));
+                            }
                             break;
 
-                        case BULLETIN:
+                        /* case BULLETIN:
                             BulletinPaquet bulPaquet = (BulletinPaquet) paquet;
                             clePublique = stockageScrutateur.getClePublique(bulPaquet.getIdVote());
                             clePrivee = stockageScrutateur.getClePrivee(bulPaquet.getIdVote());
@@ -110,7 +119,7 @@ public class Scrutateur {
                                 else
                                     serveur.ecrirePaquet(new ClePubliqueFeedbackPaquet(clePublique));
                             }
-                            break;
+                            break; */
                     }
             }
         } catch (IOException | ClassNotFoundException ignored) {}

@@ -1,6 +1,7 @@
 package app;
 
 import controller.Client;
+import controller.config.Conf;
 import dataobject.Vote;
 import dataobject.exception.FeedbackException;
 
@@ -80,7 +81,7 @@ public class AppClient {
                             if (idVote.equals("q"))
                                 break;
 
-                            System.out.print("Choix (1 ou 2) :\n"
+                            System.out.print("Choix (" + (Conf.CLIENT_MALVEILLANT ? "entier" : "1 ou 2") + ") :\n"
                                     + "> ");
                             choix = sc.nextLine();
                             if (choix.equals("q"))

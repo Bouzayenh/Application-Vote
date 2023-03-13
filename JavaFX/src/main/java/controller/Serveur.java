@@ -23,7 +23,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Scanner;
@@ -161,6 +164,9 @@ public class Serveur {
     }
 
     public void creerVote(String intitule, String option1, String option2, LocalDateTime dateFin) throws FeedbackException, IOException, ClassNotFoundException {
+        if (dateFin.isAfter(LocalDateTime.of(LocalDate.of(9999, 12, 31), LocalTime.of(23, 59)))
+                || dateFin.isBefore(LocalDateTime.of(LocalDate.of(1, 1, 1), LocalTime.of(0, 0))))
+            throw new DateTimeException("Date hors limites");
         scrutateur.ecrirePaquet(new CreerVotePaquet());
         CreerVoteFeedbackPaquet paquet = (CreerVoteFeedbackPaquet) scrutateur.lireFeedback();
         stockageServeur.creerVote(new Vote(paquet.getIdVote(), intitule, option1, option2, dateFin).setUrne(paquet.getChiffre()));
@@ -387,22 +393,27 @@ public class Serveur {
                                         else if (vote.estFini())
                                             client.ecrireException(new VoteTermineException());
                                         else {
-                                            scrutateur.ecrirePaquet(bulPaquet);
+                                            System.out.println("1");
+                                            scrutateur.ecrirePaquet(new DemanderClePubliquePaquet(bulPaquet.getIdVote()));
+                                            System.out.println("2");
                                             try {
                                                 // agrège le bulletin dans l'urne
                                                 ClePubliqueFeedbackPaquet clePaquet = (ClePubliqueFeedbackPaquet) scrutateur.lireFeedback();
                                                 Chiffre bulletin = bulPaquet.getBulletin();
+                                                System.out.println("3");
                                                 stockageServeur.updateUrne(
                                                         bulPaquet.getIdVote(),
                                                         Chiffrement.agreger(bulletin, vote.getUrne(), clePaquet.getClePublique())
                                                 );
+                                                System.out.println("4");
                                                 stockageServeur.voter(idUtilisateurCourant, bulPaquet.getIdVote());
+                                                System.out.println("5");
                                                 client.ecrireConfirmation();
+                                                System.out.println("6");
                                                 new Mail().envoyerMailDepotBulletin(stockageServeur.getUtilisateur(idUtilisateurCourant).getEmail(),stockageServeur.getVote(bulPaquet.getIdVote()));
+                                                System.out.println("7");
                                             } catch (FeedbackException e) {
                                                 client.ecrireException(e);
-                                            } catch (GeneralSecurityException e) {
-                                                throw new RuntimeException(e);
                                             } catch (Exception e) {
                                                 throw new RuntimeException(e);
                                             }
