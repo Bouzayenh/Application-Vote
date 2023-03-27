@@ -4,7 +4,9 @@ import dataobject.Chiffre;
 import dataobject.ClePublique;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.MessageDigest;
 
 /**
  * Contient toutes les méthodes de chiffrement.<br>
@@ -79,8 +81,8 @@ public class Chiffrement {
      * @param clePublique La clé publique permettant le chiffrement.
      * @return Un {@link Chiffre} représentant m chiffré selon le crypto-système de ElGamal.
      */
-    public static Chiffre encrypt(int m, ClePublique clePublique) {
-        BigInteger p, g, h, pPrime, r;
+    public static Chiffre encrypt(int m, ClePublique clePublique, BigInteger r) {
+        BigInteger p, g, h, pPrime;
 
         p = clePublique.getP();
         g = clePublique.getG();
@@ -95,6 +97,11 @@ public class Chiffrement {
 
         // def Chiffré
         return new Chiffre(g.modPow(r, p), g.modPow(BigInteger.valueOf(m), p).multiply(h.modPow(r, p)).mod(p));
+    }
+
+    // maudit
+    public static Chiffre encrypt(int m, ClePublique clePublique) {
+        return null;
     }
 
     /**
