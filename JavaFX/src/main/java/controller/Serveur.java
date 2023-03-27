@@ -263,6 +263,15 @@ public class Serveur {
         }).start();
     }
 
+    public void setStockageServeur(IStockageServeur stockageServeur) {
+        this.stockageServeur = stockageServeur;
+    }
+
+    public void setScrutateur(EmetteurConnexion scrutateur) {
+        this.scrutateur= scrutateur;
+    }
+
+
     private class ThreadGestionConnexion extends Thread {
         Connexion connexion;
 

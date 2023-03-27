@@ -9,6 +9,15 @@ module com.example.javafx {
     requires java.mail;
 
     exports javafx.view;
+
+    exports controller.communication;
+    exports controller.stockage;
+    exports controller;
+    exports dataobject;
+    exports dataobject.exception;
+    exports dataobject.paquet;
+    exports dataobject.paquet.feedback;
+
     opens javafx.view to javafx.fxml;
     exports javafx.controller;
     opens javafx.controller to javafx.fxml;
