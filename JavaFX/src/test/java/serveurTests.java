@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 
+import controller.Scrutateur;
 import controller.Serveur;
 import controller.communication.EmetteurConnexion;
 import controller.stockage.IStockageServeur;
@@ -47,6 +48,8 @@ public class serveurTests {
     public void setUp() throws SQLException, IOException {
         closeable = MockitoAnnotations.openMocks(this);
         serveur = Serveur.getInstance();
+        scrutateur = mock(EmetteurConnexion.class);
+        stockageServeur = mock(IStockageServeur.class);
         serveur.setScrutateur(scrutateur);
         serveur.setStockageServeur(stockageServeur);
     }
@@ -71,7 +74,7 @@ public class serveurTests {
     }
 
     @Test
-    public void testConsulterVotesAucunVote() throws Exception {
+    public void testConsulterVotesAucunVote() {
         when(stockageServeur.getVotes()).thenReturn(Collections.emptySet());
         assertThrows(AucunVoteException.class, () -> serveur.consulterVotes());
         verify(stockageServeur).getVotes();
@@ -95,14 +98,14 @@ public class serveurTests {
     }
 
     @Test
-    public void testConsulterUtilisateursAucunUtilisateur() throws Exception {
+    public void testConsulterUtilisateursAucunUtilisateur() {
         when(stockageServeur.getUtilisateurs()).thenReturn(Collections.emptySet());
         assertThrows(AucunUtilisateurException.class, () -> serveur.consulterUtilisateurs());
         verify(stockageServeur).getUtilisateurs();
     }
 
     @Test
-    public void testSupprimerUtilisateur() throws Exception {
+    public void testSupprimerUtilisateur() throws SQLException {
         String login = "user1";
 
         doNothing().when(stockageServeur).supprimerUtilisateur(login);
