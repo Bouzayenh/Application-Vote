@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 
 public class Main {
 
-    private static int MESSAGE = 0;
+    private static int MESSAGE = 1;
     private static SecureRandom random;
     private static BigInteger r;
 
@@ -20,7 +20,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        BigInteger[] cles = Chiffrement.keygen(6);
+        BigInteger[] cles = Chiffrement.keygen(50);
 
         ClePublique pk = new ClePublique(cles[0], cles[1], cles[2]);
         BigInteger sk = cles[3];

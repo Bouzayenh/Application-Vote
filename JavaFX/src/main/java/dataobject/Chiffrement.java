@@ -139,7 +139,7 @@ public class Chiffrement {
 
             chall0 = hacher(c.getU(), c.getV(), A0, B0, A1, B1).mod(pPrime).subtract(chall1).mod(pPrime);
 
-            rep0 = gamma.add(r.multiply(chall0)).mod(pPrime);
+            rep0 = gamma.subtract(r.multiply(chall0)).mod(pPrime);
         }
         else if (m == 1){
             //P0
@@ -152,7 +152,7 @@ public class Chiffrement {
             A1 = g.modPow(gamma, p);
             B1 = h.modPow(gamma, p);
             chall1 = hacher(c.getU(), c.getV(), A0, B0, A1, B1).mod(pPrime).subtract(chall0).mod(pPrime);
-            rep1 = gamma.add(r.multiply(chall1)).mod(pPrime);
+            rep1 = gamma.subtract(r.multiply(chall1)).mod(pPrime);
         }
         else throw new IllegalArgumentException("Le message est différent de 0 ou 1");
 
@@ -168,21 +168,21 @@ public class Chiffrement {
         pPrime = p.add(BigInteger.valueOf(-1)).divide(BigInteger.TWO);
 
         //on vérifie p0
-        System.out.println(g.modPow(preuve.getRep0(), pPrime).multiply(c.getU().modPow(preuve.getChall0(), p)).mod(p) + " " + preuve.getA0());
-        boolean a0 = g.modPow(preuve.getRep0(), p).multiply(c.getU().modPow(preuve.getChall0(), p)).mod(p)      .equals(       preuve.getA0());
-        System.out.println(h.modPow(preuve.getRep0(), p).multiply(c.getV().modPow(preuve.getChall0(), p)).mod(p) + " " + preuve.getB0());
-        boolean b0 = h.modPow(preuve.getRep0(), p).multiply(c.getV().modPow(preuve.getChall0(), p)).mod(p)      .equals(       preuve.getB0());
+        boolean checkA0 = g.modPow(preuve.getRep0(), p).multiply(c.getU().modPow(preuve.getChall0(), p)).mod(p)      .equals(       preuve.getA0());
+        boolean checkB0 = h.modPow(preuve.getRep0(), p).multiply(c.getV().modPow(preuve.getChall0(), p)).mod(p)      .equals(       preuve.getB0());
 
         //on vérifie p1
-        boolean a1 = g.modPow(preuve.getRep1(), p).multiply(c.getU().modPow(preuve.getChall1(), p)).mod(p)                               .equals(       preuve.getA1());
-        boolean b1 = h.modPow(preuve.getRep1(), p).multiply(c.getV().multiply(g.modInverse(p)).modPow(preuve.getChall1(), p)).mod(p)     .equals(       preuve.getB1());
+        boolean checkA1 = g.modPow(preuve.getRep1(), p).multiply(c.getU().modPow(preuve.getChall1(), p)).mod(p)                               .equals(       preuve.getA1());
+        boolean checkB1 = h.modPow(preuve.getRep1(), p).multiply(c.getV().multiply(g.modInverse(p)).modPow(preuve.getChall1(), p)).mod(p)     .equals(       preuve.getB1());
 
         //on vérifie que le haché soit le bon (cf. '2' dans 'vérification' de ZKor.pdf)
         boolean lesHachesSontEgaux = hacher(c.getU(), c.getV(), preuve.getA0(), preuve.getB0(), preuve.getA1(), preuve.getB1()).mod(pPrime)    .equals(    preuve.getChall0().add(preuve.getChall1()).mod(pPrime));
 
-        System.out.println(a0 + " " + b0 + " " + a1 + " " + b1 + " " + lesHachesSontEgaux);
+        System.out.println(checkA0 + " " + checkB0 + " " + checkA1 + " " + checkB1 + " " + lesHachesSontEgaux);
 
-        return a0 & a1 & b0 & b1 & lesHachesSontEgaux;
+
+
+        return checkA0 & checkA1 & checkB0 & checkB1 & lesHachesSontEgaux;
     }
 
     /**
