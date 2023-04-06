@@ -20,17 +20,26 @@ public class Conf {
     /**
      * Définie le type de base de données que le serveur doit utiliser pour stocker les informations sur les votes
      */
-    public final static BasesDeDonnees BASE_DE_DONNEES = BasesDeDonnees.ORACLE;
+    public final static BasesDeDonnees BASE_DE_DONNEES =
+            System.getenv("BDD") == null
+                    ? BasesDeDonnees.ORACLE
+                    : System.getenv("BDD").equals("MYSQL")
+                        ? BasesDeDonnees.MYSQL
+                        : BasesDeDonnees.ORACLE;
+
 
     /**
      * true si les sockets utilisés doivent être SSL
      */
-    public final static boolean UTILISE_SSL = false;
+    public final static boolean UTILISE_SSL =
+            System.getenv("UTILISE_SSL") != null && Boolean.parseBoolean(System.getenv("UTILISE_SSL"));
 
     /**
      * Défini le numéro de port à utiliser pour les sockets
      */
-    public final static int PORT = 3615;
+    public final static int PORT = System.getenv("PORT") == null
+            ? 15000
+            : Integer.parseInt(System.getenv("PORT"));
 
     /**
      * true si le déchiffrement doit tester toutes les valeurs entières possibles (retire une couche de sécurité)

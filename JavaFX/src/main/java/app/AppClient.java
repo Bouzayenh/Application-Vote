@@ -153,6 +153,7 @@ public class AppClient {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
             System.out.println("Erreur critique : Impossible de se connecter au serveur. Arrêt du client");
         }
     }

@@ -187,7 +187,7 @@ public class AppServeur2 {
     }
 
     public static void arreterServeur(){
-        System.out.println("Arrêt du serveyr");
+        System.out.println("Arrêt du serveur");
         System.exit(0); //extrêmement irresponsable
     }
 

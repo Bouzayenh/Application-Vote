@@ -14,14 +14,18 @@ import dataobject.paquet.*;
 import dataobject.paquet.feedback.*;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.GeneralSecurityException;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -44,7 +48,9 @@ public class Serveur {
     /**
      * Permet de limiter l'accès, le serveur sera toujours en marche et pourra traiter les demandes des clients, mais l'administrateur ne pourra pas accéder à ses fonctions.
      */
-    private boolean verouille = true;
+    // private boolean verouille = false;
+    private boolean verouille = System.getenv("VEROUILLE") != null
+            && Boolean.parseBoolean(System.getenv("VEROUILLE"));
 
 
     private Serveur() throws IOException, SQLException {
@@ -59,6 +65,27 @@ public class Serveur {
 
         //SSL ou non-SSL
         if (Conf.UTILISE_SSL){
+            /*
+            try {
+                InputStream keyStoreStream = getClass().getResourceAsStream("/ssl/saeKeyStore.jks");
+                KeyStore keyStore = KeyStore.getInstance("JKS");
+                keyStore.load(keyStoreStream, "capybara".toCharArray());
+
+                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                keyManagerFactory.init(keyStore, "capybara".toCharArray());
+
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+
+                SSLServerSocketFactory sslServerSocketFactory = sslContext.getServerSocketFactory();
+                serverSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(Conf.PORT);
+            }  catch (UnrecoverableKeyException | CertificateException | KeyStoreException | NoSuchAlgorithmException |
+                      KeyManagementException e) {
+                System.out.println("Certificat introuvable ... ");
+                System.exit(1);
+            }
+
+             */
             System.setProperty("javax.net.ssl.keyStore", "JavaFX/src/main/resources/ssl/saeKeyStore.jks");
             System.setProperty("javax.net.ssl.keyStorePassword", "capybara");
             SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();

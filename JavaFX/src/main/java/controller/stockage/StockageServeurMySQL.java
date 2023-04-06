@@ -16,14 +16,20 @@ public class StockageServeurMySQL implements IStockageServeur{
     private Connection connection;
 
     public StockageServeurMySQL() throws SQLException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (Exception e) {
+            System.out.println("Class form name crash ...");
+        }
+        String hostname = System.getenv("BDD_HOSTNAME") == null ? "localhost" : System.getenv("BDD_HOSTNAME");
+
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/sae",
+                "jdbc:mysql://" + hostname + ":3306/sae",
                 "ServeurSAE",
                 "jesuisleserveurdelasae"
         );
     }
 
-    @Override
     public void creerVote(Vote vote) {
 
         try {
@@ -49,11 +55,10 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public Set<Vote> getVotes() {
         try {
             ResultSet result = connection.createStatement().executeQuery(
-                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT, DATEFIN, HEUREFIN FROM SAE_VOTES ORDER BY IDVOTE"
+                    "SELECT IDVOTE, INTITULE, OPTION1, OPTION2, RESULTAT, DATEFIN, HEUREFIN FROM SAEVOTES ORDER BY IDVOTE"
             );
 
             Set<Vote> votes = new HashSet<>();
@@ -76,11 +81,10 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public Vote getVote(int idVote) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT FROM SAE_VOTES" +
+                    "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT FROM SAEVOTES" +
                             " WHERE IDVOTE = ?"
             );
 
@@ -112,7 +116,6 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public void updateUrne(int idVote, Chiffre urne) {
         try {
             PreparedStatement statement = connection.prepareStatement(
@@ -130,7 +133,6 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public void voter(String login, int idVote) {
         try {
             PreparedStatement statement = connection.prepareStatement(
@@ -146,12 +148,11 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public boolean aVote(String login, int idVote) {
         try {
 
             PreparedStatement statement = connection.prepareStatement(
-                    "SELECT COUNT(*) FROM SAE_VOTER WHERE LOGIN = ? AND IDVOTE = ?"
+                    "SELECT COUNT(*) FROM SAEVOTER WHERE LOGIN = ? AND IDVOTE = ?"
             );
 
             statement.setString(1, login);
@@ -167,7 +168,6 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public void terminerVote(int idVote, double resultat) {
         try {
 
@@ -184,13 +184,12 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public boolean verifierMotDePasse(Utilisateur utilisateur) {
 
         try {
 
             PreparedStatement statement = connection.prepareStatement(
-                    "SELECT COUNT(LOGIN) FROM SAE_UTILISATEURS WHERE LOGIN = ? AND MOTDEPASSE = ?"
+                    "SELECT COUNT(LOGIN) FROM SAEUTILISATEURS WHERE LOGIN = ? AND MOTDEPASSE = ?"
             );
 
             statement.setString(1, utilisateur.getLogin());
@@ -207,12 +206,11 @@ public class StockageServeurMySQL implements IStockageServeur{
 
     }
 
-    @Override
     public Set<Utilisateur> getUtilisateurs() {
         try {
 
             ResultSet result = connection.createStatement().executeQuery(
-                    "SELECT LOGIN, MOTDEPASSE, EMAIL FROM SAE_UTILISATEURS"
+                    "SELECT LOGIN, MOTDEPASSE, EMAIL FROM SAEUTILISATEURS"
             );
 
             Set<Utilisateur> utilisateurs = new HashSet<>();
@@ -232,7 +230,6 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public void creerUtilisateur(Utilisateur utilisateur) {
         try {
 
@@ -251,11 +248,10 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public void supprimerUtilisateur(String login) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM SAE_UTILISATEURS WHERE LOGIN = ?"
+                    "DELETE FROM SAEUTILISATEURS WHERE LOGIN = ?"
             );
 
             statement.setString(1, login);
@@ -268,7 +264,6 @@ public class StockageServeurMySQL implements IStockageServeur{
 
     }
 
-    @Override
     public void mettreAJourUtilisateurMotDePasse(Utilisateur utilisateur) {
         try {
             PreparedStatement statement = connection.prepareStatement(
@@ -285,7 +280,6 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public void mettreAJourUtilisateurEmail(Utilisateur utilisateur) {
 
         try {
@@ -303,11 +297,10 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public String getUtilisateurEmail(String login) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "SELECT EMAIL FROM SAE_UTILISATEURS WHERE LOGIN = ?"
+                    "SELECT EMAIL FROM SAEUTILISATEURS WHERE LOGIN = ?"
             );
 
             statement.setString(1, login);
@@ -322,11 +315,10 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
     }
 
-    @Override
     public int getNbVotants(int idVote) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "SELECT COUNT(*) FROM SAE_VOTER WHERE IDVOTE = ?"
+                    "SELECT COUNT(*) FROM SAEVOTER WHERE IDVOTE = ?"
             );
 
             statement.setInt(1, idVote);

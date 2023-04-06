@@ -36,11 +36,12 @@ public class Scrutateur {
      */
     public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
 
-        stockageScrutateur = new StockageScrutateurJSON("JavaFX/src/main/resources/scrutateur/cle.json");
+        stockageScrutateur = new StockageScrutateurJSON("cle.json");
         this.l = l;
 
         if (Conf.UTILISE_SSL){
-            System.setProperty("javax.net.ssl.trustStore", "JavaFX/src/main/resources/ssl/saeTrustStore.jts");
+            System.setProperty("javax.net.ssl.trustStore", getClass().getResource("/ssl/saeTrustStore.jts").getPath());
+
             System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             serveur = new RecepteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", Conf.PORT));
