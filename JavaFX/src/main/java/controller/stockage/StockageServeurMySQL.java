@@ -18,7 +18,7 @@ public class StockageServeurMySQL implements IStockageServeur{
     public StockageServeurMySQL() throws SQLException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             System.out.println("Class form name crash ...");
         }
         String hostname = System.getenv("BDD_HOSTNAME") == null ? "localhost" : System.getenv("BDD_HOSTNAME");
@@ -341,4 +341,32 @@ public class StockageServeurMySQL implements IStockageServeur{
         }
         return null;
     }
+
+    @Override
+    public void setPassword(String hash) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE SAEPASSWORD SET PASSWORD = ? WHERE ID = 1"
+            );
+            statement.setString(1, hash);
+            statement.executeUpdate();
+        } catch (SQLException ignored){}
+    }
+
+    @Override
+    public String getPassword() {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT PASSWORD FROM SAEPASSWORD"
+            );
+
+            ResultSet result = statement.executeQuery();
+            result.next();
+            return result.getString(1);
+
+        }catch (SQLException e){
+            return "";
+        }
+    }
+
 }

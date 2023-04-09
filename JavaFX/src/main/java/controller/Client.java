@@ -36,9 +36,9 @@ public class Client {
             System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
 
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            serveur = new EmetteurConnexion(sslSocketFactory.createSocket("localhost", Conf.PORT));
+            serveur = new EmetteurConnexion(sslSocketFactory.createSocket(Conf.IP, Conf.PORT));
         }else {
-            serveur = new EmetteurConnexion(new Socket("localhost", Conf.PORT));
+            serveur = new EmetteurConnexion(new Socket(Conf.IP, Conf.PORT));
         }
 
         // identification

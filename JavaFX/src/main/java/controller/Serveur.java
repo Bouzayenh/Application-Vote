@@ -18,10 +18,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.*;
@@ -33,7 +30,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.Set;
 
 public class Serveur {
@@ -53,15 +49,12 @@ public class Serveur {
             && Boolean.parseBoolean(System.getenv("VEROUILLE"));
 
 
-    private Serveur() throws IOException, SQLException {
+    private Serveur() throws IOException {
 
         utilisateursAuthentifies = new HashSet<>();
 
         //SGBD
-        switch (Conf.BASE_DE_DONNEES){
-            case ORACLE -> stockageServeur = new StockageServeurOracle();
-            case MYSQL -> stockageServeur = new StockageServeurMySQL();
-        }
+        stockageServeur = initDB();
 
         //SSL ou non-SSL
         if (Conf.UTILISE_SSL){
@@ -93,6 +86,20 @@ public class Serveur {
         }
         else {
             serverSocket = new ServerSocket(Conf.PORT);
+        }
+    }
+
+    public static IStockageServeur initDB()  {
+        try {
+            return switch (Conf.BASE_DE_DONNEES){
+                case ORACLE -> new StockageServeurOracle();
+                case MYSQL -> new StockageServeurMySQL();
+            };
+        } catch (SQLException e) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {}
+            return initDB();
         }
     }
 
@@ -133,44 +140,16 @@ public class Serveur {
     }
 
     private void setMotDePasseServeur(String motDePasseServeur){
-
-        File pwd = new File("JavaFX/src/main/resources/serveur/pwd");
-
-        try{
-            //si le fichier n'existe pas, le créé (ce cas de figure ne devrait pas arriver lors d'une utilisation normale)
-            pwd.createNewFile();
-
-            FileWriter fileWriter = new FileWriter(pwd);
-            fileWriter.write(BCrypt.hashpw(motDePasseServeur, BCrypt.gensalt()));
-            fileWriter.close();
-
-        } catch (IOException ignored) {}
-
+        stockageServeur.setPassword(BCrypt.hashpw(motDePasseServeur, BCrypt.gensalt()));
     }
+
     private String getMotDePasseServeur(){
-
-        String motDePasseServeur = "";
-
-        File pwd = new File("JavaFX/src/main/resources/serveur/pwd");
-
-        try {
-            //si le fichier n'existe pas, le créé avec pour mot de passe "admin".
-            if (pwd.createNewFile()){
-
-                FileWriter fileWriter = new FileWriter(pwd);
-                fileWriter.write(BCrypt.hashpw("admin", BCrypt.gensalt()));
-                fileWriter.close();
-            }
-
-            Scanner scanner = new Scanner(pwd);
-            motDePasseServeur = scanner.nextLine();
-            scanner.close();
-
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
+        String pass = stockageServeur.getPassword();
+        if (pass == null || pass.equals("")) {
+            setMotDePasseServeur("admin");
+            pass = stockageServeur.getPassword();
         }
-
-        return motDePasseServeur;
+        return pass;
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException {
@@ -429,25 +408,18 @@ public class Serveur {
                                         else if (vote.estFini())
                                             client.ecrireException(new VoteTermineException());
                                         else {
-                                            System.out.println("1");
                                             scrutateur.ecrirePaquet(new DemanderClePubliquePaquet(bulPaquet.getIdVote()));
-                                            System.out.println("2");
                                             try {
                                                 // agrège le bulletin dans l'urne
                                                 ClePubliqueFeedbackPaquet clePaquet = (ClePubliqueFeedbackPaquet) scrutateur.lireFeedback();
                                                 Chiffre bulletin = bulPaquet.getBulletin();
-                                                System.out.println("3");
                                                 stockageServeur.updateUrne(
                                                         bulPaquet.getIdVote(),
                                                         Chiffrement.agreger(bulletin, vote.getUrne(), clePaquet.getClePublique())
                                                 );
-                                                System.out.println("4");
                                                 stockageServeur.voter(idUtilisateurCourant, bulPaquet.getIdVote());
-                                                System.out.println("5");
                                                 client.ecrireConfirmation();
-                                                System.out.println("6");
                                                 new Mail().envoyerMailDepotBulletin(stockageServeur.getUtilisateur(idUtilisateurCourant).getEmail(),stockageServeur.getVote(bulPaquet.getIdVote()));
-                                                System.out.println("7");
                                             } catch (FeedbackException e) {
                                                 client.ecrireException(e);
                                             } catch (Exception e) {

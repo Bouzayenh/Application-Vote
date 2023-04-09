@@ -32,7 +32,17 @@ public class Conf {
      * true si les sockets utilisés doivent être SSL
      */
     public final static boolean UTILISE_SSL =
-            System.getenv("UTILISE_SSL") != null && Boolean.parseBoolean(System.getenv("UTILISE_SSL"));
+            System.getenv("UTILISE_SSL") != null
+                    && Boolean.parseBoolean(System.getenv("UTILISE_SSL"));
+
+
+    /**
+     * Défini l'adresse IP à utiliser pour les sockets
+     */
+    public static final String  IP = System.getenv("IP") == null
+        ? "localhost"
+        : System.getenv("IP");
+
 
     /**
      * Défini le numéro de port à utiliser pour les sockets

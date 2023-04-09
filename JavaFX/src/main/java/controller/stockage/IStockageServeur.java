@@ -117,4 +117,8 @@ public interface IStockageServeur {
      * @return Objet utilisateur avec le login passé en paramètre null sinon.
      */
     Utilisateur getUtilisateur(String login);
+
+    void setPassword(String hash);
+
+    String getPassword();
 }
