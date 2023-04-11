@@ -3,8 +3,7 @@ package controller;
 import controller.communication.Connexion;
 import controller.communication.RecepteurConnexion;
 import controller.config.Conf;
-import controller.stockage.IStockageScrutateur;
-import controller.stockage.StockageScrutateurJSON;
+import controller.stockage.*;
 import dataobject.Chiffre;
 import dataobject.ClePublique;
 import dataobject.exception.BulletinInvalideException;
@@ -17,6 +16,7 @@ import dataobject.Chiffrement;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
@@ -36,17 +36,30 @@ public class Scrutateur {
      */
     public Scrutateur(int l) throws IOException, ClassNotFoundException, SQLException {
 
-        stockageScrutateur = new StockageScrutateurJSON("cle.json");
+
+        // init BDD
+        System.out.println("Connection à la BDD en cours");
+        while (stockageScrutateur == null) {
+            try {
+                stockageScrutateur = new StockageScrutateurMySQL();
+            } catch (SQLException e) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException z) {}
+            }
+        }
+
         this.l = l;
 
+        System.out.println("Connexion au serveur...");
         if (Conf.UTILISE_SSL){
             System.setProperty("javax.net.ssl.trustStore", getClass().getResource("/ssl/saeTrustStore.jts").getPath());
 
             System.setProperty("javax.net.ssl.trustStorePassword", "caracal");
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            serveur = new RecepteurConnexion((SSLSocket) sslSocketFactory.createSocket("localhost", Conf.PORT));
+            serveur = new RecepteurConnexion((SSLSocket) sslSocketFactory.createSocket(Conf.IP, Conf.PORT));
         }else {
-            serveur = new RecepteurConnexion(new Socket("localhost", Conf.PORT));
+            serveur = new RecepteurConnexion(new Socket(Conf.IP, Conf.PORT));
         }
 
         // identification

@@ -35,7 +35,7 @@ public class StockageServeurMySQL implements IStockageServeur{
         try {
 
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO SAE_VOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT, DATEFIN, HEUREFIN)" +
+                    "INSERT INTO SAEVOTES(IDVOTE, INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT, DATEFIN, HEUREFIN)" +
                             " VALUES (?, ?, ?, ?, ?, ?, -1, ?, ?)"
             );
 
@@ -119,7 +119,7 @@ public class StockageServeurMySQL implements IStockageServeur{
     public void updateUrne(int idVote, Chiffre urne) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE SAE_VOTES SET URNE_U = ?, URNE_V = ?, NBBULLETINS = NBBULLETINS + 1 WHERE IDVOTE = ?"
+                    "UPDATE SAEVOTES SET URNE_U = ?, URNE_V = ?, NBBULLETINS = NBBULLETINS + 1 WHERE IDVOTE = ?"
             );
 
             statement.setString(1, urne.getU().toString());
@@ -136,7 +136,7 @@ public class StockageServeurMySQL implements IStockageServeur{
     public void voter(String login, int idVote) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO SAE_VOTER(LOGIN, IDVOTE) VALUES (?, ?)"
+                    "INSERT INTO SAEVOTER(LOGIN, IDVOTE) VALUES (?, ?)"
             );
 
             statement.setString(1, login);
@@ -172,7 +172,7 @@ public class StockageServeurMySQL implements IStockageServeur{
         try {
 
             PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE SAE_VOTES SET RESULTAT = ? WHERE IDVOTE = ?"
+                    "UPDATE SAEVOTES SET RESULTAT = ? WHERE IDVOTE = ?"
             );
 
             statement.setDouble(1, resultat);
@@ -234,7 +234,7 @@ public class StockageServeurMySQL implements IStockageServeur{
         try {
 
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO SAE_UTILISATEURS(LOGIN, MOTDEPASSE, EMAIL) VALUES (?, ?, ?)"
+                    "INSERT INTO SAEUTILISATEURS(LOGIN, MOTDEPASSE, EMAIL) VALUES (?, ?, ?)"
             );
 
             statement.setString(1, utilisateur.getLogin());
@@ -267,7 +267,7 @@ public class StockageServeurMySQL implements IStockageServeur{
     public void mettreAJourUtilisateurMotDePasse(Utilisateur utilisateur) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE SAE_UTILISATEURS SET MOTDEPASSE = ? WHERE LOGIN = ?"
+                    "UPDATE SAEUTILISATEURS SET MOTDEPASSE = ? WHERE LOGIN = ?"
             );
 
             statement.setString(1, utilisateur.getMotDePasse());
@@ -284,7 +284,7 @@ public class StockageServeurMySQL implements IStockageServeur{
 
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE SAE_UTILISATEURS SET EMAIL = ? WHERE LOGIN = ?"
+                    "UPDATE SAEUTILISATEURS SET EMAIL = ? WHERE LOGIN = ?"
             );
 
             statement.setString(1, utilisateur.getEmail());

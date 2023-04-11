@@ -10,7 +10,6 @@ public class AppScrutateur {
     public static void main(String[] args) {
         try {
             // initialisation
-            System.out.println("Connexion au serveur...");
             Scrutateur scrutateur = new Scrutateur(100);
             System.out.println("Connecté avec succès. Scrutateur lancé");
             scrutateur.run();
