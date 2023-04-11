@@ -31,6 +31,7 @@ public class Scrutateur {
     private int l;
     private RecepteurConnexion serveur;
 
+
     /**
      * @param l La longueur en nombre de bits des clés générées.
      */
@@ -64,6 +65,62 @@ public class Scrutateur {
 
         // identification
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.SCRUTATEUR));
+    }
+
+    //Construcytor for tests
+    public Scrutateur(int l, IStockageScrutateur stockageScrutateur, RecepteurConnexion serveur) throws IOException, ClassNotFoundException, SQLException {
+        this.stockageScrutateur = stockageScrutateur;
+        this.l = l;
+        this.serveur = serveur;
+    }
+
+    //duplication de code run pour processer un seul paquet a la fois necessaire pour les tests
+    public void processPacket(Paquet paquet) throws IOException {
+        ClePublique clePublique;
+        BigInteger clePrivee;
+        switch (paquet.getType()) {
+            case HEARTBEAT:
+                serveur.ecrireConfirmation();
+                break;
+
+            case DEMANDER_CLE_PUBLIQUE:
+                clePublique = stockageScrutateur.getClePublique(((DemanderClePubliquePaquet) paquet).getIdVote());
+                if (clePublique == null)
+                    serveur.ecrireException(new VoteInexistantException());
+                else
+                    serveur.ecrirePaquet(new ClePubliqueFeedbackPaquet(clePublique));
+                break;
+
+            case CREER_VOTE:
+                BigInteger[] cles = Chiffrement.keygen(l);
+                int idVote = stockageScrutateur.insererVote(cles[0], cles[1], cles[2], cles[3]);
+                Chiffre urneZero = Chiffrement.encrypt(0, new ClePublique(cles[0], cles[1], cles[2]));
+                serveur.ecrirePaquet(new CreerVoteFeedbackPaquet(idVote, urneZero));
+                break;
+
+            case DECHIFFRER:
+                DechiffrerPaquet dechiffrerPaquet = (DechiffrerPaquet) paquet;
+                clePublique = stockageScrutateur.getClePublique(dechiffrerPaquet.getIdVote());
+                clePrivee = stockageScrutateur.getClePrivee(dechiffrerPaquet.getIdVote());
+                if (clePublique == null)
+                    serveur.ecrireException(new VoteInexistantException());
+                else {
+                    int total;
+                    if (Conf.DECHIFFREMENT_EXHAUSTIF)
+                        total = Chiffrement.decrypt(
+                                dechiffrerPaquet.getChiffre(),
+                                Integer.MAX_VALUE,
+                                clePublique, clePrivee);
+                    else
+                        total = Chiffrement.decrypt(
+                                dechiffrerPaquet.getChiffre(),
+                                dechiffrerPaquet.getNbBulletins(),
+                                clePublique, clePrivee);
+                    serveur.ecrirePaquet(new DechiffrerFeedbackPaquet(total / (double) dechiffrerPaquet.getNbBulletins()
+                    ));
+                }
+                break;
+        }
     }
 
     public void run() {

@@ -45,6 +45,11 @@ public class Client {
         serveur.ecrirePaquet(new IdentificationPaquet(Connexion.Source.CLIENT));
     }
 
+    // constructeur pour les tests
+    public Client(EmetteurConnexion emetteurConnexion) {
+        serveur = emetteurConnexion;
+    }
+
     public List<Vote> consulterVotesEnCours() throws FeedbackException, IOException, ClassNotFoundException {
         List<Vote> votes = new ArrayList<>(consulterVotes());
         votes.removeIf(Vote::estFini);

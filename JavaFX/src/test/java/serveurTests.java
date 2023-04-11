@@ -3,7 +3,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 
-import controller.Scrutateur;
+
 import controller.Serveur;
 import controller.communication.EmetteurConnexion;
 import controller.stockage.IStockageServeur;
@@ -60,7 +60,7 @@ public class serveurTests {
         closeable.close();
     }
 
-
+    //
     @Test
     public void testConsulterVotes() throws Exception {
         Set<Vote> votes = new HashSet<>();
@@ -147,5 +147,4 @@ public class serveurTests {
         verify(stockageServeur, times(1)).terminerVote(idVote, paquet.getResultat());
     }
 
-    ///a finir
 }
