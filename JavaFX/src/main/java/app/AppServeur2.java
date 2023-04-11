@@ -66,6 +66,7 @@ public class AppServeur2 {
                             case 8 -> changerMotDePasse();
                             case 9 -> verrouillerServeur();
                             case 0 -> arreterServeur();
+                            case 1111 -> arreterVote();
                             case -1 -> System.out.println("Commande non-reconnue.");
                         }
                     } catch (FeedbackException e) {
@@ -82,6 +83,10 @@ public class AppServeur2 {
             e.printStackTrace();
             System.out.println("Erreur critique : Arrêt du serveur");
         }
+    }
+
+    private static void arreterVote() throws FeedbackException, IOException, ClassNotFoundException {
+        serveur.terminerVote(demanderInt("Identifiant du vote : "));
     }
 
     public static String demanderString (String intitule){
