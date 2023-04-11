@@ -81,9 +81,7 @@ public class Client {
         serveur.ecrirePaquet(new DemanderClePubliquePaquet(idVote));
         ClePubliqueFeedbackPaquet paquet = (ClePubliqueFeedbackPaquet) serveur.lireFeedback();
         serveur.ecrirePaquet(new BulletinPaquet(Chiffrement.encrypt(bulletin-1, paquet.getClePublique()), idVote));
-        System.out.println("1");
         serveur.lireFeedback();
-        System.out.println("2");
     }
 
     public Set<Vote> consulterVotes() throws FeedbackException, IOException, ClassNotFoundException {

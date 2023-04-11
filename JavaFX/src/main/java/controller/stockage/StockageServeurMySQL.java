@@ -84,7 +84,7 @@ public class StockageServeurMySQL implements IStockageServeur{
     public Vote getVote(int idVote) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT FROM SAEVOTES" +
+                    "SELECT INTITULE, OPTION1, OPTION2, URNE_U, URNE_V, RESULTAT, dateFin, heureFin FROM SAEVOTES" +
                             " WHERE IDVOTE = ?"
             );
 
